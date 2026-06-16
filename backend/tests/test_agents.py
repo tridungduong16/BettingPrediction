@@ -1,7 +1,55 @@
 from __future__ import annotations
 
+import importlib
+
+from app.agents import model_adapters
 from app.agents.model_adapters import normalize_bifrost_model_name
 from app.agents.prediction_chat import FutboliaPredictionAgent, PredictionAgentContext
+
+
+def test_app_config_loads_backend_dotenv_before_reading_env(monkeypatch):
+    app_config_module = importlib.import_module("app.core.app_config")
+    app_config_module.get_app_config.cache_clear()
+    monkeypatch.delenv("BIFROST_ENDPOINT_URL", raising=False)
+    monkeypatch.delenv("BIFROST_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("MODEL_NAME", raising=False)
+
+    calls = []
+
+    def fake_load_dotenv(path, *, override=False):
+        calls.append((path, override))
+        monkeypatch.setenv("BIFROST_ENDPOINT_URL", "https://bifrost.example/v1/chat/completions")
+        monkeypatch.setenv("BIFROST_API_KEY", "bifrost-key")
+        monkeypatch.setenv("MODEL_NAME", "byteplus/deepseek-v4-pro-260425")
+        return True
+
+    monkeypatch.setattr(app_config_module, "load_dotenv", fake_load_dotenv)
+
+    try:
+        config = app_config_module.get_app_config()
+    finally:
+        app_config_module.get_app_config.cache_clear()
+
+    assert calls == [(app_config_module._backend_dir() / ".env", False)]
+    assert config.BIFROST_ENDPOINT_URL == "https://bifrost.example/v1"
+    assert config.BIFROST_API_KEY == "bifrost-key"
+    assert config.OPENAI_API_KEY == "bifrost-key"
+    assert config.MODEL_NAME == "byteplus/deepseek-v4-pro-260425"
+
+
+def test_bifrost_provider_uses_bifrost_api_key_not_openai_fallback(monkeypatch):
+    class DummyConfig:
+        BIFROST_ENDPOINT_URL = "https://bifrost.example/v1"
+        BIFROST_API_KEY = "bifrost-key"
+        OPENAI_API_KEY = "openai-key"
+
+    monkeypatch.setattr(model_adapters, "app_config", DummyConfig())
+
+    provider = model_adapters._bifrost_provider()
+
+    assert str(provider.base_url).rstrip("/") == "https://bifrost.example/v1"
+    assert provider.client.api_key == "bifrost-key"
 
 
 def test_normalize_bifrost_model_name_adds_default_provider():

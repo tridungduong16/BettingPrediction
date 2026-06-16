@@ -1,33 +1,27 @@
-import { Bell, Radio, Trophy } from 'lucide-react'
+import { Bell, Radio } from 'lucide-react'
 
 import styles from './Header.module.scss'
 
-const navItems = [
-  { label: 'Trận đấu', href: '#matches' },
-  { label: 'Dự đoán', href: '#predictions', isActive: true },
-  { label: 'Phân tích', href: '#insights' },
-  { label: 'Bảng xếp hạng', href: '#leaderboard' },
-]
+function Brand({ className }: { className?: string }) {
+  return (
+    <a className={[styles.brand, className].filter(Boolean).join(' ')} aria-label="Trang chủ Worldian" href="/">
+      <span className={styles.brandIcon}>
+        <img src="/brand/worldian-logo.png" alt="" aria-hidden="true" />
+      </span>
+      <span className={styles.brandText}>WORLDIAN</span>
+    </a>
+  )
+}
 
 export function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <a className={styles.brand} aria-label="Trang chủ Worldian" href="/">
-          <span className={styles.brandIcon}>
-            <Trophy size={25} aria-hidden="true" />
-          </span>
-          <span className={styles.brandText}>WORLDIAN</span>
-          <span className={styles.beta}>Beta</span>
-        </a>
+        <Brand className={styles.mobileBrand} />
 
-        <nav className={styles.nav} aria-label="Điều hướng chính">
-          {navItems.map((item) => (
-            <a key={item.href} className={item.isActive ? styles.activeNav : undefined} href={item.href}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
+        <div className={styles.centerBrand}>
+          <Brand className={styles.navBrand} />
+        </div>
 
         <div className={styles.actions}>
           <span className={styles.livePill}>

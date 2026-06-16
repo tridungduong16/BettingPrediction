@@ -5,6 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field, field_validator
 
 WorldCupSourceName = Literal["auto", "upbound", "openfootball"]
@@ -12,6 +13,10 @@ WorldCupSourceName = Literal["auto", "upbound", "openfootball"]
 
 def _backend_dir() -> Path:
     return Path(__file__).resolve().parents[3]
+
+
+def _load_backend_dotenv() -> None:
+    load_dotenv(_backend_dir() / ".env", override=False)
 
 
 def _split_csv(value: str | None, default: list[str]) -> list[str]:
@@ -123,6 +128,8 @@ class AppConfig(BaseModel):
 
 @lru_cache
 def get_app_config() -> AppConfig:
+    _load_backend_dotenv()
+
     default_origins = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",

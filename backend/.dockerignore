@@ -1,0 +1,12 @@
+.env
+.env.*
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+*.py[cod]
+*.log
+.DS_Store
+data/*.json
+!data/live_fixture_map.example.json
+tests

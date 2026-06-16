@@ -1,27 +1,20 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, type CSSProperties } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import {
   Activity,
   ArrowRight,
-  BarChart3,
   Bot,
-  BrainCircuit,
   ChevronDown,
   CloudRain,
   Crosshair,
   Flame,
-  Gauge,
   Goal,
-  Hospital,
-  Info,
-  Landmark,
   Radio,
   Scale,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   TrendingUp,
-  UsersRound,
   Zap,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -40,7 +33,6 @@ import {
 } from '@/store/features/dashboard/selectors'
 import { dashboardActions, type DashboardLiveStatus } from '@/store/features/dashboard/slice'
 import type { MarketFamily, MarketPrediction } from '@/store/features/dashboard/apiTypes'
-import type { FeedItem } from '@/store/features/dashboard/types'
 
 import styles from './Home.module.scss'
 
@@ -70,14 +62,6 @@ interface PickCard {
   selection: string
   title: string
   rank: string
-  tone: Tone
-}
-
-interface ContextTile {
-  icon: LucideIcon
-  label: string
-  value: string
-  detail: string
   tone: Tone
 }
 
@@ -113,89 +97,6 @@ const edgeFactors = [
 ] satisfies EdgeFactor[]
 
 const movementValues = [50, 51, 50, 52, 54, 53, 55, 54, 56, 52, 53, 52, 56, 55, 53, 54, 57, 55, 56, 58]
-
-const fallbackInsightCards = [
-  {
-    time: '18:41',
-    title: 'Mbappe bỏ ngỏ khả năng đá trận hôm nay.',
-    impact: '+1.2%',
-    affects: 'Brazil thắng',
-    tone: 'green',
-    isNew: true,
-  },
-  {
-    time: '18:35',
-    title: 'Brazil tung 18 cú sút trong 2 trận gần nhất.',
-    impact: '+0.9%',
-    affects: 'Brazil thắng',
-    tone: 'green',
-  },
-  {
-    time: '18:28',
-    title: 'Xác suất mưa hiện là 70% lúc bóng lăn.',
-    impact: '+0.4%',
-    affects: 'Dưới 2.5',
-    tone: 'blue',
-  },
-] satisfies Array<{
-  time: string
-  title: string
-  impact: string
-  affects: string
-  tone: Tone
-  isNew?: boolean
-}>
-
-const insightToneByFeedType: Record<FeedItem['type'], Tone> = {
-  card: 'orange',
-  goal: 'green',
-  lineup: 'green',
-  market: 'red',
-  model: 'green',
-  news: 'blue',
-  substitution: 'blue',
-  var: 'purple',
-}
-
-const insightImpactByFeedType: Record<FeedItem['type'], string> = {
-  card: '+0.3%',
-  goal: '+1.0%',
-  lineup: '+1.2%',
-  market: '-0.6%',
-  model: '+0.9%',
-  news: '+0.4%',
-  substitution: '+0.2%',
-  var: '+0.5%',
-}
-
-const insightAffectsByFeedType: Record<FeedItem['type'], string> = {
-  card: 'Kỷ luật',
-  goal: 'Tỷ số live',
-  lineup: 'Đội hình',
-  market: 'Brazil thắng',
-  model: 'Brazil thắng',
-  news: 'Dưới 2.5',
-  substitution: 'Nhịp độ',
-  var: 'Quyết định',
-}
-
-const quickActions = [
-  {
-    icon: Scale,
-    label: 'So sánh đội',
-    detail: 'Mở dữ liệu đầu vào về đối đầu',
-  },
-  {
-    icon: BarChart3,
-    label: 'Xem thống kê H2H',
-    detail: 'Hiển thị biến động xác suất lịch sử',
-  },
-  {
-    icon: UsersRound,
-    label: 'Đội hình sắp có',
-    detail: 'Theo dõi trạng thái xác nhận đội hình',
-  },
-]
 
 const liveStatusLabels: Record<DashboardLiveStatus, string> = {
   not_configured: 'chưa cấu hình',
@@ -368,8 +269,6 @@ export default function Home() {
   const marketPredictions = useAppSelector(selectMarketPredictions)
   const marketPredictionStatus = useAppSelector(selectMarketPredictionStatus)
   const marketPredictionError = useAppSelector(selectMarketPredictionError)
-  const [activeAction, setActiveAction] = useState(quickActions[0].label)
-
   const winnerOutcome = data.prediction.outcomes[0]
   const drawOutcome = data.prediction.outcomes[1]
   const awayOutcome = data.prediction.outcomes[2]
@@ -398,23 +297,6 @@ export default function Home() {
       dispatch(dashboardActions.stopLivePolling())
     }
   }, [dashboardStatus, dispatch, matchId])
-
-  const visibleInsightCards = useMemo(() => {
-    const feedItems = data.feed.length ? data.feed : []
-
-    if (!feedItems.length) {
-      return fallbackInsightCards
-    }
-
-    return feedItems.slice(0, 3).map((item) => ({
-      time: item.time,
-      title: item.detail || item.title,
-      impact: insightImpactByFeedType[item.type],
-      affects: insightAffectsByFeedType[item.type],
-      tone: insightToneByFeedType[item.type],
-      isNew: item.type === 'goal' || item.type === 'card' || item.type === 'var',
-    }))
-  }, [data.feed])
 
   const liveStatusMessage = useMemo(() => {
     if (dashboardStatus === 'error') {
@@ -456,46 +338,10 @@ export default function Home() {
     [marketPredictions],
   )
 
-  const contextTiles = useMemo(
-    () =>
-      [
-        {
-          icon: CloudRain,
-          label: 'Thời tiết',
-          value: '24°C',
-          detail: 'Mưa lớn, tác động cao',
-          tone: 'blue',
-        },
-        {
-          icon: Hospital,
-          label: 'Chấn thương',
-          value: '1',
-          detail: 'Nghi vấn trụ cột, trung vệ Pháp',
-          tone: 'red',
-        },
-        {
-          icon: Landmark,
-          label: 'Mặt sân',
-          value: 'Tốt',
-          detail: 'Bề mặt hơi ướt',
-          tone: 'green',
-        },
-        {
-          icon: Gauge,
-          label: 'Đà phong độ',
-          value: data.prediction.winner.toUpperCase(),
-          detail: 'Mạnh hơn trong 3 trận gần nhất',
-          tone: 'purple',
-        },
-      ] satisfies ContextTile[],
-    [data.prediction.winner],
-  )
-
-  const selectedAction = quickActions.find((action) => action.label === activeAction) ?? quickActions[0]
   const trend = formatTrend(winnerOutcome.trend)
 
   return (
-    <div className={styles.page} id="matches">
+    <div className={styles.page}>
       <div className={styles.breadcrumbRow}>
         <div className={styles.breadcrumbs} aria-label="Đường dẫn">
           <span>{data.match.competition}</span>
@@ -508,16 +354,16 @@ export default function Home() {
         </div>
       </div>
 
-      <section className={styles.heroCard} id="predictions" aria-label="Tổng quan dự đoán trận đấu">
+      <section className={styles.heroCard} id="matches" aria-label="Tổng quan dự đoán trận đấu">
         <div className={styles.matchStage}>
           <span className={clsx(styles.sideName, styles.sideNameHome)}>{data.match.homeTeam.name}</span>
           <span className={clsx(styles.sideName, styles.sideNameAway)}>{data.match.awayTeam.name}</span>
 
           <div className={clsx(styles.playerImage, styles.playerHome)}>
-            <img src="/images/worldian-brazil-forward.png" alt="" aria-hidden="true" />
+            <img src="/images/worldian-generic-home-athlete.png" alt="" aria-hidden="true" />
           </div>
           <div className={clsx(styles.playerImage, styles.playerAway)}>
-            <img src="/images/worldian-france-forward.png" alt="" aria-hidden="true" />
+            <img src="/images/worldian-generic-away-athlete.png" alt="" aria-hidden="true" />
           </div>
 
           <div className={styles.stageHeader}>
@@ -587,7 +433,7 @@ export default function Home() {
         </aside>
       </section>
 
-      <section className={styles.analysisGrid} aria-label="Phân tích dự đoán">
+      <section className={styles.analysisGrid} id="analysis" aria-label="Phân tích dự đoán">
         <section className={styles.reasonPanel} aria-labelledby="reason-heading">
           <div className={styles.panelHeader}>
             <h2 id="reason-heading">Vì sao AI nghiêng về {data.prediction.winner}</h2>
@@ -704,107 +550,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </section>
-
-      <section className={styles.bottomGrid} id="markets" aria-label="Bối cảnh trận đấu và công cụ mô hình">
-        <section className={styles.contextPanel}>
-          <div className={styles.panelHeader}>
-            <h2>Bối cảnh trận đấu</h2>
-          </div>
-          <div className={styles.contextGrid}>
-            {contextTiles.map((tile) => {
-              const Icon = tile.icon
-
-              return (
-                <article key={tile.label}>
-                  <Icon className={styles[tile.tone]} size={28} aria-hidden="true" />
-                  <span>{tile.label}</span>
-                  <strong>{tile.value}</strong>
-                  <p>{tile.detail}</p>
-                </article>
-              )
-            })}
-          </div>
-        </section>
-
-        <section className={styles.flowPanel}>
-          <div className={styles.panelHeader}>
-            <h2>Dòng tiền thị trường</h2>
-            <span className={styles.liveBadge}>
-              <Zap size={13} aria-hidden="true" />
-              Trực tiếp
-            </span>
-          </div>
-          <div className={styles.marketFlow}>
-            <span>33%</span>
-            <div aria-label="Dòng tiền thị trường: 33 phần trăm Brazil, 67 phần trăm Pháp">
-              <i />
-            </div>
-            <span>67%</span>
-          </div>
-          <div className={styles.flowLabels}>
-            <span>{winnerOutcome.label}</span>
-            <span>{awayOutcome.label}</span>
-          </div>
-          <div className={styles.moneyMove}>
-            <span>Dịch chuyển tiền lớn nhất</span>
-            <strong>
-              <TrendingUp size={15} aria-hidden="true" />
-              Pháp +8%
-            </strong>
-            <span>2 giờ qua</span>
-          </div>
-        </section>
-
-        <section className={styles.modelPanel} id="insights">
-          <div className={styles.panelHeader}>
-            <h2>Nhận định mô hình</h2>
-          </div>
-          <div className={styles.modelCopy}>
-            <BrainCircuit size={32} aria-hidden="true" />
-            <p>{data.reasoning.description}</p>
-          </div>
-          <div className={styles.feedStack}>
-            {visibleInsightCards.map((item) => (
-              <article key={`${item.time}-${item.title}`}>
-                <span>{item.time}</span>
-                <p>{item.title}</p>
-                <strong className={styles[item.tone]}>{item.impact}</strong>
-              </article>
-            ))}
-          </div>
-          <a href="#reason-heading">
-            Cách mô hình hoạt động
-            <ArrowRight size={15} aria-hidden="true" />
-          </a>
-        </section>
-
-        <aside className={styles.actionsPanel} aria-label="Thao tác nhanh">
-          <div className={styles.panelHeader}>
-            <h2>Thao tác nhanh</h2>
-          </div>
-          <div className={styles.actionsList}>
-            {quickActions.map((action) => {
-              const Icon = action.icon
-
-              return (
-                <button
-                  key={action.label}
-                  type="button"
-                  aria-pressed={activeAction === action.label}
-                  onClick={() => setActiveAction(action.label)}
-                >
-                  <Icon size={19} aria-hidden="true" />
-                  <span>{action.label}</span>
-                </button>
-              )
-            })}
-          </div>
-          <p>
-            <Info size={15} aria-hidden="true" />
-            {selectedAction.detail}
-          </p>
-        </aside>
       </section>
 
       <section className={styles.liveSummary} aria-label="Tóm tắt hệ thống">

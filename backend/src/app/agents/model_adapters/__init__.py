@@ -60,7 +60,7 @@ REASONING_SUFFIXES: tuple[tuple[str, str], ...] = (
 def _bifrost_provider() -> OpenAIProvider:
     return OpenAIProvider(
         base_url=app_config.BIFROST_ENDPOINT_URL,
-        api_key=app_config.BIFROST_API_KEY or app_config.OPENAI_API_KEY or "not-configured",
+        api_key=app_config.BIFROST_API_KEY,
     )
 
 
@@ -106,10 +106,13 @@ def _with_bifrost_network_timeout(model_settings: dict[str, Any]) -> dict[str, A
 
 
 def _request_tool_count(model_request_parameters: Any) -> int:
+    native_tools = getattr(model_request_parameters, "native_tools", None)
+    if native_tools is None:
+        native_tools = getattr(model_request_parameters, "builtin_tools", None)
     return (
         len(getattr(model_request_parameters, "function_tools", None) or [])
         + len(getattr(model_request_parameters, "output_tools", None) or [])
-        + len(getattr(model_request_parameters, "builtin_tools", None) or [])
+        + len(native_tools or [])
     )
 
 
@@ -150,12 +153,21 @@ class BifrostOpenAIChatModel(OpenAIChatModel):
             _request_tool_count(model_request_parameters),
             _request_timeout(model_settings),
         )
-        response = await super()._completions_create(
-            messages,
-            stream,
-            model_settings,
-            model_request_parameters,
-        )
+        try:
+            response = await super()._completions_create(
+                messages,
+                stream,
+                model_settings,
+                model_request_parameters,
+            )
+        except Exception:
+            logger.exception(
+                "Bifrost chat completion request failed: model=%s api_model=%s stream=%s",
+                self.configured_model_name,
+                self.model_name,
+                stream,
+            )
+            raise
         logger.debug(
             "Bifrost chat completion request opened: "
             "model=%s api_model=%s stream=%s elapsed_ms=%.1f",
@@ -202,12 +214,21 @@ class BifrostOpenAIResponsesModel(OpenAIResponsesModel):
             _request_tool_count(model_request_parameters),
             _request_timeout(model_settings),
         )
-        response = await super()._responses_create(
-            messages,
-            stream,
-            model_settings,
-            model_request_parameters,
-        )
+        try:
+            response = await super()._responses_create(
+                messages,
+                stream,
+                model_settings,
+                model_request_parameters,
+            )
+        except Exception:
+            logger.exception(
+                "Bifrost responses request failed: model=%s api_model=%s stream=%s",
+                self.configured_model_name,
+                self.model_name,
+                stream,
+            )
+            raise
         logger.debug(
             "Bifrost responses request opened: model=%s api_model=%s stream=%s elapsed_ms=%.1f",
             self.configured_model_name,

@@ -35,6 +35,23 @@ export interface WorldCupMatch {
   raw: Record<string, unknown>
 }
 
+export interface WorldCupSourceInfo {
+  name: string
+  year: number
+  source_name: string
+  source_url: string
+  source_text_url: string
+  fetched_at: string
+  cache_hit: boolean
+  stale_cache: boolean
+  match_count: number
+}
+
+export interface WorldCupDataset {
+  source: WorldCupSourceInfo
+  matches: WorldCupMatch[]
+}
+
 export type LiveProviderStatus = 'not_configured' | 'provider_error' | 'ready' | 'unmapped'
 export type LiveMatchPhase =
   | 'extra_time'

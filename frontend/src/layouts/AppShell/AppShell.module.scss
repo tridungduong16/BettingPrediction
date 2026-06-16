@@ -2,11 +2,34 @@
   min-height: 100vh;
 }
 
-.main {
+.body {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 16px;
   width: 100%;
   padding: 12px clamp(16px, 2vw, 24px) $space-8;
+  transition: grid-template-columns 180ms ease;
+}
 
-  @media (max-width: 640px) {
+.collapsed {
+  grid-template-columns: 66px minmax(0, 1fr);
+}
+
+.main {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 920px) {
+  .body,
+  .collapsed {
+    grid-template-columns: 1fr;
+    gap: $space-3;
+  }
+}
+
+@media (max-width: 640px) {
+  .body {
     padding: $space-4 $space-3 $space-6;
   }
 }
