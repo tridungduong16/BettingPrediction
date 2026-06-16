@@ -35,7 +35,7 @@ export function ChatPanel({ messages, prompts }: ChatPanelProps) {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         message:
-          'Đánh giá hiện tại: Brazil tăng xác suất vì chất lượng dứt điểm trung lộ cải thiện, còn bất định đội hình của Pháp vẫn chưa được giải quyết.',
+          'Đánh giá hiện tại đang dùng dữ liệu của trận này. Khi có live events, đội hình và thị trường mới, AI sẽ cập nhật lại reasoning theo đội đang được chọn.',
       },
     ])
     setDraft('')

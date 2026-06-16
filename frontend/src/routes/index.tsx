@@ -4,6 +4,7 @@ import App from '@/App'
 import { ROUTES } from '@/constants/routes'
 import Home from '@/pages/Home'
 import Matches from '@/pages/Matches'
+import { LegacyMatchDetailRedirect } from '@/routes/LegacyMatchDetailRedirect'
 
 export const router = createBrowserRouter([
   {
@@ -15,8 +16,16 @@ export const router = createBrowserRouter([
         element: <Matches />,
       },
       {
-        path: ROUTES.PREDICTION_ANALYSIS.slice(1),
+        path: ROUTES.MATCH_DETAIL.slice(1),
         element: <Home />,
+      },
+      {
+        path: 'phan-tich-du-doan',
+        element: <LegacyMatchDetailRedirect />,
+      },
+      {
+        path: 'du-doan',
+        element: <LegacyMatchDetailRedirect />,
       },
       {
         path: 'matches',

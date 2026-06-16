@@ -1,7 +1,9 @@
 import { useEffect, useMemo, type CSSProperties } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
 import {
   Activity,
+  ArrowLeft,
   ArrowRight,
   Bot,
   ChevronDown,
@@ -19,6 +21,7 @@ import {
 import clsx from 'clsx'
 
 import { env } from '@/config/env'
+import { ROUTES } from '@/constants/routes'
 import { useAppDispatch, useAppSelector } from '@/hooks/store'
 import {
   selectDashboardData,
@@ -64,37 +67,6 @@ interface PickCard {
   rank: string
   tone: Tone
 }
-
-const edgeFactors = [
-  {
-    icon: ShieldAlert,
-    label: 'Trung vệ Pháp bỏ ngỏ khả năng ra sân',
-    detail: 'Hậu vệ trụ cột Dayot Upamecano nhiều khả năng vắng mặt',
-    delta: '+1.8%',
-    tone: 'green',
-  },
-  {
-    icon: Activity,
-    label: 'Xu hướng xG của Brazil cải thiện',
-    detail: '1.72 xG trong 3 trận gần nhất',
-    delta: '+1.2%',
-    tone: 'green',
-  },
-  {
-    icon: CloudRain,
-    label: 'Dự báo mưa lớn tại Lusail',
-    detail: 'Điều kiện phù hợp với lối chơi của Brazil',
-    delta: '+0.6%',
-    tone: 'green',
-  },
-  {
-    icon: Scale,
-    label: 'Dòng cược công chúng nghiêng về Pháp',
-    detail: '67% lượt cược chọn Pháp thắng',
-    delta: '-0.8%',
-    tone: 'red',
-  },
-] satisfies EdgeFactor[]
 
 const fallbackMovementValues = [50, 51, 50, 52, 54, 53, 55, 54, 56, 52, 53, 52, 56, 55, 53, 54, 57, 55, 56, 58]
 const fallbackMovementTicks = ['17:45', '18:00', '18:15', '18:30', '18:42']
@@ -156,69 +128,6 @@ const feedTypeLabels: Record<FeedItemType, string> = {
   substitution: 'Thay người',
   var: 'VAR',
 }
-
-const fallbackMarketPicks: PickCard[] = [
-  {
-    id: 'asian-handicap',
-    title: 'Kèo Châu Á: Brazil -1.0',
-    selection: 'Brazil -1.0 thắng kèo',
-    reasoning:
-      'Brazil đang có lợi thế về chất lượng cơ hội và khả năng gây áp lực ở trung lộ, nên hướng handicap nghiêng nhẹ về cửa Brazil.',
-    rank: '#1',
-    tone: 'green',
-    icon: Scale,
-    confidence: 'Tin cậy vừa',
-    risk: 'Rủi ro vừa',
-  },
-  {
-    id: 'over-under',
-    title: 'Tài/Xỉu: Over 2.5 bàn',
-    selection: 'Over 2.5 bàn',
-    reasoning:
-      'Nhịp tấn công hai đội đủ cao để tạo nhiều pha dứt điểm, nhưng cần xác nhận đội hình trước khi nâng độ tin cậy.',
-    rank: '#2',
-    tone: 'blue',
-    icon: Goal,
-    confidence: 'Tin cậy vừa',
-    risk: 'Rủi ro cao',
-  },
-  {
-    id: 'one-x-two',
-    title: '1X2: Kết quả trận đấu',
-    selection: 'Brazil thắng',
-    reasoning:
-      'Mô hình đang nghiêng về Brazil nhờ chất lượng cú sút tốt hơn và rủi ro đội hình của Pháp ở hàng thủ.',
-    rank: '#3',
-    tone: 'purple',
-    icon: Flame,
-    confidence: 'Tin cậy vừa',
-    risk: 'Rủi ro thấp',
-  },
-  {
-    id: 'cards',
-    title: 'Thẻ phạt: Over 4.5 thẻ',
-    selection: 'Over 4.5 thẻ',
-    reasoning:
-      'Trận loại trực tiếp có xác suất va chạm và lỗi chiến thuật cao hơn, đặc biệt khi hai đội chuyển trạng thái nhanh.',
-    rank: '#4',
-    tone: 'orange',
-    icon: ShieldAlert,
-    confidence: 'Tin cậy thấp',
-    risk: 'Rủi ro vừa',
-  },
-  {
-    id: 'corners',
-    title: 'Corner: Over 9.5 góc',
-    selection: 'Over 9.5 góc',
-    reasoning:
-      'Brazil được dự báo ép biên nhiều hơn, tạo thêm các pha tạt bóng, sút bị chặn và tình huống phạt góc.',
-    rank: '#5',
-    tone: 'green',
-    icon: Crosshair,
-    confidence: 'Tin cậy vừa',
-    risk: 'Rủi ro vừa',
-  },
-]
 
 function buildSparkline(values: number[], width: number, height: number) {
   const min = Math.min(...values)
@@ -301,7 +210,109 @@ function formatTimelineTime(time: string) {
   return normalizedTime
 }
 
+function opponentForWinner(winner: string, homeTeam: string, awayTeam: string) {
+  return winner === awayTeam ? homeTeam : awayTeam
+}
+
+function buildEdgeFactors(homeTeam: string, awayTeam: string, winner: string): EdgeFactor[] {
+  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+
+  return [
+    {
+      icon: ShieldAlert,
+      label: `Thông tin đội hình của ${opponent} cần xác nhận`,
+      detail: 'Mô hình giữ độ tin cậy thận trọng cho tới khi có đội hình và tình trạng cầu thủ mới hơn.',
+      delta: '+1.4%',
+      tone: 'green',
+    },
+    {
+      icon: Activity,
+      label: `Tín hiệu xác suất của ${winner} ổn định`,
+      detail: `Cửa ${winner} đang nhỉnh hơn trong bộ xác suất hiện tại của trận ${homeTeam} vs ${awayTeam}.`,
+      delta: '+1.0%',
+      tone: 'green',
+    },
+    {
+      icon: CloudRain,
+      label: 'Bối cảnh sân và lịch thi đấu',
+      detail: 'Địa điểm, thời gian và trạng thái nguồn được dùng làm nền trước khi có live event chi tiết.',
+      delta: '+0.5%',
+      tone: 'green',
+    },
+    {
+      icon: Scale,
+      label: 'Dòng cược công chúng cần kiểm chứng',
+      detail: 'Chưa đủ dữ liệu public split đáng tin cậy, nên mô hình không cho tín hiệu thị trường lấn át dữ liệu trận.',
+      delta: '-0.7%',
+      tone: 'red',
+    },
+  ]
+}
+
+function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: string): PickCard[] {
+  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+
+  return [
+    {
+      id: 'asian-handicap',
+      title: `Kèo Châu Á: ${winner} -0.25`,
+      selection: `${winner} -0.25 thắng kèo`,
+      reasoning: `${winner} đang là cửa nghiêng tạm thời so với ${opponent}, nhưng handicap được giữ thấp vì còn thiếu dữ liệu live và đội hình mới nhất.`,
+      rank: '#1',
+      tone: 'green',
+      icon: Scale,
+      confidence: 'Tin cậy vừa',
+      risk: 'Rủi ro vừa',
+    },
+    {
+      id: 'over-under',
+      title: 'Tài/Xỉu: Over 2.5 bàn',
+      selection: 'Over 2.5 bàn',
+      reasoning: `Tổng bàn của ${homeTeam} vs ${awayTeam} cần thêm nhịp trận, cú sút và đội hình ra sân trước khi nâng độ tin cậy.`,
+      rank: '#2',
+      tone: 'blue',
+      icon: Goal,
+      confidence: 'Tin cậy vừa',
+      risk: 'Rủi ro cao',
+    },
+    {
+      id: 'one-x-two',
+      title: '1X2: Kết quả trận đấu',
+      selection: `${winner} thắng`,
+      reasoning: `Mô hình đang nghiêng về ${winner}; fallback này chỉ dùng dữ liệu trận hiện tại và không tái sử dụng luận điểm của cặp đấu mẫu.`,
+      rank: '#3',
+      tone: 'purple',
+      icon: Flame,
+      confidence: 'Tin cậy vừa',
+      risk: 'Rủi ro thấp',
+    },
+    {
+      id: 'cards',
+      title: 'Thẻ phạt: Over 4.5 thẻ',
+      selection: 'Over 4.5 thẻ',
+      reasoning: 'Kèo thẻ cần thêm dữ liệu trọng tài, cường độ tranh chấp và trạng thái trận trước khi có lựa chọn chắc hơn.',
+      rank: '#4',
+      tone: 'orange',
+      icon: ShieldAlert,
+      confidence: 'Tin cậy thấp',
+      risk: 'Rủi ro vừa',
+    },
+    {
+      id: 'corners',
+      title: 'Corner: Over 9.5 góc',
+      selection: 'Over 9.5 góc',
+      reasoning: `Kèo corner sẽ rõ hơn khi có hướng tấn công, số pha tạt bóng và cú sút bị chặn của ${homeTeam} hoặc ${awayTeam}.`,
+      rank: '#5',
+      tone: 'green',
+      icon: Crosshair,
+      confidence: 'Tin cậy vừa',
+      risk: 'Rủi ro vừa',
+    },
+  ]
+}
+
 export default function Home() {
+  const { matchId: routeMatchId } = useParams<{ matchId: string }>()
   const dispatch = useAppDispatch()
   const data = useAppSelector(selectDashboardData)
   const dashboardStatus = useAppSelector(selectDashboardStatus)
@@ -314,11 +325,11 @@ export default function Home() {
   const winnerOutcome = data.prediction.outcomes[0]
   const drawOutcome = data.prediction.outcomes[1]
   const awayOutcome = data.prediction.outcomes[2]
+  const homeTeamName = data.match.homeTeam.name
+  const awayTeamName = data.match.awayTeam.name
+  const predictedWinner = data.prediction.winner
 
-  const matchId = useMemo(() => {
-    const params = new URLSearchParams(window.location.search)
-    return params.get('matchId') ?? env.defaultMatchId
-  }, [])
+  const matchId = routeMatchId ?? env.defaultMatchId
 
   useEffect(() => {
     dispatch(dashboardActions.loadMatchRequested(matchId))
@@ -346,15 +357,25 @@ export default function Home() {
     }
 
     if (dashboardError && liveStatus !== 'ready') {
-      return `${dashboardError} Dự đoán mẫu vẫn đang hiển thị.`
+      return `${dashboardError} Đang dùng phân tích fallback theo dữ liệu trận hiện có.`
     }
 
     if (lastLiveSnapshotAt && liveStatus !== 'ready') {
-      return `Trạng thái nhà cung cấp live: ${liveStatusLabels[liveStatus]}. Dự đoán mẫu vẫn đang hiển thị.`
+      return `Trạng thái nhà cung cấp live: ${liveStatusLabels[liveStatus]}. Đang dùng phân tích fallback theo dữ liệu trận hiện có.`
     }
 
     return undefined
   }, [dashboardError, dashboardStatus, lastLiveSnapshotAt, liveStatus])
+
+  const edgeFactors = useMemo(
+    () => buildEdgeFactors(homeTeamName, awayTeamName, predictedWinner),
+    [awayTeamName, homeTeamName, predictedWinner],
+  )
+
+  const fallbackMarketPicks = useMemo(
+    () => buildFallbackMarketPicks(homeTeamName, awayTeamName, predictedWinner),
+    [awayTeamName, homeTeamName, predictedWinner],
+  )
 
   const topPicks = useMemo(
     () => {
@@ -377,7 +398,7 @@ export default function Home() {
         dataGaps: prediction.data_gaps,
       })) satisfies PickCard[]
     },
-    [marketPredictions],
+    [fallbackMarketPicks, marketPredictions],
   )
 
   const trend = formatTrend(winnerOutcome.trend)
@@ -388,6 +409,7 @@ export default function Home() {
   const hasMatchMinuteTimeline = data.feed.some((item) => isMatchMinuteTime(item.time))
   const timelineItems = hasMatchMinuteTimeline ? [...data.feed].reverse() : data.feed
   const liveScore = data.match.signals.find((signal) => signal.label.toLowerCase().includes('tỷ số'))?.value ?? '0-0'
+  const matchTitle = `${data.match.homeTeam.name} vs ${data.match.awayTeam.name}`
   const liveRailSubtitle =
     liveStatus === 'ready'
       ? 'Sự kiện, tỷ số và đồng hồ từ nhà cung cấp live'
@@ -398,16 +420,19 @@ export default function Home() {
       : marketPredictionStatus === 'ready'
         ? marketPredictions?.summary
         : marketPredictionStatus === 'error'
-          ? `Chưa lấy được dự đoán AI: ${marketPredictionError}. Đang hiển thị dữ liệu mẫu.`
+          ? `Chưa lấy được dự đoán AI: ${marketPredictionError}. Đang dùng fallback theo trận hiện tại.`
           : 'Mỗi kèo hiển thị hướng AI chọn và reasoning ngắn gọn từ service LLM.'
 
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumbRow}>
         <div className={styles.breadcrumbs} aria-label="Đường dẫn">
-          <span>{data.match.competition}</span>
+          <Link className={styles.backLink} to={ROUTES.HOME}>
+            <ArrowLeft size={14} aria-hidden="true" />
+            Trận đấu
+          </Link>
           <ArrowRight size={14} aria-hidden="true" />
-          <span>{data.match.round}</span>
+          <span>{matchTitle}</span>
         </div>
         <div className={styles.updated}>
           Cập nhật: {data.prediction.lastUpdated}

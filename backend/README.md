@@ -26,6 +26,7 @@ uv run python scripts/scrape_worldcup.py --year 2026 --force
 - `GET /api/live/matches/{match_id}/events`
 - `GET /api/live/provider-fixtures/search?date=2026-06-11&team=Mexico`
 - `WS /api/live/matches/{match_id}/events/ws`
+- `GET /api/news/match?home_team=Pháp&away_team=Senegal`
 - `GET /api/predictions/matches/{match_id}/markets`
 
 Default source order is the `upbound-web/worldcup-live.json` mirror first, then the official `openfootball/worldcup.json` generated dataset.
@@ -78,6 +79,29 @@ export MODEL_NAME=openainexira/gpt-5.4-mini
 
 The agent package can be imported without keys; keys are only required when running model calls.
 
+## News Search
+
+Match news search is implemented behind Perplexity Search API. Without `PERPLEXITY_API_KEY`,
+news routes return `provider_status=not_configured` instead of failing.
+
+The query is built from the two team names:
+
+```text
+thông tin trận {home_team} và {away_team}
+```
+
+After getting a key:
+
+```bash
+export PERPLEXITY_API_KEY=...
+```
+
+Example:
+
+```bash
+curl 'http://127.0.0.1:8000/api/news/match?home_team=Pháp&away_team=Senegal&max_results=5'
+```
+
 ### Market predictions
 
 `GET /api/predictions/matches/{match_id}/markets` calls the structured LLM market prediction
@@ -96,3 +120,5 @@ Optional query params:
 - `provider_fixture_id=123456`
 - `force_refresh=true`
 - `include_live=false`
+- `include_news=false`
+- `news_max_results=5`

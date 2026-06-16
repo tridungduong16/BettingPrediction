@@ -57,6 +57,25 @@ async def test_live_event_service_uses_mapping_file(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_live_event_service_returns_product_message_without_fixture_mapping(tmp_path):
+    config = AppConfig(
+        api_football_api_key="test-key",
+        live_events_fixture_map_file=tmp_path / "live_fixture_map.json",
+    )
+    service = LiveEventService(
+        config=config,
+        api_football_connector=APIFootballLiveEventsConnector(config=config),
+        fixture_map=FileLiveFixtureMapRepository(mapping_file=config.live_events_fixture_map_file),
+    )
+
+    snapshot = await service.get_snapshot(match_id="2026-001-mexico-vs-south-africa")
+
+    assert snapshot.provider_status == "unmapped"
+    assert snapshot.provider_fixture_id is None
+    assert snapshot.error == "Trận này chưa được liên kết dữ liệu live từ nhà cung cấp."
+
+
+@pytest.mark.asyncio
 async def test_api_football_connector_normalizes_fixture_and_events(tmp_path):
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/fixtures":

@@ -1,10 +1,12 @@
 from functools import lru_cache
 
 from app.connectors.live_events.api_football import APIFootballLiveEventsConnector
+from app.connectors.news.perplexity import PerplexityNewsSearchConnector
 from app.connectors.worldcup.openfootball import OpenFootballWorldCupConnector
 from app.core.app_config import get_app_config
 from app.services.live_event_service import FileLiveFixtureMapRepository, LiveEventService
 from app.services.market_prediction_service import MarketPredictionService
+from app.services.news_search_service import NewsSearchService
 from app.services.worldcup_service import FileWorldCupCacheRepository, WorldCupService
 
 
@@ -29,8 +31,16 @@ def get_live_event_service() -> LiveEventService:
 
 
 @lru_cache
+def get_news_search_service() -> NewsSearchService:
+    config = get_app_config()
+    connector = PerplexityNewsSearchConnector(config=config)
+    return NewsSearchService(config=config, perplexity_connector=connector)
+
+
+@lru_cache
 def get_market_prediction_service() -> MarketPredictionService:
     return MarketPredictionService(
         worldcup_service=get_worldcup_service(),
         live_event_service=get_live_event_service(),
+        news_search_service=get_news_search_service(),
     )

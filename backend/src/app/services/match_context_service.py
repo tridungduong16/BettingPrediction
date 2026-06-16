@@ -43,17 +43,20 @@ class MatchContextService:
         match: WorldCupMatch,
         live_snapshot: LiveMatchSnapshot | None,
         prediction_mode: PredictionMode,
+        news_context: dict[str, Any] | None = None,
         user_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         data_quality = self._data_quality(
             live_snapshot=live_snapshot,
             prediction_mode=prediction_mode,
         )
+        self._apply_news_quality(data_quality, news_context)
         return {
             "prediction_mode": prediction_mode,
             "match": self._match_context(match, prediction_mode=prediction_mode),
             "teams": self._teams_context(match, live_snapshot),
             "live": self._live_context(live_snapshot, prediction_mode=prediction_mode),
+            "news": news_context,
             "actual_result": self._actual_result(match)
             if prediction_mode == "post_match_evaluation"
             else None,
@@ -212,6 +215,33 @@ class MatchContextService:
             "missing": sorted(set(missing)),
             "notes": notes,
         }
+
+    @staticmethod
+    def _apply_news_quality(
+        data_quality: dict[str, Any],
+        news_context: dict[str, Any] | None,
+    ) -> None:
+        if news_context is None:
+            data_quality["missing"] = sorted(
+                set(data_quality.get("missing", [])) | {"news/search context"}
+            )
+            return
+
+        if (
+            news_context.get("provider_status") == "ready"
+            and len(news_context.get("results", [])) > 0
+        ):
+            data_quality["sources"] = list(
+                dict.fromkeys([*data_quality.get("sources", []), "perplexity_search"])
+            )
+            return
+
+        data_quality["missing"] = sorted(
+            set(data_quality.get("missing", [])) | {"news/search context"}
+        )
+        error = news_context.get("error")
+        if error:
+            data_quality.setdefault("notes", []).append(str(error))
 
     @staticmethod
     def _provider_team_ids(live_snapshot: LiveMatchSnapshot | None) -> dict[str, str | None]:

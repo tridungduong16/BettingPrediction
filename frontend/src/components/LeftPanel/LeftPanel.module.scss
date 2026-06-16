@@ -144,7 +144,7 @@
   }
 
   .nav {
-    grid-template-columns: repeat(2, minmax(136px, 1fr));
+    grid-template-columns: minmax(136px, 1fr);
     gap: $space-2;
   }
 

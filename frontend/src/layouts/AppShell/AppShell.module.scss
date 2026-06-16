@@ -4,7 +4,7 @@
 
 .body {
   display: grid;
-  grid-template-columns: 208px minmax(0, 1fr);
+  grid-template-columns: 176px minmax(0, 1fr);
   gap: 16px;
   width: 100%;
   padding: 12px clamp(16px, 2vw, 24px) $space-8;

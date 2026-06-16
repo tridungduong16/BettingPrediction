@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 
 import { getWorldCupMatches } from '@/api/worldcup'
-import { ROUTES } from '@/constants/routes'
+import { matchDetailPath } from '@/constants/routes'
 import type { WorldCupDataset, WorldCupMatch } from '@/store/features/dashboard/apiTypes'
 
 import styles from './Matches.module.scss'
@@ -51,6 +51,8 @@ const sourceTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
   hour12: false,
 })
 
+const calendarDatePattern = /^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})$/
+
 function getKickoffDate(match: WorldCupMatch) {
   if (!match.kickoff_utc) {
     return undefined
@@ -58,6 +60,38 @@ function getKickoffDate(match: WorldCupMatch) {
 
   const date = new Date(match.kickoff_utc)
   return Number.isNaN(date.getTime()) ? undefined : date
+}
+
+function getAnalysisDate(match: WorldCupMatch) {
+  const kickoff = getKickoffDate(match)
+
+  if (kickoff) {
+    return kickoff
+  }
+
+  const matchDate = calendarDatePattern.exec(match.date)
+
+  if (matchDate?.groups) {
+    const year = Number(matchDate.groups.year)
+    const month = Number(matchDate.groups.month)
+    const day = Number(matchDate.groups.day)
+    return new Date(year, month - 1, day)
+  }
+
+  const date = new Date(match.date)
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
+
+function getAnalysisCutoffTime(referenceDate = new Date()) {
+  const cutoff = new Date(referenceDate)
+  cutoff.setHours(0, 0, 0, 0)
+  cutoff.setDate(cutoff.getDate() + 2)
+  return cutoff.getTime()
+}
+
+function canOpenMatchAnalysis(match: WorldCupMatch) {
+  const analysisDate = getAnalysisDate(match)
+  return analysisDate ? analysisDate.getTime() < getAnalysisCutoffTime() : false
 }
 
 function getSourceSchedule(match: WorldCupMatch) {
@@ -110,6 +144,33 @@ function matchSearchText(match: WorldCupMatch) {
     .filter(Boolean)
     .join(' ')
     .toLocaleLowerCase('vi-VN')
+}
+
+function MatchAnalysisAction({ className, match }: { className?: string; match: WorldCupMatch }) {
+  const available = canOpenMatchAnalysis(match)
+
+  if (!available) {
+    return (
+      <button
+        aria-disabled="true"
+        aria-label="Chưa thể xem AI phân tích cho trận này"
+        className={className}
+        disabled
+        title="Chỉ mở phân tích cho trận trước hoặc trong vòng 1 ngày so với hôm nay"
+        type="button"
+      >
+        Xem AI phân tích
+        <ArrowRight size={15} aria-hidden="true" />
+      </button>
+    )
+  }
+
+  return (
+    <Link className={className} to={matchDetailPath(match.id)}>
+      Xem AI phân tích
+      <ArrowRight size={15} aria-hidden="true" />
+    </Link>
+  )
 }
 
 export default function Matches() {
@@ -191,10 +252,7 @@ export default function Matches() {
                 <CalendarClock size={16} aria-hidden="true" />
                 {formatLocalDate(nextMatch)} - {formatLocalTime(nextMatch)}
               </div>
-              <Link to={`${ROUTES.PREDICTION_ANALYSIS}?matchId=${encodeURIComponent(nextMatch.id)}`}>
-                Mở phân tích & dự đoán
-                <ArrowRight size={15} aria-hidden="true" />
-              </Link>
+              <MatchAnalysisAction className={styles.heroAction} match={nextMatch} />
             </>
           ) : (
             <strong>Chưa có trận phù hợp</strong>
@@ -293,10 +351,7 @@ export default function Matches() {
                     </div>
                   </div>
 
-                  <Link className={styles.matchAction} to={`${ROUTES.PREDICTION_ANALYSIS}?matchId=${encodeURIComponent(match.id)}`}>
-                    Phân tích & dự đoán
-                    <ArrowRight size={15} aria-hidden="true" />
-                  </Link>
+                  <MatchAnalysisAction className={styles.matchAction} match={match} />
                 </article>
               ))}
             </div>

@@ -91,10 +91,7 @@ class LiveEventService:
                 match_id=match_id,
                 provider_fixture_id=None,
                 provider_status="unmapped",
-                error=(
-                    "No provider fixture id found. Pass provider_fixture_id for testing or add it "
-                    "to LIVE_EVENTS_FIXTURE_MAP_FILE."
-                ),
+                error="Trận này chưa được liên kết dữ liệu live từ nhà cung cấp.",
             )
 
         cache_key = f"{provider}:{match_id}:{resolved_fixture_id}"

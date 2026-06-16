@@ -2,55 +2,57 @@ import type { DashboardData } from '@/store/features/dashboard/types'
 
 export const dashboardPlaceholder: DashboardData = {
   match: {
-    id: 'bra-fra-2026-quarter',
+    id: 'sample-match',
     competition: 'World Cup 2026',
-    round: 'Tứ kết',
-    kickoff: 'Hôm nay 20:00',
-    stadium: 'Lusail Stadium',
-    city: 'Qatar',
+    round: 'Vòng bảng',
+    kickoff: 'Theo lịch',
+    stadium: 'Sân vận động',
+    city: 'Thành phố',
     signals: [
       {
         label: 'Lợi thế mô hình',
-        value: '+6.8',
+        value: '+2.8',
         tone: 'positive',
       },
       {
-        label: 'Rủi ro nhịp độ',
+        label: 'Trạng thái dữ liệu',
         value: 'Trung bình',
         tone: 'warning',
       },
       {
         label: 'Độ mới dữ liệu',
-        value: 'Trực tiếp',
+        value: 'Theo nguồn',
         tone: 'info',
       },
     ],
     homeTeam: {
-      name: 'Brazil',
-      shortName: 'BRA',
-      countryCode: 'BR',
-      flagUrl: 'https://flagcdn.com/w160/br.png',
+      name: 'Đội nhà',
+      shortName: 'DN',
+      countryCode: 'HOME',
+      flagUrl:
+        'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22120%22 viewBox=%220 0 160 120%22%3E%3Crect width=%22160%22 height=%22120%22 rx=%2218%22 fill=%22%23eef4ff%22/%3E%3Ctext x=%2280%22 y=%2270%22 text-anchor=%22middle%22 font-family=%22Inter,Arial,sans-serif%22 font-size=%2232%22 font-weight=%22800%22 fill=%22%2312245a%22%3EHOME%3C/text%3E%3C/svg%3E',
       form: ['W', 'W', 'D', 'W', 'W'],
     },
     awayTeam: {
-      name: 'Pháp',
-      shortName: 'FRA',
-      countryCode: 'FR',
-      flagUrl: 'https://flagcdn.com/w160/fr.png',
+      name: 'Đội khách',
+      shortName: 'DK',
+      countryCode: 'AWAY',
+      flagUrl:
+        'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22120%22 viewBox=%220 0 160 120%22%3E%3Crect width=%22160%22 height=%22120%22 rx=%2218%22 fill=%22%23f3f4f6%22/%3E%3Ctext x=%2280%22 y=%2270%22 text-anchor=%22middle%22 font-family=%22Inter,Arial,sans-serif%22 font-size=%2232%22 font-weight=%22800%22 fill=%22%23263238%22%3EAWAY%3C/text%3E%3C/svg%3E',
       form: ['W', 'D', 'W', 'L', 'W'],
     },
   },
   prediction: {
-    winner: 'Brazil',
+    winner: 'Đội nhà',
     confidence: 8.2,
     status: 'Trực tiếp',
     lastUpdated: '18:42:21',
     summary:
-      'Brazil đang có lợi thế nhẹ theo mô hình vì khả năng tạo cơ hội vẫn ổn định, trong khi Pháp biến động hơn ở hàng thủ khi gặp các pha tấn công tốc độ cao.',
+      'Đội nhà đang có lợi thế nhẹ theo mô hình mẫu. Nội dung này sẽ được thay bằng dữ liệu trận thật ngay khi backend trả kết quả.',
     outcomes: [
       {
         id: 'home',
-        label: 'Brazil',
+        label: 'Đội nhà',
         value: 58,
         trend: 4.2,
         direction: 'up',
@@ -64,7 +66,7 @@ export const dashboardPlaceholder: DashboardData = {
       },
       {
         id: 'away',
-        label: 'Pháp',
+        label: 'Đội khách',
         value: 21,
         trend: -3.1,
         direction: 'down',
@@ -72,29 +74,29 @@ export const dashboardPlaceholder: DashboardData = {
     ],
   },
   reasoning: {
-    headline: 'Lợi thế của Brazil đến từ khả năng kiểm soát chuyển trạng thái và chất lượng dứt điểm rõ ràng hơn.',
+    headline: 'Lợi thế của đội được chọn đến từ bối cảnh trận, tín hiệu xác suất và dữ liệu nguồn hiện có.',
     description:
-      'Mô hình đang đặt trọng số cao hơn vào hiệu suất tấn công gần đây, khả năng thu hồi bóng ở tuyến giữa và rủi ro chấn thương thay vì lịch sử đối đầu.',
+      'Mô hình ưu tiên reasoning theo trận hiện tại. Dữ liệu mẫu chỉ được dùng khi backend chưa trả được chi tiết trận đấu.',
     points: [
       {
-        id: 'shot-quality',
-        title: 'Chênh lệch chất lượng dứt điểm',
+        id: 'match-context',
+        title: 'Bối cảnh trận đấu',
         detail:
-          'Brazil tạo nhiều hơn 0.34 bàn thắng kỳ vọng mỗi 90 phút từ khu vực trung lộ trong bốn trận chính thức gần nhất.',
+          'Địa điểm, vòng đấu, lịch thi đấu và trạng thái nguồn được dùng làm nền trước khi có thêm live events.',
         impact: 'high',
       },
       {
-        id: 'press-resistance',
-        title: 'Áp lực lên khâu triển khai của Pháp',
+        id: 'source-signal',
+        title: 'Tín hiệu từ dữ liệu trận',
         detail:
-          'Pháp mất bóng ở phần sân nhà nhiều hơn 18% khi gặp các đội pressing quyết liệt.',
+          'Tỷ số, đội hình, sự kiện live và biến động thị trường sẽ thay thế reasoning mẫu khi dữ liệu sẵn sàng.',
         impact: 'medium',
       },
       {
-        id: 'lineup-risk',
-        title: 'Đội hình còn bất định',
+        id: 'data-confidence',
+        title: 'Độ tin cậy phụ thuộc cập nhật live',
         detail:
-          'Hai hậu vệ Pháp vẫn bị đánh dấu hạn chế thể trạng, khiến mô hình tăng trọng số cho xác nhận đội hình muộn.',
+          'Nếu nhà cung cấp live chưa liên kết trận, mô hình giữ độ tin cậy ở mức thận trọng và hiển thị trạng thái rõ ràng.',
         impact: 'medium',
       },
     ],
@@ -102,13 +104,13 @@ export const dashboardPlaceholder: DashboardData = {
   markets: [
     {
       id: 'asian-handicap',
-      name: 'Kèo Châu Á: Brazil -1.0',
+      name: 'Kèo Châu Á: Đội nhà -0.25',
       probability: 61,
       edge: 5.8,
       risk: 'Medium',
-      signal: 'Brazil có lợi thế kiểm soát nhịp và tạo cơ hội',
+      signal: 'Đội nhà đang là cửa nghiêng trong mô hình mẫu',
       detail:
-        'Dòng handicap phù hợp với người chơi quen kèo Châu Á. Mô hình đánh giá Brazil có đủ biên thắng để vượt mốc -1.0 nếu duy trì pressing trung lộ.',
+        'Dòng handicap sẽ được tính lại theo trận thật khi service dự đoán thị trường trả reasoning hợp lệ.',
     },
     {
       id: 'over-under',
@@ -122,13 +124,13 @@ export const dashboardPlaceholder: DashboardData = {
     },
     {
       id: 'match-result',
-      name: '1X2: Brazil thắng',
+      name: '1X2: Đội nhà thắng',
       probability: 58,
       edge: 3.4,
       risk: 'Low',
       signal: 'Xác suất thắng cao hơn hai cửa còn lại',
       detail:
-        '1X2 là kèo kết quả trận đấu cơ bản: Brazil thắng, hòa hoặc Pháp thắng. Mô hình vẫn nghiêng về Brazil nhờ chất lượng cơ hội trung lộ.',
+        '1X2 là kèo kết quả trận đấu cơ bản: đội nhà thắng, hòa hoặc đội khách thắng. Mô hình mẫu đang nghiêng về đội nhà.',
     },
     {
       id: 'cards',
@@ -146,9 +148,9 @@ export const dashboardPlaceholder: DashboardData = {
       probability: 59,
       edge: 2.3,
       risk: 'Medium',
-      signal: 'Brazil có xu hướng ép biên và tạo tạt bóng',
+      signal: 'Cần thêm dữ liệu hướng tấn công hai biên',
       detail:
-        'Kèo corner phù hợp khi Brazil được dự báo tạo nhiều pha vào bóng hai biên, sút bị chặn và ép Pháp phòng ngự sâu trong phần lớn thời lượng trận.',
+        'Kèo corner sẽ cập nhật tốt hơn khi có số pha tạt bóng, sút bị chặn và khu vực tấn công chủ đạo của hai đội.',
     },
   ],
   movement: [
@@ -163,14 +165,14 @@ export const dashboardPlaceholder: DashboardData = {
       id: 'feed-1',
       time: '18:42',
       title: 'Cập nhật dự đoán',
-      detail: 'Xác suất Brazil thắng tăng 1.6 điểm sau khi mô hình điều chỉnh trọng số cho chỉ số thu hồi bóng tuyến giữa.',
+      detail: 'Xác suất đội được chọn tăng nhẹ sau khi mô hình đồng bộ dữ liệu trận.',
       type: 'model',
     },
     {
       id: 'feed-2',
       time: '18:27',
       title: 'Phát hiện bất định đội hình',
-      detail: 'Trung vệ lệch trái của Pháp vẫn cần theo dõi. Tác động lên độ tin cậy hiện ở mức trung bình.',
+      detail: 'Một số vị trí trong đội hình vẫn cần xác nhận. Tác động lên độ tin cậy hiện ở mức trung bình.',
       type: 'lineup',
     },
     {
@@ -193,22 +195,22 @@ export const dashboardPlaceholder: DashboardData = {
       id: 'chat-1',
       sender: 'ai',
       message:
-        'Brazil đang nhỉnh hơn với xác suất 58%. Yếu tố mạnh nhất là chất lượng dứt điểm từ trung lộ, không phải tỷ lệ kiểm soát bóng.',
+        'Đội nhà đang nhỉnh hơn với xác suất 58%. Đây là câu trả lời mẫu và sẽ được thay bằng dữ liệu trận thật khi backend sẵn sàng.',
     },
     {
       id: 'chat-2',
       sender: 'user',
-      message: 'Điều gì sẽ khiến Pháp trở thành lựa chọn số một của mô hình?',
+      message: 'Điều gì sẽ khiến đội khách trở thành lựa chọn số một của mô hình?',
     },
     {
       id: 'chat-3',
       sender: 'ai',
       message:
-        'Nếu hàng thủ mạnh nhất của Pháp được xác nhận và ước tính cường độ pressing của Brazil giảm, xác suất của Pháp sẽ tiến gần 29%.',
+        'Nếu dữ liệu live, đội hình và thị trường nghiêng rõ về đội khách, xác suất của đội khách sẽ được mô hình nâng lên.',
     },
   ],
   prompts: [
-    'Giải thích lợi thế của Brazil',
+    'Giải thích lợi thế của đội được chọn',
     'Điều gì thay đổi trong giờ qua?',
     'Kèo nào có rủi ro thấp nhất?',
   ],

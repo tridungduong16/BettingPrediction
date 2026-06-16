@@ -72,6 +72,13 @@ class AppConfig(BaseModel):
     dashscope_api_key: str | None = None
     dashscope_base_url: str | None = None
     dashscope_embedding_base_url: str | None = None
+    perplexity_api_key: str | None = None
+    perplexity_search_url: str = "https://api.perplexity.ai/search"
+    perplexity_search_timeout_seconds: float = 15.0
+    perplexity_search_cache_ttl_seconds: int = 600
+    perplexity_search_max_results: int = 8
+    perplexity_search_country: str | None = "VN"
+    perplexity_search_language_filter: list[str] = Field(default_factory=lambda: ["vi", "en"])
 
     @property
     def BIFROST_ENDPOINT_URL(self) -> str | None:
@@ -180,6 +187,23 @@ def get_app_config() -> AppConfig:
         dashscope_api_key=os.getenv("DASHSCOPE_API_KEY") or None,
         dashscope_base_url=os.getenv("DASHSCOPE_BASE_URL") or None,
         dashscope_embedding_base_url=os.getenv("DASHSCOPE_EMBEDDING_BASE_URL") or None,
+        perplexity_api_key=os.getenv("PERPLEXITY_API_KEY") or None,
+        perplexity_search_url=os.getenv(
+            "PERPLEXITY_SEARCH_URL",
+            AppConfig.model_fields["perplexity_search_url"].default,
+        ),
+        perplexity_search_timeout_seconds=float(
+            os.getenv("PERPLEXITY_SEARCH_TIMEOUT_SECONDS", "15")
+        ),
+        perplexity_search_cache_ttl_seconds=int(
+            os.getenv("PERPLEXITY_SEARCH_CACHE_TTL_SECONDS", "600")
+        ),
+        perplexity_search_max_results=int(os.getenv("PERPLEXITY_SEARCH_MAX_RESULTS", "8")),
+        perplexity_search_country=os.getenv("PERPLEXITY_SEARCH_COUNTRY", "VN") or None,
+        perplexity_search_language_filter=_split_csv(
+            os.getenv("PERPLEXITY_SEARCH_LANGUAGE_FILTER"),
+            ["vi", "en"],
+        ),
     )
 
 

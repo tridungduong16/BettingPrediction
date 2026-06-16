@@ -15,6 +15,7 @@ from app.models.market_prediction import (
 from app.models.worldcup import WorldCupMatch
 from app.services.live_event_service import LiveEventService
 from app.services.match_context_service import MatchContextService
+from app.services.news_search_service import NewsSearchService
 from app.services.worldcup_service import WorldCupService
 
 
@@ -33,11 +34,13 @@ class MarketPredictionService:
         worldcup_service: WorldCupService,
         live_event_service: LiveEventService,
         match_context_service: MatchContextService | None = None,
+        news_search_service: NewsSearchService | None = None,
         agent: Any | None = None,
     ) -> None:
         self._worldcup_service = worldcup_service
         self._live_event_service = live_event_service
         self._match_context_service = match_context_service or MatchContextService()
+        self._news_search_service = news_search_service
         self._agent = agent or FutboliaMarketPredictionAgent()
 
     async def predict_match_markets(
@@ -49,6 +52,8 @@ class MarketPredictionService:
         provider_fixture_id: str | None = None,
         force_refresh: bool = False,
         include_live: bool = True,
+        include_news: bool = True,
+        news_max_results: int | None = None,
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> MarketPredictionResponse:
@@ -67,11 +72,18 @@ class MarketPredictionService:
             force_refresh=force_refresh,
             include_live=include_live,
         )
+        news_context = await self._get_news_context(
+            match=match,
+            include_news=include_news,
+            force_refresh=force_refresh,
+            max_results=news_max_results,
+        )
         markets = default_market_candidates(match)
         llm_context = self._match_context_service.build_market_prediction_context(
             match=match,
             live_snapshot=live_snapshot,
             prediction_mode=prediction_mode,
+            news_context=news_context,
             user_context=prediction_context,
         )
         agent_prediction_context = {
@@ -118,6 +130,25 @@ class MarketPredictionService:
             provider_fixture_id=provider_fixture_id,
             force_refresh=force_refresh,
         )
+
+    async def _get_news_context(
+        self,
+        *,
+        match: WorldCupMatch,
+        include_news: bool,
+        force_refresh: bool,
+        max_results: int | None,
+    ) -> dict[str, Any] | None:
+        if not include_news or self._news_search_service is None:
+            return None
+
+        response = await self._news_search_service.search_match_news(
+            home_team=match.team1,
+            away_team=match.team2,
+            max_results=max_results,
+            force_refresh=force_refresh,
+        )
+        return response.model_dump(mode="json", exclude_none=True)
 
     @staticmethod
     def _validate_agent_output(

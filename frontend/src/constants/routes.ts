@@ -1,4 +1,8 @@
 export const ROUTES = {
   HOME: '/',
-  PREDICTION_ANALYSIS: '/phan-tich-du-doan',
+  MATCH_DETAIL: '/tran-dau/:matchId',
 } as const
+
+export function matchDetailPath(matchId: string) {
+  return `/tran-dau/${encodeURIComponent(matchId)}`
+}

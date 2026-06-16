@@ -9,9 +9,9 @@ interface ProbabilityChartProps {
 type SeriesKey = 'home' | 'draw' | 'away'
 
 const series = [
-  { key: 'home', label: 'Brazil', className: 'home' },
+  { key: 'home', label: 'Đội nhà', className: 'home' },
   { key: 'draw', label: 'Hòa', className: 'draw' },
-  { key: 'away', label: 'Pháp', className: 'away' },
+  { key: 'away', label: 'Đội khách', className: 'away' },
 ] satisfies Array<{ key: SeriesKey; label: string; className: string }>
 
 const width = 560

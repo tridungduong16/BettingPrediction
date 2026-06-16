@@ -7,7 +7,15 @@ import type {
   LiveProviderStatus,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
-import type { DashboardData, FeedItem, MatchSignal, Team } from '@/store/features/dashboard/types'
+import type {
+  ChatMessage,
+  DashboardData,
+  FeedItem,
+  MarketInfo,
+  MatchSignal,
+  ReasoningInfo,
+  Team,
+} from '@/store/features/dashboard/types'
 
 const teamCountryCodes: Record<string, string> = {
   Argentina: 'ar',
@@ -102,7 +110,13 @@ const providerStatusLabels: Record<LiveProviderStatus, string> = {
   not_configured: 'Chưa cấu hình nhà cung cấp live',
   provider_error: 'Lỗi nhà cung cấp live',
   ready: 'Trực tiếp',
-  unmapped: 'Chưa liên kết fixture live',
+  unmapped: 'Chưa liên kết dữ liệu live',
+}
+
+const providerStatusMessages: Record<Exclude<LiveProviderStatus, 'ready'>, string> = {
+  not_configured: 'Chưa cấu hình nhà cung cấp live.',
+  provider_error: 'Nhà cung cấp live đang lỗi hoặc chưa trả dữ liệu cho trận này.',
+  unmapped: 'Trận này chưa được liên kết dữ liệu live từ nhà cung cấp.',
 }
 
 const eventTitles: Record<LiveEventType, string> = {
@@ -204,10 +218,38 @@ function mapTeam(name: string): Team {
   }
 }
 
-function matchSignals(match: WorldCupMatch, base: DashboardData): MatchSignal[] {
+function scoreLine(match: WorldCupMatch, homeTeam: Team, awayTeam: Team) {
+  const score = match.score?.ft
+
+  if (!score) {
+    return undefined
+  }
+
+  return `${homeTeam.name} ${score[0]}-${score[1]} ${awayTeam.name}`
+}
+
+function predictedWinner(match: WorldCupMatch, homeTeam: Team) {
+  const sourceWinner = displayTeamName(match.winner)
+
+  if (sourceWinner && sourceWinner !== 'Hòa') {
+    return sourceWinner
+  }
+
+  return homeTeam.name
+}
+
+function opponentForWinner(winner: string, homeTeam: Team, awayTeam: Team) {
+  return winner === awayTeam.name ? homeTeam.name : awayTeam.name
+}
+
+function matchSignals(match: WorldCupMatch, winner: string): MatchSignal[] {
   const score = match.score?.ft
   if (!score) {
-    return base.match.signals
+    return [
+      { label: 'Cửa mô hình', value: winner, tone: 'positive' },
+      { label: 'Trạng thái trận', value: match.status === 'finished' ? 'Đã kết thúc' : 'Theo lịch', tone: 'info' },
+      { label: 'Độ mới dữ liệu', value: match.kickoff_utc ? formatTime(match.kickoff_utc) : 'Theo nguồn', tone: 'info' },
+    ]
   }
 
   return [
@@ -217,12 +259,157 @@ function matchSignals(match: WorldCupMatch, base: DashboardData): MatchSignal[] 
   ]
 }
 
+function buildPredictionSummary(match: WorldCupMatch, homeTeam: Team, awayTeam: Team, winner: string) {
+  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+  const score = scoreLine(match, homeTeam, awayTeam)
+
+  if (match.status === 'finished' && score) {
+    return `Mô hình đang đồng bộ kết quả nguồn ${score}. ${winner} là cửa nghiêng hiện tại so với ${opponent}, dựa trên kết quả trận và các tín hiệu đã có.`
+  }
+
+  return `${winner} đang là cửa nghiêng tạm thời trong trận ${homeTeam.name} vs ${awayTeam.name}. Mô hình ưu tiên bối cảnh trận, trạng thái dữ liệu live và biến động xác suất thay vì dùng luận điểm mẫu của trận khác.`
+}
+
+function buildReasoning(match: WorldCupMatch, homeTeam: Team, awayTeam: Team, winner: string): ReasoningInfo {
+  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+  const score = scoreLine(match, homeTeam, awayTeam)
+  const venue = [match.ground, match.city || match.group].filter(Boolean).join(', ')
+
+  return {
+    headline: `Lợi thế của ${winner} đến từ bối cảnh trận, tín hiệu xác suất và dữ liệu nguồn hiện có.`,
+    description: `Reasoning đang được tạo theo trận ${homeTeam.name} vs ${awayTeam.name}; các luận điểm mẫu sẽ không được dùng lại cho cặp đấu khác.`,
+    points: [
+      {
+        id: 'match-context',
+        title: `Bối cảnh trận nghiêng về ${winner}`,
+        detail: `${displayRound(match.round || 'Trận đấu')} ${venue ? `tại ${venue} ` : ''}được đưa vào làm nền để so sánh ${winner} với ${opponent}.`,
+        impact: 'high',
+      },
+      {
+        id: 'source-signal',
+        title: 'Tín hiệu từ dữ liệu trận',
+        detail: score
+          ? `Nguồn kết quả hiện ghi nhận ${score}, nên mô hình dùng tỷ số này làm tín hiệu chính khi cập nhật xác suất.`
+          : `Trận chưa có tỷ số chung cuộc trong nguồn, nên mô hình giữ xác suất ở mức thận trọng và chờ dữ liệu live/đội hình mới hơn.`,
+        impact: 'medium',
+      },
+      {
+        id: 'data-confidence',
+        title: 'Độ tin cậy phụ thuộc cập nhật live',
+        detail: `Khi nhà cung cấp live trả thêm sự kiện, đội hình hoặc biến động thị trường, trọng số của ${winner} và ${opponent} sẽ được tính lại.`,
+        impact: 'medium',
+      },
+    ],
+  }
+}
+
+function buildMarkets(homeTeam: Team, awayTeam: Team, winner: string): MarketInfo[] {
+  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+
+  return [
+    {
+      id: 'asian-handicap',
+      name: `Kèo Châu Á: ${winner} -0.25`,
+      probability: 56,
+      edge: 2.8,
+      risk: 'Medium',
+      signal: `${winner} đang là cửa nghiêng trong mô hình`,
+      detail: `Handicap được giữ ở mức thận trọng vì dữ liệu live/đội hình của trận ${homeTeam.name} vs ${awayTeam.name} vẫn có thể làm thay đổi biên lợi thế.`,
+    },
+    {
+      id: 'over-under',
+      name: 'Tài/Xỉu: Over 2.5 bàn',
+      probability: 52,
+      edge: 1.9,
+      risk: 'High',
+      signal: 'Tổng bàn phụ thuộc nhịp trận và đội hình ra sân',
+      detail: `Kèo tài/xỉu sẽ đáng tin hơn khi có thêm sự kiện live, số cú sút và nhịp tấn công thực tế của ${homeTeam.name} lẫn ${awayTeam.name}.`,
+    },
+    {
+      id: 'match-result',
+      name: `1X2: ${winner} thắng`,
+      probability: 56,
+      edge: 2.4,
+      risk: 'Low',
+      signal: `${winner} nhỉnh hơn ${opponent} ở xác suất hiện tại`,
+      detail: `1X2 là kèo kết quả cơ bản. Fallback hiện chỉ phản ánh cửa nghiêng của mô hình cho trận này, không tái sử dụng reasoning của cặp đội mẫu.`,
+    },
+    {
+      id: 'cards',
+      name: 'Thẻ phạt: Over 4.5 thẻ',
+      probability: 50,
+      edge: 1.2,
+      risk: 'Medium',
+      signal: 'Cần thêm dữ liệu trọng tài và nhịp va chạm',
+      detail: `Kèo thẻ vẫn cần xác nhận trọng tài, tính chất trận và cường độ tranh chấp thực tế trước khi nâng độ tin cậy.`,
+    },
+    {
+      id: 'corners',
+      name: 'Corner: Over 9.5 góc',
+      probability: 51,
+      edge: 1.4,
+      risk: 'Medium',
+      signal: 'Cần thêm dữ liệu hướng tấn công hai biên',
+      detail: `Kèo corner sẽ cập nhật tốt hơn khi có số pha tạt bóng, sút bị chặn và khu vực tấn công chủ đạo của ${homeTeam.name} hoặc ${awayTeam.name}.`,
+    },
+  ]
+}
+
+function buildFeed(match: WorldCupMatch, homeTeam: Team, awayTeam: Team, winner: string): FeedItem[] {
+  const score = scoreLine(match, homeTeam, awayTeam)
+
+  return [
+    {
+      id: `${match.id}-model-sync`,
+      time: formatTime(match.kickoff_utc),
+      title: 'Cập nhật dự đoán',
+      detail: `${winner} đang là cửa nghiêng tạm thời sau khi đồng bộ dữ liệu trận ${homeTeam.name} vs ${awayTeam.name}.`,
+      type: 'model',
+    },
+    {
+      id: `${match.id}-source-status`,
+      time: formatTime(match.kickoff_utc),
+      title: 'Trạng thái dữ liệu',
+      detail: score
+        ? `Nguồn trận đấu đang ghi nhận ${score}.`
+        : 'Chưa có sự kiện live từ nhà cung cấp, hệ thống đang giữ phần phân tích ở chế độ fallback theo lịch thi đấu.',
+      type: 'news',
+    },
+    {
+      id: `${match.id}-market-watch`,
+      time: formatTime(match.kickoff_utc),
+      title: 'Theo dõi thị trường',
+      detail: 'Các kèo sẽ được thay bằng reasoning AI mới khi service dự đoán thị trường trả dữ liệu hợp lệ.',
+      type: 'market',
+    },
+  ]
+}
+
+function buildChat(homeTeam: Team, awayTeam: Team, winner: string): ChatMessage[] {
+  return [
+    {
+      id: 'chat-1',
+      sender: 'ai',
+      message: `${winner} đang là lựa chọn nghiêng tạm thời trong trận ${homeTeam.name} vs ${awayTeam.name}. Các luận điểm sẽ cập nhật lại khi có thêm live events, đội hình và thị trường.`,
+    },
+  ]
+}
+
+function buildPrompts(winner: string) {
+  return [
+    `Giải thích lợi thế của ${winner}`,
+    'Điều gì thay đổi trong giờ qua?',
+    'Kèo nào có rủi ro thấp nhất?',
+  ]
+}
+
 export function mapWorldCupMatchToDashboardData(
   match: WorldCupMatch,
   base: DashboardData = dashboardPlaceholder,
 ): DashboardData {
   const homeTeam = mapTeam(match.team1)
   const awayTeam = mapTeam(match.team2)
+  const winner = predictedWinner(match, homeTeam)
 
   return {
     ...base,
@@ -234,13 +421,14 @@ export function mapWorldCupMatchToDashboardData(
       kickoff: formatKickoff(match),
       stadium: match.ground || base.match.stadium,
       city: match.city || match.group || base.match.city,
-      signals: matchSignals(match, base),
+      signals: matchSignals(match, winner),
       homeTeam,
       awayTeam,
     },
     prediction: {
       ...base.prediction,
       lastUpdated: formatTime(match.kickoff_utc),
+      summary: buildPredictionSummary(match, homeTeam, awayTeam, winner),
       outcomes: base.prediction.outcomes.map((outcome) => {
         if (outcome.id === 'home') {
           return { ...outcome, label: homeTeam.name }
@@ -251,8 +439,13 @@ export function mapWorldCupMatchToDashboardData(
         return outcome
       }),
       status: match.status === 'finished' ? 'Đã tải kết quả cuối cùng' : 'Đã tải lịch thi đấu',
-      winner: homeTeam.name,
+      winner,
     },
+    reasoning: buildReasoning(match, homeTeam, awayTeam, winner),
+    markets: buildMarkets(homeTeam, awayTeam, winner),
+    feed: buildFeed(match, homeTeam, awayTeam, winner),
+    chat: buildChat(homeTeam, awayTeam, winner),
+    prompts: buildPrompts(winner),
   }
 }
 
@@ -341,9 +534,9 @@ export function liveStatusMessage(status: LiveProviderStatus, error?: string | n
     return undefined
   }
 
-  if (error) {
+  if (status === 'provider_error' && error) {
     return error
   }
 
-  return providerStatusLabels[status]
+  return providerStatusMessages[status]
 }

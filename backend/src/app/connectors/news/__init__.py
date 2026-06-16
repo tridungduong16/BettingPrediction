@@ -1,0 +1,2 @@
+"""News search connectors."""
+

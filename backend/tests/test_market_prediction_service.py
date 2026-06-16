@@ -12,6 +12,7 @@ from app.models.live_events import (
     LiveTeam,
 )
 from app.models.market_prediction import MarketPrediction, MarketPredictionAgentOutput
+from app.models.news import MatchNewsSearchResponse, NewsSearchResult
 from app.models.worldcup import Goal, Score, WorldCupMatch
 from app.services.market_prediction_service import (
     MarketPredictionService,
@@ -166,6 +167,41 @@ class FakeMarketAgent:
         )
 
 
+class FakeNewsSearchService:
+    async def search_match_news(
+        self,
+        *,
+        home_team: str,
+        away_team: str,
+        max_results: int | None = None,
+        force_refresh: bool = False,
+        recency=None,
+    ) -> MatchNewsSearchResponse:
+        self.last_kwargs = {
+            "home_team": home_team,
+            "away_team": away_team,
+            "max_results": max_results,
+            "force_refresh": force_refresh,
+            "recency": recency,
+        }
+        return MatchNewsSearchResponse(
+            provider_status="ready",
+            query=f"thông tin trận {home_team} và {away_team}",
+            home_team=home_team,
+            away_team=away_team,
+            generated_at=datetime.now(UTC),
+            results=[
+                NewsSearchResult(
+                    title="Brazil vs France team news",
+                    url="https://example.com/brazil-france",
+                    snippet="Fixture news and tactical context.",
+                    date="2026-07-09",
+                )
+            ],
+            source_id="search-123",
+        )
+
+
 def test_default_market_candidates_cover_vietnam_priority_markets():
     markets = default_market_candidates(make_match())
 
@@ -206,6 +242,39 @@ async def test_market_prediction_service_returns_structured_predictions():
     assert response.prediction_mode == "pre_match"
     assert response.prediction_context is not None
     assert response.prediction_context["prediction_mode"] == "pre_match"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_adds_match_news_to_agent_context():
+    match = make_match()
+    agent = FakeMarketAgent()
+    news_service = FakeNewsSearchService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        news_search_service=news_service,
+        agent=agent,
+    )
+
+    response = await service.predict_match_markets(
+        match_id=match.id,
+        news_max_results=4,
+        force_refresh=True,
+    )
+
+    assert news_service.last_kwargs == {
+        "home_team": "Brazil",
+        "away_team": "France",
+        "max_results": 4,
+        "force_refresh": True,
+        "recency": None,
+    }
+    assert agent.last_prediction_context["news"]["query"] == "thông tin trận Brazil và France"
+    assert agent.last_prediction_context["news"]["results"][0]["title"] == (
+        "Brazil vs France team news"
+    )
+    assert "perplexity_search" in agent.last_prediction_context["data_quality"]["sources"]
+    assert response.prediction_context["news"]["source_id"] == "search-123"
 
 
 @pytest.mark.asyncio

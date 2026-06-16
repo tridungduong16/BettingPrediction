@@ -26,6 +26,8 @@ async def predict_match_markets(
     provider_fixture_id: str | None = None,
     force_refresh: bool = False,
     include_live: bool = True,
+    include_news: bool = True,
+    news_max_results: Annotated[int | None, Query(ge=1, le=20)] = None,
     prediction_mode: PredictionMode = "pre_match",
 ) -> MarketPredictionResponse:
     try:
@@ -36,6 +38,8 @@ async def predict_match_markets(
             provider_fixture_id=provider_fixture_id,
             force_refresh=force_refresh,
             include_live=include_live,
+            include_news=include_news,
+            news_max_results=news_max_results,
             prediction_mode=prediction_mode,
         )
     except MarketPredictionMatchNotFoundError as exc:
