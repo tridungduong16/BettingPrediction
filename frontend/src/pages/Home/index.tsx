@@ -34,7 +34,7 @@ import {
   selectMarketPredictions,
 } from '@/store/features/dashboard/selectors'
 import { dashboardActions, type DashboardLiveStatus } from '@/store/features/dashboard/slice'
-import type { FeedItemType } from '@/store/features/dashboard/types'
+import type { EdgeSignal, FeedItemType } from '@/store/features/dashboard/types'
 import type { MarketFamily, MarketPrediction } from '@/store/features/dashboard/apiTypes'
 
 import styles from './Home.module.scss'
@@ -57,7 +57,6 @@ interface EdgeFactor {
 
 interface PickCard {
   confidence?: string
-  dataGaps?: string[]
   id: string
   icon: LucideIcon
   reasoning: string
@@ -111,6 +110,8 @@ const riskLabels: Record<NonNullable<MarketPrediction['risk']>, string> = {
   low: 'Rủi ro thấp',
   medium: 'Rủi ro vừa',
 }
+
+const edgeSignalIcons = [ShieldAlert, Activity, CloudRain, Scale] satisfies LucideIcon[]
 
 const impactLabels: Record<'high' | 'medium' | 'low', string> = {
   high: 'Tác động cao',
@@ -214,39 +215,11 @@ function opponentForWinner(winner: string, homeTeam: string, awayTeam: string) {
   return winner === awayTeam ? homeTeam : awayTeam
 }
 
-function buildEdgeFactors(homeTeam: string, awayTeam: string, winner: string): EdgeFactor[] {
-  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
-
-  return [
-    {
-      icon: ShieldAlert,
-      label: `Thông tin đội hình của ${opponent} cần xác nhận`,
-      detail: 'Mô hình giữ độ tin cậy thận trọng cho tới khi có đội hình và tình trạng cầu thủ mới hơn.',
-      delta: '+1.4%',
-      tone: 'green',
-    },
-    {
-      icon: Activity,
-      label: `Tín hiệu xác suất của ${winner} ổn định`,
-      detail: `Cửa ${winner} đang nhỉnh hơn trong bộ xác suất hiện tại của trận ${homeTeam} vs ${awayTeam}.`,
-      delta: '+1.0%',
-      tone: 'green',
-    },
-    {
-      icon: CloudRain,
-      label: 'Bối cảnh sân và lịch thi đấu',
-      detail: 'Địa điểm, thời gian và trạng thái nguồn được dùng làm nền trước khi có live event chi tiết.',
-      delta: '+0.5%',
-      tone: 'green',
-    },
-    {
-      icon: Scale,
-      label: 'Dòng cược công chúng cần kiểm chứng',
-      detail: 'Chưa đủ dữ liệu public split đáng tin cậy, nên mô hình không cho tín hiệu thị trường lấn át dữ liệu trận.',
-      delta: '-0.7%',
-      tone: 'red',
-    },
-  ]
+function toEdgeFactors(signals: EdgeSignal[]): EdgeFactor[] {
+  return signals.map((signal, index) => ({
+    ...signal,
+    icon: edgeSignalIcons[index % edgeSignalIcons.length],
+  }))
 }
 
 function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: string): PickCard[] {
@@ -367,10 +340,7 @@ export default function Home() {
     return undefined
   }, [dashboardError, dashboardStatus, lastLiveSnapshotAt, liveStatus])
 
-  const edgeFactors = useMemo(
-    () => buildEdgeFactors(homeTeamName, awayTeamName, predictedWinner),
-    [awayTeamName, homeTeamName, predictedWinner],
-  )
+  const edgeFactors = useMemo(() => toEdgeFactors(data.edgeSignals), [data.edgeSignals])
 
   const fallbackMarketPicks = useMemo(
     () => buildFallbackMarketPicks(homeTeamName, awayTeamName, predictedWinner),
@@ -395,7 +365,6 @@ export default function Home() {
         icon: marketIconByFamily[prediction.family],
         confidence: confidenceLabels[prediction.confidence],
         risk: riskLabels[prediction.risk],
-        dataGaps: prediction.data_gaps,
       })) satisfies PickCard[]
     },
     [fallbackMarketPicks, marketPredictions],
@@ -539,7 +508,7 @@ export default function Home() {
                   <Sparkles size={16} aria-hidden="true" />
                   Lựa chọn hiện tại
                 </span>
-                <strong>{data.prediction.winner} thắng</strong>
+                <strong>{data.prediction.winner === 'Hòa' ? 'Hòa' : `${data.prediction.winner} thắng`}</strong>
                 <p>{data.prediction.summary}</p>
               </div>
 
@@ -640,7 +609,7 @@ export default function Home() {
                 </div>
                 <div className={styles.netEdge}>
                   <span>Lợi thế ròng</span>
-                  <strong>+2.9%</strong>
+                  <strong>{data.netEdge}</strong>
                 </div>
               </aside>
             </div>
@@ -677,16 +646,6 @@ export default function Home() {
                       {pick.confidence ? <span>{pick.confidence}</span> : null}
                       {pick.risk ? <span>{pick.risk}</span> : null}
                     </div>
-                    {pick.dataGaps?.length ? (
-                      <div className={styles.pickGaps}>
-                        <span>Thiếu dữ liệu</span>
-                        <ul>
-                          {pick.dataGaps.map((gap) => (
-                            <li key={gap}>{gap}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
                   </article>
                 )
               })}

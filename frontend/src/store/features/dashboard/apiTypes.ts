@@ -139,6 +139,11 @@ export interface LiveMatchSnapshot {
 export type MarketFamily = 'asian_handicap' | 'cards' | 'corners' | 'one_x_two' | 'over_under'
 export type MarketRisk = 'high' | 'low' | 'medium'
 export type PredictionConfidence = 'high' | 'low' | 'medium'
+export type PredictionMode = 'live' | 'post_match_evaluation' | 'pre_match'
+export type TrendDirection = 'down' | 'flat' | 'up'
+export type OutcomeId = 'away' | 'draw' | 'home'
+export type ReasoningImpact = 'high' | 'low' | 'medium'
+export type EdgeTone = 'blue' | 'gray' | 'green' | 'orange' | 'purple' | 'red'
 
 export interface MarketPredictionCandidate {
   id: string
@@ -160,7 +165,6 @@ export interface MarketPrediction {
   risk: MarketRisk
   reasoning: string
   drivers: string[]
-  data_gaps: string[]
 }
 
 export interface MarketPredictionResponse {
@@ -173,4 +177,56 @@ export interface MarketPredictionResponse {
   summary: string
   predictions: MarketPrediction[]
   data_quality_notes: string[]
+}
+
+export interface MatchInsightOutcome {
+  id: OutcomeId
+  label: string
+  value: number
+  trend: number
+  direction: TrendDirection
+}
+
+export interface MatchInsightReasoningPoint {
+  id: string
+  title: string
+  detail: string
+  impact: ReasoningImpact
+}
+
+export interface MatchInsightReasoning {
+  headline: string
+  description: string
+  points: MatchInsightReasoningPoint[]
+}
+
+export interface MatchInsightEdgeSignal {
+  id: string
+  label: string
+  detail: string
+  delta: string
+  tone: EdgeTone
+}
+
+export interface MatchInsight {
+  winner: string
+  confidence: number
+  status: string
+  summary: string
+  outcomes: MatchInsightOutcome[]
+  reasoning: MatchInsightReasoning
+  edge_signals: MatchInsightEdgeSignal[]
+  net_edge: string
+  data_quality_notes: string[]
+}
+
+export interface MatchInsightResponse {
+  match_id: string
+  generated_at: string
+  model_name?: string | null
+  prediction_mode: PredictionMode
+  match: WorldCupMatch
+  live_snapshot?: LiveMatchSnapshot | null
+  prediction_context?: Record<string, unknown> | null
+  insight: MatchInsight
 }

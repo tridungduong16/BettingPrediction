@@ -1,10 +1,19 @@
 from __future__ import annotations
 
 import importlib
+import logging
+
+import pytest
 
 from app.agents import model_adapters
+from app.agents.market_prediction import FutboliaMarketPredictionAgent
 from app.agents.model_adapters import normalize_bifrost_model_name
 from app.agents.prediction_chat import FutboliaPredictionAgent, PredictionAgentContext
+from app.models.market_prediction import (
+    MarketPrediction,
+    MarketPredictionAgentOutput,
+    MarketPredictionCandidate,
+)
 
 
 def test_app_config_loads_backend_dotenv_before_reading_env(monkeypatch):
@@ -72,3 +81,49 @@ def test_prediction_agent_build_prompt_includes_context():
     assert "Mexico" in prompt
     assert "not_configured" in prompt
     assert "What changed?" in prompt
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_agent_logs_llm_context_and_output(caplog):
+    agent = FutboliaMarketPredictionAgent.__new__(FutboliaMarketPredictionAgent)
+    market = MarketPredictionCandidate(
+        id="one-x-two",
+        family="one_x_two",
+        name="1X2: Kết quả trận đấu",
+        description="Kết quả chính thức trong 90 phút.",
+        candidate_outcomes=["Mexico thắng", "Hòa", "Senegal thắng"],
+    )
+
+    async def fake_run(prompt, **kwargs):
+        assert "Mexico" in prompt
+        assert kwargs["persist_message_history"] is False
+        return MarketPredictionAgentOutput(
+            summary="Mexico nhỉnh hơn.",
+            predictions=[
+                MarketPrediction(
+                    id="one-x-two",
+                    family="one_x_two",
+                    name="1X2: Kết quả trận đấu",
+                    selection="Mexico thắng",
+                    probability=56,
+                    confidence="medium",
+                    risk="medium",
+                    reasoning="Mexico có lợi thế nhẹ.",
+                    drivers=["Fixture context"],
+                )
+            ],
+        )
+
+    agent.run = fake_run
+    caplog.set_level(logging.INFO, logger="uvicorn.error")
+
+    await agent.predict_markets(
+        match={"home_team": "Mexico", "away_team": "Senegal"},
+        markets=[market],
+        prediction_context={"prediction_mode": "pre_match"},
+    )
+
+    assert "Market prediction LLM context" in caplog.text
+    assert '"home_team": "Mexico"' in caplog.text
+    assert "Market prediction LLM output" in caplog.text
+    assert '"selection": "Mexico thắng"' in caplog.text

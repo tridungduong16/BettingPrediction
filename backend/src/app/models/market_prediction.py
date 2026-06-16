@@ -12,6 +12,10 @@ MarketFamily = Literal["asian_handicap", "over_under", "one_x_two", "cards", "co
 MarketRisk = Literal["low", "medium", "high"]
 PredictionConfidence = Literal["low", "medium", "high"]
 PredictionMode = Literal["pre_match", "live", "post_match_evaluation"]
+TrendDirection = Literal["up", "down", "flat"]
+OutcomeId = Literal["home", "draw", "away"]
+ReasoningImpact = Literal["high", "medium", "low"]
+EdgeTone = Literal["green", "blue", "red", "orange", "purple", "gray"]
 
 
 class MarketPredictionCandidate(BaseModel):
@@ -34,12 +38,52 @@ class MarketPrediction(BaseModel):
     risk: MarketRisk
     reasoning: str
     drivers: list[str] = Field(default_factory=list)
-    data_gaps: list[str] = Field(default_factory=list)
 
 
 class MarketPredictionAgentOutput(BaseModel):
     summary: str
     predictions: list[MarketPrediction] = Field(min_length=1)
+    data_quality_notes: list[str] = Field(default_factory=list)
+
+
+class MatchInsightOutcome(BaseModel):
+    id: OutcomeId
+    label: str
+    value: int = Field(ge=0, le=100)
+    trend: float = 0
+    direction: TrendDirection = "flat"
+
+
+class MatchInsightReasoningPoint(BaseModel):
+    id: str
+    title: str
+    detail: str
+    impact: ReasoningImpact
+
+
+class MatchInsightReasoning(BaseModel):
+    headline: str
+    description: str
+    points: list[MatchInsightReasoningPoint] = Field(min_length=1)
+
+
+class MatchInsightEdgeSignal(BaseModel):
+    id: str
+    label: str
+    detail: str
+    delta: str
+    tone: EdgeTone
+
+
+class MatchInsightAgentOutput(BaseModel):
+    winner: str
+    confidence: float = Field(ge=0, le=10)
+    status: str
+    summary: str
+    outcomes: list[MatchInsightOutcome] = Field(min_length=3, max_length=3)
+    reasoning: MatchInsightReasoning
+    edge_signals: list[MatchInsightEdgeSignal] = Field(min_length=1)
+    net_edge: str
     data_quality_notes: list[str] = Field(default_factory=list)
 
 
@@ -55,3 +99,14 @@ class MarketPredictionResponse(BaseModel):
     summary: str
     predictions: list[MarketPrediction] = Field(min_length=1)
     data_quality_notes: list[str] = Field(default_factory=list)
+
+
+class MatchInsightResponse(BaseModel):
+    match_id: str
+    generated_at: datetime
+    model_name: str | None = None
+    prediction_mode: PredictionMode = "pre_match"
+    match: WorldCupMatch
+    live_snapshot: LiveMatchSnapshot | None = None
+    prediction_context: dict[str, Any] | None = None
+    insight: MatchInsightAgentOutput

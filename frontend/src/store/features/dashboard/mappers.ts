@@ -5,11 +5,13 @@ import type {
   LiveMatchPhase,
   LiveMatchSnapshot,
   LiveProviderStatus,
+  MatchInsightResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
 import type {
   ChatMessage,
   DashboardData,
+  EdgeSignal,
   FeedItem,
   MarketInfo,
   MatchSignal,
@@ -303,6 +305,41 @@ function buildReasoning(match: WorldCupMatch, homeTeam: Team, awayTeam: Team, wi
   }
 }
 
+function buildEdgeSignals(homeTeam: Team, awayTeam: Team, winner: string): EdgeSignal[] {
+  const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+
+  return [
+    {
+      id: 'lineup-uncertainty',
+      label: `Thông tin đội hình của ${opponent} cần xác nhận`,
+      detail: 'Mô hình giữ độ tin cậy thận trọng cho tới khi có đội hình và tình trạng cầu thủ mới hơn.',
+      delta: '+1.4%',
+      tone: 'green',
+    },
+    {
+      id: 'probability-signal',
+      label: `Tín hiệu xác suất của ${winner} ổn định`,
+      detail: `Cửa ${winner} đang nhỉnh hơn trong bộ xác suất hiện tại của trận ${homeTeam.name} vs ${awayTeam.name}.`,
+      delta: '+1.0%',
+      tone: 'green',
+    },
+    {
+      id: 'venue-context',
+      label: 'Bối cảnh sân và lịch thi đấu',
+      detail: 'Địa điểm, thời gian và trạng thái nguồn được dùng làm nền trước khi có live event chi tiết.',
+      delta: '+0.5%',
+      tone: 'green',
+    },
+    {
+      id: 'market-noise',
+      label: 'Dòng cược công chúng cần kiểm chứng',
+      detail: 'Chưa đủ dữ liệu public split đáng tin cậy, nên mô hình không cho tín hiệu thị trường lấn át dữ liệu trận.',
+      delta: '-0.7%',
+      tone: 'red',
+    },
+  ]
+}
+
 function buildMarkets(homeTeam: Team, awayTeam: Team, winner: string): MarketInfo[] {
   const opponent = opponentForWinner(winner, homeTeam, awayTeam)
 
@@ -442,10 +479,53 @@ export function mapWorldCupMatchToDashboardData(
       winner,
     },
     reasoning: buildReasoning(match, homeTeam, awayTeam, winner),
+    edgeSignals: buildEdgeSignals(homeTeam, awayTeam, winner),
+    netEdge: '+2.9%',
     markets: buildMarkets(homeTeam, awayTeam, winner),
     feed: buildFeed(match, homeTeam, awayTeam, winner),
     chat: buildChat(homeTeam, awayTeam, winner),
     prompts: buildPrompts(winner),
+  }
+}
+
+function insightWinnerLabel(value: string, base: DashboardData) {
+  if (value === base.match.homeTeam.name || value === base.match.awayTeam.name || value === 'Hòa') {
+    return value
+  }
+
+  return displayTeamName(value) || value
+}
+
+export function applyMatchInsightToDashboardData(
+  response: MatchInsightResponse,
+  base: DashboardData,
+): DashboardData {
+  const insight = response.insight
+  const winner = insightWinnerLabel(insight.winner, base)
+  const outcomes = insight.outcomes.map((outcome) => {
+    if (outcome.id === 'home') {
+      return { ...outcome, label: base.match.homeTeam.name }
+    }
+    if (outcome.id === 'away') {
+      return { ...outcome, label: base.match.awayTeam.name }
+    }
+    return { ...outcome, label: 'Hòa' }
+  })
+
+  return {
+    ...base,
+    prediction: {
+      ...base.prediction,
+      winner,
+      confidence: insight.confidence,
+      status: insight.status,
+      lastUpdated: formatTime(response.generated_at),
+      summary: insight.summary,
+      outcomes,
+    },
+    reasoning: insight.reasoning,
+    edgeSignals: insight.edge_signals,
+    netEdge: insight.net_edge,
   }
 }
 

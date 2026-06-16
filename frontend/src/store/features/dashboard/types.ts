@@ -56,6 +56,14 @@ export interface ReasoningInfo {
   points: ReasoningPoint[]
 }
 
+export interface EdgeSignal {
+  id: string
+  label: string
+  detail: string
+  delta: string
+  tone: 'blue' | 'gray' | 'green' | 'orange' | 'purple' | 'red'
+}
+
 export interface MarketInfo {
   id: string
   name: string
@@ -101,6 +109,8 @@ export interface DashboardData {
   match: MatchInfo
   prediction: PredictionInfo
   reasoning: ReasoningInfo
+  edgeSignals: EdgeSignal[]
+  netEdge: string
   markets: MarketInfo[]
   movement: MovementPoint[]
   feed: FeedItem[]

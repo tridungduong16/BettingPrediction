@@ -11,7 +11,15 @@ from app.models.live_events import (
     LiveMatchSnapshot,
     LiveTeam,
 )
-from app.models.market_prediction import MarketPrediction, MarketPredictionAgentOutput
+from app.models.market_prediction import (
+    MarketPrediction,
+    MarketPredictionAgentOutput,
+    MatchInsightAgentOutput,
+    MatchInsightEdgeSignal,
+    MatchInsightOutcome,
+    MatchInsightReasoning,
+    MatchInsightReasoningPoint,
+)
 from app.models.news import MatchNewsSearchResponse, NewsSearchResult
 from app.models.worldcup import Goal, Score, WorldCupMatch
 from app.services.market_prediction_service import (
@@ -159,7 +167,6 @@ class FakeMarketAgent:
                     risk="medium",
                     reasoning="Mô hình fake chọn outcome đầu tiên để kiểm tra orchestration.",
                     drivers=["Fixture context available"],
-                    data_gaps=["No live provider configured"],
                 )
                 for market in markets
             ],
@@ -202,6 +209,60 @@ class FakeNewsSearchService:
         )
 
 
+class FakeInsightAgent:
+    model_name = "fake-insight-model"
+
+    async def predict_insight(self, *, match, live_snapshot, prediction_context=None):
+        self.last_match = match
+        self.last_live_snapshot = live_snapshot
+        self.last_prediction_context = prediction_context
+        return MatchInsightAgentOutput(
+            winner=match["home_team"],
+            confidence=7.4,
+            status="Dự đoán trước trận",
+            summary=f"{match['home_team']} nhỉnh hơn trong context test.",
+            outcomes=[
+                MatchInsightOutcome(
+                    id="home",
+                    label=match["home_team"],
+                    value=57,
+                    trend=2.1,
+                    direction="up",
+                ),
+                MatchInsightOutcome(id="draw", label="Hòa", value=23, trend=-0.4, direction="down"),
+                MatchInsightOutcome(
+                    id="away",
+                    label=match["away_team"],
+                    value=20,
+                    trend=-1.7,
+                    direction="down",
+                ),
+            ],
+            reasoning=MatchInsightReasoning(
+                headline=f"Lợi thế nghiêng về {match['home_team']}.",
+                description="Reasoning tổng quan từ fake agent.",
+                points=[
+                    MatchInsightReasoningPoint(
+                        id="fixture-context",
+                        title="Bối cảnh trận",
+                        detail="Fixture context available.",
+                        impact="high",
+                    )
+                ],
+            ),
+            edge_signals=[
+                MatchInsightEdgeSignal(
+                    id="fixture-edge",
+                    label="Bối cảnh trận",
+                    detail="Nguồn lịch thi đấu đã sẵn sàng.",
+                    delta="+1.0%",
+                    tone="green",
+                )
+            ],
+            net_edge="+2.1%",
+        )
+
+
 def test_default_market_candidates_cover_vietnam_priority_markets():
     markets = default_market_candidates(make_match())
 
@@ -239,6 +300,7 @@ async def test_market_prediction_service_returns_structured_predictions():
     assert len(response.predictions) == 5
     assert response.predictions[0].selection == "Brazil -1.0 thắng kèo"
     assert response.predictions[2].selection == "Brazil thắng"
+    assert "data_gaps" not in response.predictions[0].model_dump()
     assert response.prediction_mode == "pre_match"
     assert response.prediction_context is not None
     assert response.prediction_context["prediction_mode"] == "pre_match"
@@ -275,6 +337,37 @@ async def test_market_prediction_service_adds_match_news_to_agent_context():
     )
     assert "perplexity_search" in agent.last_prediction_context["data_quality"]["sources"]
     assert response.prediction_context["news"]["source_id"] == "search-123"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_returns_separate_match_insight():
+    match = make_match()
+    insight_agent = FakeInsightAgent()
+    news_service = FakeNewsSearchService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        news_search_service=news_service,
+        insight_agent=insight_agent,
+        agent=FakeMarketAgent(),
+    )
+
+    response = await service.predict_match_insight(
+        match_id=match.id,
+        news_max_results=3,
+        force_refresh=True,
+    )
+
+    assert response.model_name == "fake-insight-model"
+    assert response.insight.winner == "Brazil"
+    assert response.insight.outcomes[0].id == "home"
+    assert response.insight.outcomes[0].value == 57
+    assert response.insight.reasoning.points[0].impact == "high"
+    assert response.insight.edge_signals[0].delta == "+1.0%"
+    assert insight_agent.last_prediction_context["news"]["query"] == (
+        "thông tin trận Brazil và France"
+    )
+    assert news_service.last_kwargs["max_results"] == 3
 
 
 @pytest.mark.asyncio

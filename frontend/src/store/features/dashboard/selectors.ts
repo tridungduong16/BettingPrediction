@@ -10,6 +10,14 @@ export const selectDashboardLiveStatus = (state: RootState) => state.dashboard.l
 
 export const selectLastLiveSnapshotAt = (state: RootState) => state.dashboard.lastLiveSnapshotAt
 
+export const selectMatchInsight = (state: RootState) => state.dashboard.matchInsight
+
+export const selectInsightPredictionStatus = (state: RootState) =>
+  state.dashboard.insightPredictionStatus
+
+export const selectInsightPredictionError = (state: RootState) =>
+  state.dashboard.insightPredictionError
+
 export const selectMarketPredictions = (state: RootState) => state.dashboard.marketPredictions
 
 export const selectMarketPredictionStatus = (state: RootState) =>

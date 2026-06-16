@@ -104,14 +104,12 @@ class MatchContextService:
                 "side": "home",
                 "provider_team_id": provider_ids.get("home"),
                 "live_statistics": live_statistics.get("home", {}),
-                "data_gaps": self._team_data_gaps("home", live_statistics),
             },
             "away": {
                 "name": match.team2,
                 "side": "away",
                 "provider_team_id": provider_ids.get("away"),
                 "live_statistics": live_statistics.get("away", {}),
-                "data_gaps": self._team_data_gaps("away", live_statistics),
             },
         }
 
@@ -291,21 +289,6 @@ class MatchContextService:
                 stats_by_side[side] = stats
 
         return stats_by_side
-
-    @staticmethod
-    def _team_data_gaps(
-        side: str,
-        live_statistics: dict[str, dict[str, Any]],
-    ) -> list[str]:
-        gaps = [
-            "recent form unavailable",
-            "squad availability unavailable",
-            "pre-match xG/shot profile unavailable",
-        ]
-        if side not in live_statistics:
-            gaps.append("live statistics unavailable")
-        return gaps
-
 
 def _nested_str(payload: dict[str, Any], *keys: str) -> str | None:
     value: Any = payload

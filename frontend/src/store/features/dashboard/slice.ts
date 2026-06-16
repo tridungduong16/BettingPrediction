@@ -5,9 +5,11 @@ import type {
   LiveMatchSnapshot,
   LiveProviderStatus,
   MarketPredictionResponse,
+  MatchInsightResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
 import {
+  applyMatchInsightToDashboardData,
   applyLiveSnapshotToDashboardData,
   liveStatusMessage,
   mapWorldCupMatchToDashboardData,
@@ -17,10 +19,14 @@ import type { DashboardData } from '@/store/features/dashboard/types'
 export type DashboardStatus = 'error' | 'idle' | 'loading' | 'ready'
 export type DashboardLiveStatus = LiveProviderStatus
 export type DashboardMarketPredictionStatus = 'error' | 'idle' | 'loading' | 'ready'
+export type DashboardInsightPredictionStatus = 'error' | 'idle' | 'loading' | 'ready'
 
 export interface DashboardState {
   data: DashboardData
   error?: string
+  insightPredictionError?: string
+  insightPredictionStatus: DashboardInsightPredictionStatus
+  matchInsight?: MatchInsightResponse
   lastLiveSnapshotAt?: string
   liveStatus: DashboardLiveStatus
   marketPredictionError?: string
@@ -32,6 +38,7 @@ export interface DashboardState {
 
 const initialState: DashboardState = {
   data: dashboardPlaceholder,
+  insightPredictionStatus: 'idle',
   liveStatus: 'not_configured',
   marketPredictionStatus: 'idle',
   selectedMarketId: dashboardPlaceholder.markets[0]?.id ?? '',
@@ -46,6 +53,9 @@ const dashboardSlice = createSlice({
       void action.payload
       state.status = 'loading'
       state.error = undefined
+      state.insightPredictionError = undefined
+      state.insightPredictionStatus = 'idle'
+      state.matchInsight = undefined
       state.marketPredictionError = undefined
       state.marketPredictionStatus = 'idle'
       state.marketPredictions = undefined
@@ -77,6 +87,23 @@ const dashboardSlice = createSlice({
       state.marketPredictionStatus = 'error'
       state.marketPredictionError = action.payload
       state.marketPredictions = undefined
+    },
+    loadMatchInsightRequested(state, action: PayloadAction<string>) {
+      void action.payload
+      state.insightPredictionStatus = 'loading'
+      state.insightPredictionError = undefined
+      state.matchInsight = undefined
+    },
+    loadMatchInsightSucceeded(state, action: PayloadAction<MatchInsightResponse>) {
+      state.insightPredictionStatus = 'ready'
+      state.insightPredictionError = undefined
+      state.matchInsight = action.payload
+      state.data = applyMatchInsightToDashboardData(action.payload, state.data)
+    },
+    loadMatchInsightFailed(state, action: PayloadAction<string>) {
+      state.insightPredictionStatus = 'error'
+      state.insightPredictionError = action.payload
+      state.matchInsight = undefined
     },
     startLivePolling(state, action: PayloadAction<string>) {
       void state

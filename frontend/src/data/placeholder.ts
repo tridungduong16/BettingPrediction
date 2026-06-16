@@ -101,6 +101,37 @@ export const dashboardPlaceholder: DashboardData = {
       },
     ],
   },
+  edgeSignals: [
+    {
+      id: 'lineup-uncertainty',
+      label: 'Tín hiệu đội hình cần xác nhận',
+      detail: 'Mô hình giữ độ tin cậy thận trọng cho tới khi có đội hình và tình trạng cầu thủ mới hơn.',
+      delta: '+1.4%',
+      tone: 'green',
+    },
+    {
+      id: 'probability-signal',
+      label: 'Tín hiệu xác suất ổn định',
+      detail: 'Cửa đội được chọn đang nhỉnh hơn trong bộ xác suất hiện tại.',
+      delta: '+1.0%',
+      tone: 'green',
+    },
+    {
+      id: 'venue-context',
+      label: 'Bối cảnh sân và lịch thi đấu',
+      detail: 'Địa điểm, thời gian và trạng thái nguồn được dùng làm nền trước khi có live event chi tiết.',
+      delta: '+0.5%',
+      tone: 'green',
+    },
+    {
+      id: 'market-noise',
+      label: 'Dòng cược công chúng cần kiểm chứng',
+      detail: 'Chưa đủ dữ liệu public split đáng tin cậy, nên mô hình không cho tín hiệu thị trường lấn át dữ liệu trận.',
+      delta: '-0.7%',
+      tone: 'red',
+    },
+  ],
+  netEdge: '+2.9%',
   markets: [
     {
       id: 'asian-handicap',

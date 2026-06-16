@@ -27,6 +27,7 @@ uv run python scripts/scrape_worldcup.py --year 2026 --force
 - `GET /api/live/provider-fixtures/search?date=2026-06-11&team=Mexico`
 - `WS /api/live/matches/{match_id}/events/ws`
 - `GET /api/news/match?home_team=Pháp&away_team=Senegal`
+- `GET /api/predictions/matches/{match_id}/insight`
 - `GET /api/predictions/matches/{match_id}/markets`
 
 Default source order is the `upbound-web/worldcup-live.json` mirror first, then the official `openfootball/worldcup.json` generated dataset.
@@ -104,8 +105,13 @@ curl 'http://127.0.0.1:8000/api/news/match?home_team=Pháp&away_team=Senegal&max
 
 ### Market predictions
 
-`GET /api/predictions/matches/{match_id}/markets` calls the structured LLM market prediction
-agent and returns one prediction with reasoning for each default Vietnamese football market:
+`GET /api/predictions/matches/{match_id}/insight` calls a structured LLM agent for the main
+dashboard prediction: winner, confidence, win probabilities, reasoning, probability signals, and
+net edge.
+
+`GET /api/predictions/matches/{match_id}/markets` calls a separate structured LLM market
+prediction agent and returns one prediction with reasoning for each default Vietnamese football
+market:
 
 - Kèo Châu Á: `{home} -1.0`
 - Tài/Xỉu: `Over 2.5 bàn`

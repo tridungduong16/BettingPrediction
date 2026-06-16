@@ -4,12 +4,15 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.agents.market_prediction import FutboliaMarketPredictionAgent
+from app.agents.match_insight import FutboliaMatchInsightAgent
 from app.core.app_config import WorldCupSourceName
 from app.models.live_events import LiveMatchSnapshot
 from app.models.market_prediction import (
     MarketPredictionAgentOutput,
     MarketPredictionCandidate,
     MarketPredictionResponse,
+    MatchInsightAgentOutput,
+    MatchInsightResponse,
     PredictionMode,
 )
 from app.models.worldcup import WorldCupMatch
@@ -36,12 +39,14 @@ class MarketPredictionService:
         match_context_service: MatchContextService | None = None,
         news_search_service: NewsSearchService | None = None,
         agent: Any | None = None,
+        insight_agent: Any | None = None,
     ) -> None:
         self._worldcup_service = worldcup_service
         self._live_event_service = live_event_service
         self._match_context_service = match_context_service or MatchContextService()
         self._news_search_service = news_search_service
-        self._agent = agent or FutboliaMarketPredictionAgent()
+        self._market_agent = agent or FutboliaMarketPredictionAgent()
+        self._insight_agent = insight_agent or FutboliaMatchInsightAgent()
 
     async def predict_match_markets(
         self,
@@ -91,7 +96,7 @@ class MarketPredictionService:
         }
 
         try:
-            output: MarketPredictionAgentOutput = await self._agent.predict_markets(
+            output: MarketPredictionAgentOutput = await self._market_agent.predict_markets(
                 match=llm_context["match"],
                 live_snapshot=llm_context["live"],
                 markets=markets,
@@ -104,7 +109,7 @@ class MarketPredictionService:
         return MarketPredictionResponse(
             match_id=match.id,
             generated_at=datetime.now(UTC),
-            model_name=getattr(self._agent, "model_name", None),
+            model_name=getattr(self._market_agent, "model_name", None),
             prediction_mode=prediction_mode,
             match=match,
             live_snapshot=live_snapshot,
@@ -113,6 +118,73 @@ class MarketPredictionService:
             summary=output.summary,
             predictions=output.predictions,
             data_quality_notes=output.data_quality_notes,
+        )
+
+    async def predict_match_insight(
+        self,
+        *,
+        match_id: str,
+        year: int | None = None,
+        source: WorldCupSourceName = "auto",
+        provider_fixture_id: str | None = None,
+        force_refresh: bool = False,
+        include_live: bool = True,
+        include_news: bool = True,
+        news_max_results: int | None = None,
+        prediction_mode: PredictionMode = "pre_match",
+        prediction_context: dict[str, Any] | None = None,
+    ) -> MatchInsightResponse:
+        match = await self._worldcup_service.get_match(
+            match_id=match_id,
+            year=year,
+            source=source,
+            force_refresh=force_refresh,
+        )
+        if match is None:
+            raise MarketPredictionMatchNotFoundError(f"Match not found: {match_id}")
+
+        live_snapshot = await self._get_live_snapshot(
+            match_id=match_id,
+            provider_fixture_id=provider_fixture_id,
+            force_refresh=force_refresh,
+            include_live=include_live,
+        )
+        news_context = await self._get_news_context(
+            match=match,
+            include_news=include_news,
+            force_refresh=force_refresh,
+            max_results=news_max_results,
+        )
+        llm_context = self._match_context_service.build_market_prediction_context(
+            match=match,
+            live_snapshot=live_snapshot,
+            prediction_mode=prediction_mode,
+            news_context=news_context,
+            user_context=prediction_context,
+        )
+        agent_prediction_context = {
+            key: value for key, value in llm_context.items() if key not in {"match", "live"}
+        }
+
+        try:
+            output: MatchInsightAgentOutput = await self._insight_agent.predict_insight(
+                match=llm_context["match"],
+                live_snapshot=llm_context["live"],
+                prediction_context=agent_prediction_context,
+            )
+        except Exception as exc:
+            raise MarketPredictionUnavailableError(str(exc)) from exc
+
+        self._validate_insight_output(output)
+        return MatchInsightResponse(
+            match_id=match.id,
+            generated_at=datetime.now(UTC),
+            model_name=getattr(self._insight_agent, "model_name", None),
+            prediction_mode=prediction_mode,
+            match=match,
+            live_snapshot=live_snapshot,
+            prediction_context=llm_context,
+            insight=output,
         )
 
     async def _get_live_snapshot(
@@ -168,6 +240,15 @@ class MarketPredictionService:
                 problems.append(f"unknown market ids: {', '.join(sorted(unknown_ids))}")
             raise MarketPredictionUnavailableError(
                 "Invalid LLM market output; " + "; ".join(problems)
+            )
+
+    @staticmethod
+    def _validate_insight_output(output: MatchInsightAgentOutput) -> None:
+        expected_ids = {"home", "draw", "away"}
+        actual_ids = {outcome.id for outcome in output.outcomes}
+        if actual_ids != expected_ids:
+            raise MarketPredictionUnavailableError(
+                "Invalid LLM insight output; expected outcomes: home, draw, away"
             )
 
 

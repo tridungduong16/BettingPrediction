@@ -2,12 +2,13 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, delay, put, race, take, takeLatest } from 'redux-saga/effects'
 
 import { getLiveMatchSnapshot } from '@/api/liveEvents'
-import { getMarketPredictions } from '@/api/predictions'
+import { getMarketPredictions, getMatchInsight } from '@/api/predictions'
 import { getWorldCupMatch } from '@/api/worldcup'
 import { env } from '@/config/env'
 import type {
   LiveMatchSnapshot,
   MarketPredictionResponse,
+  MatchInsightResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
 import { dashboardActions } from '@/store/features/dashboard/slice'
@@ -24,6 +25,7 @@ function* loadMatch(action: PayloadAction<string>) {
   try {
     const match: WorldCupMatch = yield call(getWorldCupMatch, action.payload)
     yield put(dashboardActions.loadMatchSucceeded(match))
+    yield put(dashboardActions.loadMatchInsightRequested(action.payload))
     yield put(dashboardActions.loadMarketPredictionsRequested(action.payload))
   } catch (error) {
     yield put(dashboardActions.loadMatchFailed(errorMessage(error)))
@@ -36,6 +38,15 @@ function* loadMarketPredictions(action: PayloadAction<string>) {
     yield put(dashboardActions.loadMarketPredictionsSucceeded(predictions))
   } catch (error) {
     yield put(dashboardActions.loadMarketPredictionsFailed(errorMessage(error)))
+  }
+}
+
+function* loadMatchInsight(action: PayloadAction<string>) {
+  try {
+    const insight: MatchInsightResponse = yield call(getMatchInsight, action.payload)
+    yield put(dashboardActions.loadMatchInsightSucceeded(insight))
+  } catch (error) {
+    yield put(dashboardActions.loadMatchInsightFailed(errorMessage(error)))
   }
 }
 
@@ -77,6 +88,7 @@ function* pollLiveSnapshots(action: PayloadAction<string>) {
 export function* dashboardSaga() {
   yield all([
     takeLatest(dashboardActions.loadMatchRequested.type, loadMatch),
+    takeLatest(dashboardActions.loadMatchInsightRequested.type, loadMatchInsight),
     takeLatest(dashboardActions.loadMarketPredictionsRequested.type, loadMarketPredictions),
     takeLatest(dashboardActions.startLivePolling.type, pollLiveSnapshots),
   ])
