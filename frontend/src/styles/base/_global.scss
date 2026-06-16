@@ -1,0 +1,69 @@
+@use '../abstracts/variables' as *;
+
+:root {
+  --color-bg-primary: #030816;
+  --color-bg-secondary: #08111f;
+  --color-card: #0a1526;
+  --color-card-hover: #0f2138;
+  --color-border: #20324c;
+  --color-text-primary: #f5f8ff;
+  --color-text-secondary: #aebbd0;
+  --color-text-muted: #718096;
+  --color-success: #20e66b;
+  --color-warning: #ff8a1f;
+  --color-danger: #ff554a;
+  --color-info: #3483ff;
+  --color-ai-accent: #9a5cff;
+  font-family: #{$font-family-base};
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 0, rgba($color-success, 0.08), transparent 28%),
+    radial-gradient(circle at 86% 12%, rgba($color-info, 0.11), transparent 28%),
+    linear-gradient(180deg, #020611, $color-bg-primary 34%, #020611 100%);
+  color: $color-text-primary;
+  font-family: $font-family-base;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba($color-info, 0.38);
+  color: $color-text-primary;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

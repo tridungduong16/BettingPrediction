@@ -1,0 +1,2 @@
+"""Futbolia backend package."""
+

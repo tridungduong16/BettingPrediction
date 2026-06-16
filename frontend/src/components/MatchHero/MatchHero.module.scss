@@ -1,0 +1,275 @@
+.hero {
+  @include panel;
+  position: relative;
+  display: grid;
+  gap: $space-6;
+  min-height: 390px;
+  padding: $space-8;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba($color-ai-accent, 0.1), transparent 28%),
+    linear-gradient(180deg, rgba($color-surface-raise, 0.86), $color-card);
+
+  &::before {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: '';
+    background:
+      linear-gradient(90deg, rgba($color-border, 0.32) 1px, transparent 1px),
+      linear-gradient(rgba($color-border, 0.2) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 78%);
+  }
+
+  > * {
+    position: relative;
+  }
+}
+
+.context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $space-3;
+  color: $color-text-secondary;
+  font-weight: 650;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  min-height: 34px;
+  padding: 0 $space-3;
+  border: 1px solid rgba($color-info, 0.28);
+  border-radius: $radius-sm;
+  background: rgba($color-info, 0.1);
+  color: #93c5fd;
+}
+
+.matchup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: $space-6;
+}
+
+.teamBlock {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  min-width: 0;
+}
+
+.teamBlock:last-child {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.flagFrame {
+  display: grid;
+  width: 82px;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-bg-secondary;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.teamCopy {
+  min-width: 0;
+
+  span {
+    display: block;
+    color: $color-text-muted;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    @include truncate;
+    margin: $space-1 0 $space-3;
+    color: $color-text-primary;
+    font-size: 32px;
+    font-weight: 780;
+    line-height: 1.05;
+  }
+}
+
+.formRow {
+  display: inline-flex;
+  gap: $space-1;
+
+  span {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba($color-text-muted, 0.18);
+    color: $color-text-secondary;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  [data-result='W'] {
+    background: rgba($color-success, 0.15);
+    color: $color-success;
+  }
+
+  [data-result='D'] {
+    background: rgba($color-warning, 0.16);
+    color: $color-warning;
+  }
+
+  [data-result='L'] {
+    background: rgba($color-danger, 0.16);
+    color: $color-danger;
+  }
+}
+
+.versus {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid $color-border;
+  border-radius: 50%;
+  color: $color-text-muted;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.title {
+  max-width: 720px;
+  margin: 0;
+  color: $color-text-primary;
+  font-size: 32px;
+  font-weight: 780;
+  line-height: 1.1;
+}
+
+.signalGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-3;
+  max-width: 720px;
+}
+
+.signal {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: $space-1 $space-2;
+  min-height: 68px;
+  padding: $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: rgba($color-bg-primary, 0.42);
+
+  svg {
+    grid-row: span 2;
+    margin-top: 2px;
+  }
+
+  span {
+    @include truncate;
+    color: $color-text-muted;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-size: 18px;
+    line-height: 1;
+  }
+}
+
+.signal[data-tone='positive'] {
+  svg,
+  strong {
+    color: $color-success;
+  }
+}
+
+.signal[data-tone='warning'] {
+  svg,
+  strong {
+    color: $color-warning;
+  }
+}
+
+.signal[data-tone='info'] {
+  svg,
+  strong {
+    color: #93c5fd;
+  }
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $space-3;
+  align-self: end;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    min-width: 0;
+    color: $color-text-secondary;
+
+    span {
+      @include truncate;
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    min-height: auto;
+    padding: $space-5;
+  }
+
+  .matchup {
+    grid-template-columns: 1fr;
+    gap: $space-4;
+  }
+
+  .teamBlock,
+  .teamBlock:last-child {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .versus {
+    width: auto;
+    height: 32px;
+    border-radius: $radius-sm;
+  }
+
+  .teamCopy h2,
+  .title {
+    font-size: 28px;
+  }
+
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .signalGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,39 @@
+@use './variables' as *;
+
+@mixin content-shell {
+  width: min(100% - 32px, $content-width);
+  margin-inline: auto;
+
+  @media (max-width: 640px) {
+    width: min(100% - 24px, $content-width);
+  }
+}
+
+@mixin panel {
+  background: $color-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+}
+
+@mixin panel-hover {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    background: $color-card-hover;
+    border-color: $color-border-strong;
+  }
+}
+
+@mixin focus-ring {
+  outline: 2px solid rgba($color-info, 0.5);
+  outline-offset: 2px;
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

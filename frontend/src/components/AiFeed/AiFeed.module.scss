@@ -1,0 +1,69 @@
+.panel {
+  @include panel;
+  padding: $space-5;
+}
+
+.header {
+  margin-bottom: $space-4;
+
+  span {
+    color: $color-ai-accent;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: $space-1 0 0;
+    color: $color-text-primary;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.feedList {
+  display: grid;
+  gap: $space-3;
+}
+
+.feedItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: $space-3;
+  padding-bottom: $space-3;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  span {
+    display: block;
+    color: $color-text-muted;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  h3 {
+    margin: $space-1 0;
+    color: $color-text-primary;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-secondary;
+  }
+}
+
+.icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: $radius-sm;
+  background: rgba($color-ai-accent, 0.12);
+  color: $color-ai-accent;
+}

@@ -1,0 +1,144 @@
+.panel {
+  @include panel;
+  display: grid;
+  gap: $space-4;
+  padding: $space-5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-4;
+
+  span {
+    color: $color-ai-accent;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: $space-1 0 0;
+    color: $color-text-primary;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  svg {
+    color: $color-ai-accent;
+  }
+}
+
+.messages {
+  display: grid;
+  gap: $space-3;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: $space-1;
+}
+
+.message {
+  max-width: 92%;
+  padding: $space-3;
+  border-radius: $radius-md;
+
+  p {
+    margin: 0;
+    color: $color-text-secondary;
+  }
+}
+
+.ai {
+  justify-self: start;
+  border: 1px solid $color-border;
+  background: $color-bg-secondary;
+}
+
+.user {
+  justify-self: end;
+  background: rgba($color-ai-accent, 0.18);
+
+  p {
+    color: $color-text-primary;
+  }
+}
+
+.prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+
+  button {
+    min-height: 44px;
+    padding: 0 $space-3;
+    border: 1px solid $color-border;
+    border-radius: 999px;
+    background: transparent;
+    color: $color-text-secondary;
+    font-size: 12px;
+    font-weight: 700;
+
+    &:hover {
+      background: $color-card-hover;
+      color: $color-text-primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .prompts button {
+    min-height: 44px;
+  }
+
+  .message {
+    max-width: 100%;
+  }
+}
+
+.form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: $space-2;
+
+  input,
+  button {
+    min-height: 44px;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+  }
+
+  input {
+    min-width: 0;
+    padding: 0 $space-3;
+    background: $color-bg-secondary;
+    color: $color-text-primary;
+
+    &::placeholder {
+      color: $color-text-muted;
+    }
+
+    &:focus {
+      @include focus-ring;
+    }
+  }
+
+  button {
+    display: grid;
+    place-items: center;
+    background: $color-ai-accent;
+    color: $color-text-primary;
+
+    &:hover {
+      background: #7c3aed;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}

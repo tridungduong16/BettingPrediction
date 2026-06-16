@@ -1,0 +1,97 @@
+.panel {
+  @include panel;
+  padding: $space-6;
+}
+
+.headline {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-3;
+  margin-bottom: $space-5;
+  padding: $space-4;
+  border: 1px solid rgba($color-ai-accent, 0.24);
+  border-radius: $radius-md;
+  background: rgba($color-ai-accent, 0.08);
+
+  svg {
+    flex: 0 0 auto;
+    color: $color-ai-accent;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-primary;
+    font-size: 16px;
+    font-weight: 650;
+  }
+}
+
+.points {
+  display: grid;
+  gap: $space-3;
+}
+
+.point {
+  @include panel-hover;
+  padding: $space-4 0;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  p {
+    margin: $space-2 0 0;
+    color: $color-text-secondary;
+  }
+}
+
+.pointHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+
+  h3 {
+    margin: 0;
+    color: $color-text-primary;
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+.impact {
+  min-width: 66px;
+  padding: $space-1 $space-2;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.high {
+  background: rgba($color-danger, 0.12);
+  color: $color-danger;
+}
+
+.medium {
+  background: rgba($color-warning, 0.14);
+  color: $color-warning;
+}
+
+.low {
+  background: rgba($color-success, 0.12);
+  color: $color-success;
+}
+
+@media (max-width: 640px) {
+  .panel {
+    padding: $space-5;
+  }
+}

@@ -1,0 +1,146 @@
+.panel {
+  @include panel;
+  padding: $space-5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-4;
+  margin-bottom: $space-4;
+
+  span {
+    color: $color-ai-accent;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: $space-1 0 0;
+    color: $color-text-primary;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.chartWrap {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-bg-secondary;
+
+  svg {
+    width: 100%;
+    height: auto;
+    min-height: 210px;
+  }
+}
+
+.gridLine {
+  stroke: rgba($color-border, 0.92);
+  stroke-width: 1;
+}
+
+.axisText {
+  fill: $color-text-muted;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.homeArea {
+  fill: url('#homeProbabilityFill');
+  stroke: none;
+}
+
+path.home {
+  stroke: $color-success;
+  stroke-width: 4;
+}
+
+path.draw {
+  stroke: $color-warning;
+  stroke-width: 4;
+  stroke-dasharray: 8 7;
+}
+
+path.away {
+  stroke: $color-info;
+  stroke-width: 4;
+  stroke-dasharray: 3 7;
+}
+
+circle.home,
+circle.draw,
+circle.away {
+  stroke: $color-bg-secondary;
+  stroke-width: 3;
+}
+
+circle.home {
+  fill: $color-success;
+}
+
+circle.draw {
+  fill: $color-warning;
+}
+
+circle.away {
+  fill: $color-info;
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-2;
+  margin-top: $space-3;
+
+  div {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: $space-1 $space-2;
+    align-items: center;
+    min-width: 0;
+    padding: $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    background: rgba($color-card-hover, 0.34);
+  }
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  strong {
+    color: $color-text-primary;
+    line-height: 1;
+  }
+
+  small {
+    grid-column: 2;
+    color: $color-text-muted;
+    font-weight: 700;
+  }
+}
+
+.legend span.home {
+  background: $color-success;
+}
+
+.legend span.draw {
+  background: $color-warning;
+}
+
+.legend span.away {
+  background: $color-info;
+}
+
+@media (max-width: 480px) {
+  .legend {
+    grid-template-columns: 1fr;
+  }
+}

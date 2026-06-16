@@ -1,0 +1,43 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-4;
+  margin-bottom: $space-5;
+}
+
+.copy {
+  min-width: 0;
+
+  h2 {
+    margin: $space-1 0 0;
+    color: $color-text-primary;
+    font-size: 18px;
+    font-weight: 650;
+    line-height: 1.25;
+  }
+
+  p {
+    max-width: 680px;
+    margin: $space-2 0 0;
+    color: $color-text-secondary;
+  }
+}
+
+.eyebrow {
+  display: inline-flex;
+  color: $color-ai-accent;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.action {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .header {
+    display: grid;
+  }
+}
