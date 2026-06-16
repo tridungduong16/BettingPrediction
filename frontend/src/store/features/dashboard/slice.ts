@@ -47,6 +47,8 @@ const dashboardSlice = createSlice({
       state.status = 'loading'
       state.error = undefined
       state.marketPredictionError = undefined
+      state.marketPredictionStatus = 'idle'
+      state.marketPredictions = undefined
     },
     loadMatchSucceeded(state, action: PayloadAction<WorldCupMatch>) {
       state.status = 'ready'
@@ -64,6 +66,7 @@ const dashboardSlice = createSlice({
       void action.payload
       state.marketPredictionStatus = 'loading'
       state.marketPredictionError = undefined
+      state.marketPredictions = undefined
     },
     loadMarketPredictionsSucceeded(state, action: PayloadAction<MarketPredictionResponse>) {
       state.marketPredictionStatus = 'ready'
@@ -73,6 +76,7 @@ const dashboardSlice = createSlice({
     loadMarketPredictionsFailed(state, action: PayloadAction<string>) {
       state.marketPredictionStatus = 'error'
       state.marketPredictionError = action.payload
+      state.marketPredictions = undefined
     },
     startLivePolling(state, action: PayloadAction<string>) {
       void state
