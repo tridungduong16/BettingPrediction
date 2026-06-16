@@ -107,6 +107,33 @@ async def test_api_football_connector_normalizes_fixture_and_events(tmp_path):
                     ],
                 },
             )
+        if request.url.path == "/fixtures/statistics":
+            return httpx.Response(
+                200,
+                json={
+                    "errors": [],
+                    "response": [
+                        {
+                            "team": {"id": 10, "name": "Mexico"},
+                            "statistics": [
+                                {"type": "Shots on Goal", "value": 4},
+                                {"type": "Corner Kicks", "value": 5},
+                                {"type": "Ball Possession", "value": "56%"},
+                                {"type": "Yellow Cards", "value": 1},
+                            ],
+                        },
+                        {
+                            "team": {"id": 20, "name": "South Africa"},
+                            "statistics": [
+                                {"type": "Shots on Goal", "value": 1},
+                                {"type": "Corner Kicks", "value": 2},
+                                {"type": "Ball Possession", "value": "44%"},
+                                {"type": "Yellow Cards", "value": 1},
+                            ],
+                        },
+                    ],
+                },
+            )
         return httpx.Response(404, json={"errors": ["not found"]})
 
     config = AppConfig(
@@ -134,4 +161,4 @@ async def test_api_football_connector_normalizes_fixture_and_events(tmp_path):
     assert snapshot.events[0].player.name == "Player One"
     assert snapshot.events[0].assist_player.name == "Player Two"
     assert snapshot.events[1].team.side == "away"
-
+    assert snapshot.raw["statistics"][0]["statistics"][1]["type"] == "Corner Kicks"

@@ -54,9 +54,20 @@ class APIFootballLiveEventsConnector:
                 "/fixtures/events",
                 params={"fixture": provider_fixture_id},
             )
+            statistics_payload: dict[str, Any] | None = None
+            statistics_error: str | None = None
+            try:
+                statistics_payload = await self._get(
+                    client,
+                    "/fixtures/statistics",
+                    params={"fixture": provider_fixture_id},
+                )
+            except LiveEventsFetchError as exc:
+                statistics_error = str(exc)
 
         fixture = self._first_response_item(fixture_payload)
         raw_events = self._response_list(events_payload)
+        raw_statistics = self._response_list(statistics_payload or {})
 
         home_team_id = self._nested_str(fixture, "teams", "home", "id")
         away_team_id = self._nested_str(fixture, "teams", "away", "id")
@@ -85,6 +96,14 @@ class APIFootballLiveEventsConnector:
             if isinstance(raw_event, dict)
         ]
 
+        raw: dict[str, Any] = {
+            "fixture": fixture,
+            "events": raw_events,
+            "statistics": raw_statistics,
+        }
+        if statistics_error:
+            raw["statistics_error"] = statistics_error
+
         return LiveMatchSnapshot(
             match_id=match_id,
             provider="api_football",
@@ -95,7 +114,7 @@ class APIFootballLiveEventsConnector:
             score=score,
             clock=clock,
             events=events,
-            raw={"fixture": fixture, "events": raw_events},
+            raw=raw,
         )
 
     async def search_fixtures(

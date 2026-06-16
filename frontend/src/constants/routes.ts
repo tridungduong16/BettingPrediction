@@ -1,4 +1,4 @@
 export const ROUTES = {
   HOME: '/',
-  MATCHES: '/matches',
+  PREDICTION_ANALYSIS: '/phan-tich-du-doan',
 } as const

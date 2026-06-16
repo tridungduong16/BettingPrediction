@@ -10,9 +10,11 @@ from app.models.market_prediction import (
     MarketPredictionAgentOutput,
     MarketPredictionCandidate,
     MarketPredictionResponse,
+    PredictionMode,
 )
 from app.models.worldcup import WorldCupMatch
 from app.services.live_event_service import LiveEventService
+from app.services.match_context_service import MatchContextService
 from app.services.worldcup_service import WorldCupService
 
 
@@ -30,10 +32,12 @@ class MarketPredictionService:
         *,
         worldcup_service: WorldCupService,
         live_event_service: LiveEventService,
+        match_context_service: MatchContextService | None = None,
         agent: Any | None = None,
     ) -> None:
         self._worldcup_service = worldcup_service
         self._live_event_service = live_event_service
+        self._match_context_service = match_context_service or MatchContextService()
         self._agent = agent or FutboliaMarketPredictionAgent()
 
     async def predict_match_markets(
@@ -45,6 +49,7 @@ class MarketPredictionService:
         provider_fixture_id: str | None = None,
         force_refresh: bool = False,
         include_live: bool = True,
+        prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> MarketPredictionResponse:
         match = await self._worldcup_service.get_match(
@@ -63,13 +68,22 @@ class MarketPredictionService:
             include_live=include_live,
         )
         markets = default_market_candidates(match)
+        llm_context = self._match_context_service.build_market_prediction_context(
+            match=match,
+            live_snapshot=live_snapshot,
+            prediction_mode=prediction_mode,
+            user_context=prediction_context,
+        )
+        agent_prediction_context = {
+            key: value for key, value in llm_context.items() if key not in {"match", "live"}
+        }
 
         try:
             output: MarketPredictionAgentOutput = await self._agent.predict_markets(
-                match=match,
-                live_snapshot=live_snapshot,
+                match=llm_context["match"],
+                live_snapshot=llm_context["live"],
                 markets=markets,
-                prediction_context=prediction_context,
+                prediction_context=agent_prediction_context,
             )
         except Exception as exc:
             raise MarketPredictionUnavailableError(str(exc)) from exc
@@ -79,8 +93,10 @@ class MarketPredictionService:
             match_id=match.id,
             generated_at=datetime.now(UTC),
             model_name=getattr(self._agent, "model_name", None),
+            prediction_mode=prediction_mode,
             match=match,
             live_snapshot=live_snapshot,
+            prediction_context=llm_context,
             markets=markets,
             summary=output.summary,
             predictions=output.predictions,

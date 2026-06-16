@@ -138,11 +138,9 @@
 
 @media (max-width: 920px) {
   .panel {
-    top: 58px;
-    z-index: 80;
+    position: static;
     overflow-x: auto;
     background: rgba(3, 8, 22, 0.94);
-    backdrop-filter: blur(14px);
   }
 
   .nav {

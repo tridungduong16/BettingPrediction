@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  BarChart3,
   CalendarDays,
   PanelLeftClose,
   PanelLeftOpen,
@@ -17,28 +16,22 @@ import styles from './LeftPanel.module.scss'
 type NavigationItem = {
   to: string
   icon: LucideIcon
-  id: 'analysis' | 'matches' | 'prediction'
+  id: 'matches' | 'predictionAnalysis'
   label: string
 }
 
 const navigationItems: NavigationItem[] = [
   {
     to: ROUTES.HOME,
-    icon: Sparkles,
-    id: 'prediction',
-    label: 'Dự đoán',
-  },
-  {
-    to: ROUTES.MATCHES,
     icon: CalendarDays,
     id: 'matches',
     label: 'Trận đấu',
   },
   {
-    to: `${ROUTES.HOME}#analysis`,
-    icon: BarChart3,
-    id: 'analysis',
-    label: 'Phân tích',
+    to: ROUTES.PREDICTION_ANALYSIS,
+    icon: Sparkles,
+    id: 'predictionAnalysis',
+    label: 'Phân tích & dự đoán',
   },
 ]
 
@@ -49,14 +42,14 @@ interface LeftPanelProps {
 
 function getActiveSection(pathname: string): NavigationItem['id'] {
   if (typeof window === 'undefined') {
-    return 'prediction'
-  }
-
-  if (pathname === ROUTES.MATCHES) {
     return 'matches'
   }
 
-  return window.location.hash === '#analysis' ? 'analysis' : 'prediction'
+  if (pathname === ROUTES.PREDICTION_ANALYSIS) {
+    return 'predictionAnalysis'
+  }
+
+  return 'matches'
 }
 
 export function LeftPanel({ collapsed, onCollapsedChange }: LeftPanelProps) {

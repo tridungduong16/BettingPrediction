@@ -23,8 +23,15 @@ cp .env.example .env
 ## Run
 
 ```bash
-docker compose up -d --build
-docker compose ps
+scripts/deploy.sh
+```
+
+Useful options:
+
+```bash
+scripts/deploy.sh --pull
+scripts/deploy.sh --web-port 8083 --backend-port 8011
+scripts/deploy.sh --no-build
 ```
 
 Open the app at:

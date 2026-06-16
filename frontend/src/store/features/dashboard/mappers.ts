@@ -293,7 +293,9 @@ function mapEventToFeedItem(event: LiveMatchEvent): FeedItem {
 }
 
 function liveSignals(snapshot: LiveMatchSnapshot): MatchSignal[] {
+  const liveReady = snapshot.provider_status === 'ready'
   const score =
+    liveReady &&
     snapshot.score.home !== undefined &&
     snapshot.score.home !== null &&
     snapshot.score.away !== undefined &&
@@ -303,8 +305,8 @@ function liveSignals(snapshot: LiveMatchSnapshot): MatchSignal[] {
 
   return [
     { label: 'Tỷ số live', value: score, tone: 'info' },
-    { label: 'Đồng hồ', value: formatClock(snapshot), tone: snapshot.provider_status === 'ready' ? 'positive' : 'warning' },
-    { label: 'Nhà cung cấp', value: providerStatusLabels[snapshot.provider_status], tone: snapshot.provider_status === 'ready' ? 'positive' : 'warning' },
+    { label: 'Đồng hồ', value: liveReady ? formatClock(snapshot) : 'Chưa có dữ liệu', tone: liveReady ? 'positive' : 'warning' },
+    { label: 'Nhà cung cấp', value: providerStatusLabels[snapshot.provider_status], tone: liveReady ? 'positive' : 'warning' },
   ]
 }
 

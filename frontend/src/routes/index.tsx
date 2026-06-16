@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { Navigate, createBrowserRouter } from 'react-router-dom'
 
 import App from '@/App'
 import { ROUTES } from '@/constants/routes'
@@ -12,15 +12,19 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
-      },
-      {
-        path: ROUTES.MATCHES.slice(1),
         element: <Matches />,
       },
       {
-        path: '*',
+        path: ROUTES.PREDICTION_ANALYSIS.slice(1),
         element: <Home />,
+      },
+      {
+        path: 'matches',
+        element: <Navigate to={ROUTES.HOME} replace />,
+      },
+      {
+        path: '*',
+        element: <Matches />,
       },
     ],
   },

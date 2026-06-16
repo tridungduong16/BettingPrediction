@@ -1,12 +1,16 @@
 .page {
   display: grid;
-  gap: 16px;
+  gap: $space-5;
   width: 100%;
   color: $color-text-primary;
 }
 
 .heroCard,
-.analysisGrid {
+.predictionDeck,
+.reasoningSection,
+.marketsSection,
+.liveSection,
+.dashboardLayout {
   scroll-margin-top: 82px;
 }
 
@@ -40,64 +44,71 @@
 }
 
 .liveStatusBanner {
-  min-height: 38px;
-  padding: $space-2 $space-4;
-  border: 1px solid rgba(153, 183, 230, 0.18);
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  min-height: 42px;
+  padding: $space-3 $space-4;
+  border: 1px solid rgba(153, 183, 230, 0.2);
   border-radius: $radius-md;
-  background: rgba(15, 30, 52, 0.56);
+  background: rgba(15, 30, 52, 0.64);
   color: $color-text-secondary;
   font-size: 13px;
   font-weight: 750;
+
+  svg {
+    flex: 0 0 auto;
+    color: $color-info;
+  }
 }
 
 .liveStatusBanner[data-status='provider_error'] {
-  border-color: rgba($color-warning, 0.24);
-  background: rgba($color-warning, 0.07);
+  border-color: rgba($color-warning, 0.28);
+  background: rgba($color-warning, 0.08);
   color: #ffd98d;
+
+  svg {
+    color: $color-warning;
+  }
 }
 
 .liveStatusBanner[data-status='unmapped'] {
-  border-color: rgba($color-info, 0.24);
+  border-color: rgba($color-info, 0.28);
   background: rgba($color-info, 0.08);
   color: #c8dcff;
 }
 
 .heroCard,
+.winnerPanel,
+.probabilityPanel,
 .reasonPanel,
-.topPicksPanel,
+.edgePanel,
 .movementPanel,
-.contextPanel,
-.flowPanel,
-.modelPanel,
-.actionsPanel,
+.liveRail,
 .liveSummary {
   min-width: 0;
   border: 1px solid $color-border;
   border-radius: $radius-xl;
   background:
-    linear-gradient(180deg, rgba(28, 49, 78, 0.72), rgba(8, 17, 31, 0.94)),
+    linear-gradient(180deg, rgba(28, 49, 78, 0.64), rgba(8, 17, 31, 0.94)),
     $color-card;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.12);
 }
 
 .heroCard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(330px, 420px);
-  gap: 0;
-  min-height: 320px;
+  grid-column: 1;
   overflow: hidden;
   isolation: isolate;
 }
 
 .matchStage {
   position: relative;
-  min-height: 320px;
+  min-height: 330px;
   overflow: hidden;
   isolation: isolate;
   background:
-    radial-gradient(circle at 19% 46%, rgba(31, 232, 89, 0.32), transparent 34%),
-    radial-gradient(circle at 78% 42%, rgba(37, 101, 255, 0.34), transparent 36%),
-    radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.08), transparent 52%),
+    radial-gradient(circle at 18% 44%, rgba(31, 232, 89, 0.26), transparent 34%),
+    radial-gradient(circle at 82% 45%, rgba(37, 101, 255, 0.28), transparent 36%),
     linear-gradient(90deg, rgba(20, 85, 28, 0.84), rgba(5, 15, 29, 0.84) 48%, rgba(17, 39, 105, 0.9));
 
   &::before,
@@ -110,7 +121,7 @@
 
   &::before {
     z-index: 0;
-    opacity: 0.5;
+    opacity: 0.46;
     background:
       linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -121,18 +132,18 @@
   &::after {
     z-index: 1;
     background:
-      radial-gradient(ellipse at 50% 78%, rgba(255, 255, 255, 0.22), transparent 32%),
-      linear-gradient(180deg, rgba(3, 7, 15, 0.08), rgba(3, 7, 15, 0.52));
+      radial-gradient(ellipse at 50% 82%, rgba(255, 255, 255, 0.2), transparent 32%),
+      linear-gradient(180deg, rgba(3, 7, 15, 0.06), rgba(3, 7, 15, 0.52));
   }
 }
 
 .sideName {
   position: absolute;
   z-index: 1;
-  top: 36px;
+  top: 38px;
   bottom: 18px;
   color: rgba(255, 255, 255, 0.08);
-  font-size: 90px;
+  font-size: 92px;
   font-weight: 950;
   line-height: 0.82;
   text-transform: uppercase;
@@ -152,13 +163,13 @@
 .playerImage {
   position: absolute;
   z-index: 2;
-  inset-block-end: -70px;
+  inset-block-end: -72px;
   width: 42%;
   pointer-events: none;
 
   img {
     width: auto;
-    height: 390px;
+    height: 372px;
     max-width: none;
     object-fit: contain;
     filter: drop-shadow(0 28px 26px rgba(0, 0, 0, 0.34));
@@ -166,11 +177,11 @@
 }
 
 .playerHome {
-  left: -38px;
+  left: -34px;
 }
 
 .playerAway {
-  right: -62px;
+  right: -58px;
 
   img {
     margin-left: auto;
@@ -183,10 +194,11 @@
   display: grid;
   justify-items: center;
   gap: $space-1;
-  padding-top: 22px;
+  padding: 22px $space-5 0;
   text-align: center;
 
   strong {
+    color: #ffffff;
     font-size: 13px;
     font-weight: 950;
     text-transform: uppercase;
@@ -217,11 +229,11 @@
   position: relative;
   z-index: 4;
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(260px, 288px) minmax(190px, 1fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(128px, 178px) minmax(180px, 1fr);
   gap: clamp(12px, 3vw, 34px);
   align-items: center;
   min-height: 238px;
-  padding: 0 clamp(22px, 5vw, 54px) 18px;
+  padding: 0 clamp(22px, 4vw, 48px) 22px;
 }
 
 .teamBlock {
@@ -231,30 +243,30 @@
   text-align: center;
 
   img {
-    width: 62px;
-    height: 62px;
+    width: 64px;
+    height: 64px;
     object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.72);
-    border-radius: 16px;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+    border-radius: $radius-lg;
   }
 
   h1,
   h2 {
     margin: 0;
     color: #ffffff;
-    font-size: clamp(32px, 4.5vw, 52px);
+    font-size: 44px;
     font-weight: 950;
-    line-height: 0.95;
+    line-height: 0.98;
     text-transform: uppercase;
     text-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    text-wrap: balance;
     overflow-wrap: anywhere;
   }
 
   span {
     color: rgba(223, 231, 245, 0.78);
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 750;
   }
 }
 
@@ -266,123 +278,88 @@
   transform: translateX(-8px);
 }
 
-.aiPickCard {
+.matchCenter {
   display: grid;
   justify-items: center;
   gap: $space-2;
-  min-height: 190px;
-  padding: $space-4;
-  border: 1px solid rgba(164, 194, 255, 0.26);
-  border-radius: $radius-xl;
-  background: rgba(8, 19, 35, 0.88);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 24px 42px rgba(0, 0, 0, 0.24);
+  min-height: 112px;
+  align-content: center;
+  color: $color-text-secondary;
   text-align: center;
 
-  > span {
-    display: inline-flex;
-    align-items: center;
-    gap: $space-1;
-    color: $color-text-primary;
-    font-size: 13px;
-    font-weight: 950;
-    text-transform: uppercase;
-
-    svg {
-      color: $color-success;
-    }
+  span,
+  em {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 850;
   }
 
-  > strong {
-    color: $color-success;
-    font-size: 30px;
-    font-weight: 950;
-    line-height: 1.05;
-    text-transform: uppercase;
-    text-wrap: balance;
-  }
-
-  p {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $space-3;
-    margin: 0;
-    color: $color-text-secondary;
-    font-weight: 650;
-
-    svg,
-    b {
-      color: $color-success;
-    }
-
-    b {
-      font-size: 22px;
-      font-weight: 950;
-    }
-  }
-}
-
-.confidenceScore {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-3;
-
-  div {
-    display: inline-flex;
-    align-items: baseline;
+  strong {
     color: #ffffff;
-  }
-
-  b {
     font-size: 34px;
     font-weight: 950;
     line-height: 1;
   }
 
-  small {
-    color: $color-text-secondary;
-    font-size: 15px;
-    font-weight: 750;
-  }
-
   em {
+    display: inline-flex;
     min-height: 28px;
-    padding: 6px $space-3;
+    align-items: center;
+    padding: 0 $space-3;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
-    background: rgba($color-success, 0.12);
-    color: $color-success;
-    font-style: normal;
-    font-size: 12px;
-    font-weight: 900;
+    background: rgba(3, 9, 20, 0.42);
+    color: $color-text-primary;
   }
 }
 
-.probabilityPanel {
+.predictionDeck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 280px);
+  gap: $space-3;
+  align-items: stretch;
+}
+
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
+  gap: $space-4;
+  align-items: start;
+}
+
+.mainStack {
+  grid-column: 1;
+  display: grid;
+  min-width: 0;
+  gap: $space-5;
+}
+
+.winnerPanel,
+.probabilityPanel,
+.reasonPanel,
+.edgePanel,
+.movementPanel {
   display: grid;
   align-content: start;
-  gap: $space-5;
-  padding: 28px;
-  border-left: 1px solid rgba(142, 170, 212, 0.22);
-  background:
-    radial-gradient(circle at 86% 18%, rgba($color-success, 0.1), transparent 24%),
-    linear-gradient(180deg, rgba(8, 20, 37, 0.92), rgba(4, 10, 21, 0.94));
+  gap: $space-4;
+  padding: $space-5;
 }
 
 .panelHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: $space-3;
   min-width: 0;
 
-  h2 {
+  h2,
+  h3 {
     margin: 0;
     color: $color-text-primary;
     font-size: 15px;
     font-weight: 950;
-    line-height: 1.2;
+    line-height: 1.25;
     text-transform: uppercase;
   }
 
@@ -400,6 +377,13 @@
 
   button {
     color: $color-text-secondary;
+    cursor: pointer;
+  }
+
+  > span:not(.liveBadge) {
+    color: $color-text-muted;
+    font-size: 12px;
+    font-weight: 800;
   }
 
   a:focus-visible,
@@ -408,19 +392,156 @@
   }
 }
 
+.probabilityPanel .panelHeader {
+  align-items: flex-start;
+}
+
 .liveBadge {
   display: inline-flex;
   align-items: center;
   gap: $space-1;
+  max-width: 100%;
   min-height: 27px;
   padding: 0 $space-3;
-  border: 1px solid rgba($color-success, 0.2);
+  border: 1px solid rgba($color-success, 0.24);
   border-radius: 999px;
   background: rgba($color-success, 0.08);
   color: $color-success;
   font-size: 11px;
   font-weight: 950;
+  line-height: 1.2;
+  text-align: left;
   text-transform: uppercase;
+
+  svg {
+    flex: 0 0 auto;
+  }
+}
+
+.liveBadge[data-status='provider_error'],
+.liveRailHeader > span[data-status='provider_error'] {
+  border-color: rgba($color-warning, 0.28);
+  background: rgba($color-warning, 0.1);
+  color: #ffd98d;
+}
+
+.liveBadge[data-status='unmapped'],
+.liveRailHeader > span[data-status='unmapped'] {
+  border-color: rgba($color-info, 0.28);
+  background: rgba($color-info, 0.1);
+  color: #c8dcff;
+}
+
+.liveBadge[data-status='not_configured'],
+.liveRailHeader > span[data-status='not_configured'] {
+  border-color: rgba(174, 187, 208, 0.2);
+  background: rgba(174, 187, 208, 0.08);
+  color: $color-text-secondary;
+}
+
+.winnerStatement {
+  display: grid;
+  gap: $space-3;
+  max-width: 820px;
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    color: $color-success;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  > strong {
+    color: $color-text-primary;
+    font-size: 34px;
+    font-weight: 950;
+    line-height: 1;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    max-width: 70ch;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 14px;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+}
+
+.matchSignals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-2;
+
+  div {
+    display: grid;
+    gap: $space-1;
+    min-height: 74px;
+    align-content: center;
+    padding: $space-3;
+    border: 1px solid rgba(153, 183, 230, 0.18);
+    border-radius: $radius-md;
+    background: rgba(8, 19, 35, 0.58);
+  }
+
+  span {
+    color: $color-text-secondary;
+    font-size: 12px;
+    font-weight: 750;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-size: 16px;
+    font-weight: 950;
+    line-height: 1.15;
+  }
+
+  div[data-tone='positive'] strong {
+    color: $color-success;
+  }
+
+  div[data-tone='warning'] strong {
+    color: $color-warning;
+  }
+
+  div[data-tone='info'] strong {
+    color: $color-info;
+  }
+}
+
+.winnerMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $space-3;
+
+  div {
+    display: grid;
+    gap: $space-1;
+    padding-top: $space-4;
+    border-top: 1px solid rgba(139, 154, 176, 0.18);
+  }
+
+  span,
+  small {
+    color: $color-text-secondary;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  strong {
+    display: inline-flex;
+    align-items: baseline;
+    gap: $space-1;
+    color: $color-text-primary;
+    font-size: 30px;
+    font-weight: 950;
+    line-height: 1;
+  }
 }
 
 .probabilityRows {
@@ -430,14 +551,16 @@
 
 .probabilityRow {
   display: grid;
-  grid-template-columns: minmax(72px, 0.8fr) minmax(120px, 1fr) 52px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(72px, 1fr) minmax(42px, auto);
   align-items: center;
-  gap: $space-4;
+  gap: $space-3;
 
   span {
+    min-width: 0;
     color: $color-text-primary;
     font-size: 16px;
     font-weight: 650;
+    overflow-wrap: anywhere;
   }
 
   strong {
@@ -495,28 +618,109 @@
 
   .filled {
     background: $color-success;
-    box-shadow: 0 0 16px rgba($color-success, 0.28);
   }
 }
 
-.analysisGrid {
+.sectionIntro {
   display: grid;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(430px, 1.32fr) minmax(360px, 1.06fr);
-  gap: 14px;
-  align-items: stretch;
+  gap: $space-2;
+  max-width: 860px;
+  margin: $space-5 0 $space-1;
+
+  h2 {
+    margin: 0;
+    color: $color-text-primary;
+    font-size: 26px;
+    font-weight: 950;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 14px;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
 }
 
-.reasonPanel,
-.topPicksPanel,
-.movementPanel,
-.contextPanel,
-.flowPanel,
-.modelPanel,
-.actionsPanel {
+.reasoningSection,
+.marketsSection {
   display: grid;
-  align-content: start;
   gap: $space-4;
-  padding: $space-5;
+}
+
+.reasoningLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $space-3;
+  align-items: start;
+}
+
+.reasoningLead {
+  display: grid;
+  gap: $space-3;
+
+  h3 {
+    max-width: 820px;
+    margin: 0;
+    color: $color-text-primary;
+    font-size: 22px;
+    font-weight: 950;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 72ch;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 14px;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+}
+
+.reasonPointList {
+  display: grid;
+  gap: $space-3;
+
+  article {
+    display: grid;
+    gap: $space-2;
+    padding-top: $space-4;
+    border-top: 1px solid rgba(139, 154, 176, 0.16);
+  }
+
+  span {
+    width: max-content;
+    padding: 3px $space-2;
+    border-radius: 999px;
+    background: rgba($color-info, 0.1);
+    color: #c8dcff;
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  h4,
+  p {
+    margin: 0;
+  }
+
+  h4 {
+    color: $color-text-primary;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.3;
+  }
+
+  p {
+    color: $color-text-secondary;
+    font-size: 13px;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
 }
 
 .reasonList {
@@ -530,13 +734,20 @@
   align-items: start;
   gap: $space-3;
   min-width: 0;
+  padding-bottom: $space-3;
+  border-bottom: 1px solid rgba(139, 154, 176, 0.14);
 
-  h3,
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  h4,
   p {
     margin: 0;
   }
 
-  h3 {
+  h4 {
     color: $color-text-primary;
     font-size: 14px;
     font-weight: 850;
@@ -547,7 +758,7 @@
     margin-top: 2px;
     color: $color-text-secondary;
     font-size: 12px;
-    line-height: 1.35;
+    line-height: 1.4;
   }
 
   strong {
@@ -559,8 +770,8 @@
 
 .reasonIcon {
   display: grid;
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   place-items: center;
   margin-top: 2px;
   border-radius: 999px;
@@ -577,7 +788,6 @@
   align-items: center;
   justify-content: space-between;
   gap: $space-4;
-  margin-top: $space-2;
   padding-top: $space-4;
   border-top: 1px solid $color-border;
 
@@ -591,7 +801,7 @@
 
 .pickGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: $space-3;
   align-items: stretch;
 }
@@ -600,11 +810,12 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
-  gap: $space-2;
-  min-height: 300px;
-  overflow: hidden;
-  padding: $space-4;
+  grid-column: span 4;
+  align-content: start;
+  gap: $space-3;
+  min-height: 278px;
+  overflow: visible;
+  padding: $space-5;
   border: 1px solid rgba(153, 183, 230, 0.22);
   border-radius: $radius-md;
   background: rgba(9, 21, 38, 0.84);
@@ -612,9 +823,9 @@
   &::after {
     position: absolute;
     z-index: 0;
-    inset: auto 0 0;
-    height: 58px;
-    opacity: 0.2;
+    inset: auto $space-5 $space-3;
+    height: 2px;
+    opacity: 0.7;
     pointer-events: none;
     content: '';
   }
@@ -626,20 +837,11 @@
   }
 
   h3 {
-    margin: $space-2 0 0;
-    color: $color-text-primary;
+    margin: 0;
+    color: $color-text-secondary;
     font-size: 13px;
     font-weight: 800;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
-
-  > strong {
-    color: $color-text-primary;
-    font-size: 19px;
-    font-weight: 950;
-    line-height: 1.22;
-    text-wrap: pretty;
+    line-height: 1.35;
     overflow-wrap: anywhere;
   }
 
@@ -648,32 +850,71 @@
     color: $color-text-secondary;
     font-size: 13px;
     font-weight: 650;
-    line-height: 1.45;
+    line-height: 1.55;
     text-wrap: pretty;
     overflow-wrap: break-word;
   }
 
-  small {
-    color: $color-text-muted;
-    font-size: 11px;
-    line-height: 1.35;
-    overflow-wrap: break-word;
-  }
+}
+
+.featuredPick {
+  grid-column: span 6;
+  min-height: 278px;
+}
+
+.pickTop,
+.pickRank,
+.pickLabel,
+.pickMeta {
+  display: flex;
+  align-items: center;
+}
+
+.pickTop {
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.pickRank {
+  gap: $space-1;
+  color: currentColor;
+  font-size: 11px;
+  font-weight: 950;
 }
 
 .pickLabel {
+  min-height: 24px;
+  padding: 0 $space-2;
+  border: 1px solid rgba($color-success, 0.2);
+  border-radius: 999px;
+  background: rgba($color-success, 0.08);
   color: $color-success;
   font-size: 11px;
   font-weight: 950;
-  text-transform: uppercase;
+}
+
+.pickMarket {
+  display: grid;
+  gap: $space-1;
+
+  strong {
+    color: $color-text-primary;
+    font-size: 20px;
+    font-weight: 950;
+    line-height: 1.22;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+}
+
+.pickReasoning {
+  max-width: 72ch;
+  color: $color-text-secondary;
 }
 
 .pickMeta {
-  align-self: end;
-  display: flex;
   flex-wrap: wrap;
   gap: $space-2;
-  margin-top: $space-2;
 
   span {
     display: inline-flex;
@@ -690,9 +931,45 @@
   }
 }
 
+.pickGaps {
+  display: grid;
+  gap: $space-2;
+  padding-top: $space-3;
+  border-top: 1px solid rgba(139, 154, 176, 0.16);
+
+  > span {
+    color: $color-text-muted;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    max-width: 100%;
+    padding: 4px $space-2;
+    border: 1px solid rgba(153, 183, 230, 0.14);
+    border-radius: $radius-sm;
+    background: rgba(153, 183, 230, 0.06);
+    color: $color-text-secondary;
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+}
+
 .pickgreen {
-  border-color: rgba($color-success, 0.45);
-  background: linear-gradient(160deg, rgba($color-success, 0.2), rgba(8, 21, 38, 0.82) 62%);
+  border-color: rgba($color-success, 0.42);
+  background: linear-gradient(160deg, rgba($color-success, 0.16), rgba(8, 21, 38, 0.82) 58%);
 
   &::after {
     background: $color-success;
@@ -700,8 +977,8 @@
 }
 
 .pickblue {
-  border-color: rgba($color-info, 0.5);
-  background: linear-gradient(160deg, rgba($color-info, 0.2), rgba(8, 21, 38, 0.82) 62%);
+  border-color: rgba($color-info, 0.46);
+  background: linear-gradient(160deg, rgba($color-info, 0.16), rgba(8, 21, 38, 0.82) 58%);
 
   &::after {
     background: $color-info;
@@ -709,8 +986,8 @@
 }
 
 .pickpurple {
-  border-color: rgba($color-ai-accent, 0.5);
-  background: linear-gradient(160deg, rgba($color-ai-accent, 0.22), rgba(8, 21, 38, 0.82) 62%);
+  border-color: rgba($color-ai-accent, 0.46);
+  background: linear-gradient(160deg, rgba($color-ai-accent, 0.18), rgba(8, 21, 38, 0.82) 58%);
 
   &::after {
     background: $color-ai-accent;
@@ -718,41 +995,28 @@
 }
 
 .pickorange {
-  border-color: rgba($color-warning, 0.48);
-  background: linear-gradient(160deg, rgba($color-warning, 0.2), rgba(8, 21, 38, 0.82) 62%);
+  border-color: rgba($color-warning, 0.44);
+  background: linear-gradient(160deg, rgba($color-warning, 0.16), rgba(8, 21, 38, 0.82) 58%);
 
   &::after {
     background: $color-warning;
   }
 }
 
-.pickRank {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-1;
-  color: currentColor;
-  font-size: 11px;
-  font-weight: 950;
-}
-
-.pickSparkline {
-  position: relative;
-  z-index: 2;
-  align-self: end;
-  width: 100%;
-  max-width: none;
-  height: 42px;
-  margin-top: auto;
-}
-
 .marketNote {
-  margin: 0;
+  max-width: 86ch;
+  margin: $space-1 0 0;
   color: $color-text-secondary;
   font-size: 12px;
+  line-height: 1.55;
 }
 
 .warningNote {
   color: #ffd98d;
+}
+
+.liveSection {
+  display: grid;
 }
 
 .movementSubject {
@@ -773,26 +1037,26 @@
 
 .chartBox {
   position: relative;
-  min-height: 170px;
+  min-height: 262px;
   overflow: hidden;
-  padding: $space-3 $space-3 28px 44px;
-  border-bottom: 1px solid rgba(139, 154, 176, 0.18);
+  padding: $space-3 $space-3 30px 44px;
+  border: 1px solid rgba(139, 154, 176, 0.16);
+  border-radius: $radius-md;
   background:
     linear-gradient(rgba(153, 183, 230, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(153, 183, 230, 0.08) 1px, transparent 1px);
-  background-size: 100% 36px, 56px 100%;
+    linear-gradient(90deg, rgba(153, 183, 230, 0.08) 1px, transparent 1px),
+    rgba(6, 15, 28, 0.52);
+  background-size: 100% 36px, 56px 100%, auto;
 }
 
 .movementSparkline {
   width: 100%;
-  max-width: none !important;
-  height: 150px;
 }
 
 .nowTag {
   position: absolute;
-  right: $space-3;
   top: 28px;
+  right: $space-3;
   min-height: 30px;
   padding: 4px $space-2;
   border: 1px solid $color-success;
@@ -807,9 +1071,9 @@
   position: absolute;
   top: $space-3;
   bottom: 34px;
-  left: 0;
+  left: $space-2;
   display: grid;
-  width: 42px;
+  width: 36px;
   color: $color-text-muted;
   font-size: 11px;
 }
@@ -817,7 +1081,7 @@
 .chartTimes {
   position: absolute;
   right: $space-3;
-  bottom: 0;
+  bottom: $space-2;
   left: 44px;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -836,8 +1100,8 @@
     border-left: 1px solid rgba(139, 154, 176, 0.14);
 
     &:first-child {
-      border-left: 0;
       padding-left: 0;
+      border-left: 0;
     }
   }
 
@@ -853,230 +1117,173 @@
   }
 }
 
-.bottomGrid {
+.liveRail {
+  position: sticky;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  top: 88px;
   display: grid;
-  grid-template-columns: minmax(380px, 1.35fr) minmax(300px, 0.92fr) minmax(310px, 0.86fr) minmax(230px, 0.62fr);
-  gap: 14px;
-  align-items: stretch;
+  gap: $space-5;
+  padding: $space-5;
 }
 
-.contextGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: $space-2;
+.liveRailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-3;
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: $color-text-primary;
+    font-size: 16px;
+    font-weight: 950;
+    line-height: 1.25;
+  }
+
+  p {
+    margin-top: 2px;
+    color: $color-text-secondary;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  > span {
+    flex: 0 0 auto;
+    min-height: 26px;
+    padding: 4px $space-2;
+    border: 1px solid rgba($color-success, 0.2);
+    border-radius: 999px;
+    background: rgba($color-success, 0.08);
+    color: $color-success;
+    font-size: 11px;
+    font-weight: 900;
+  }
 }
 
-.contextGrid article {
+.liveScoreStrip {
   display: grid;
-  justify-items: center;
-  gap: $space-2;
-  min-width: 0;
-  min-height: 124px;
-  padding: $space-3;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: $space-3;
+  min-height: 56px;
+  padding: 0 $space-3;
   border: 1px solid rgba(153, 183, 230, 0.16);
-  border-radius: $radius-sm;
-  background: rgba(9, 22, 40, 0.82);
-  text-align: center;
+  border-radius: $radius-md;
+  background: rgba(8, 19, 35, 0.58);
 
   span {
     color: $color-text-secondary;
-    font-size: 11px;
-    font-weight: 850;
-    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 900;
+    text-align: center;
   }
 
   strong {
     color: $color-text-primary;
     font-size: 18px;
     font-weight: 950;
-    line-height: 1.1;
-    overflow-wrap: anywhere;
+  }
+}
+
+.timelineStack {
+  display: grid;
+  gap: 0;
+  padding-left: $space-1;
+}
+
+.timelineStack article {
+  position: relative;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: $space-3;
+  align-items: start;
+  min-width: 0;
+  padding: 0 0 $space-5;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &::before {
+    position: absolute;
+    top: 3px;
+    bottom: 0;
+    left: 76px;
+    width: 1px;
+    background: rgba(139, 154, 176, 0.18);
+    content: '';
+  }
+
+  &:last-child::before {
+    display: none;
+  }
+
+  &::after {
+    position: absolute;
+    top: 3px;
+    left: 72px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid $color-success;
+    border-radius: 999px;
+    background: $color-bg-secondary;
+    content: '';
+  }
+
+  time {
+    color: $color-success;
+    font-size: 12px;
+    font-weight: 950;
+    line-height: 1.3;
+  }
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    color: $color-text-primary;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.3;
   }
 
   p {
-    margin: 0;
-    color: $color-text-muted;
-    font-size: 11px;
-    line-height: 1.35;
+    margin-top: 3px;
+    color: $color-text-secondary;
+    font-size: 12px;
+    line-height: 1.5;
+    text-wrap: pretty;
   }
-}
-
-.marketFlow {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: $space-3;
-
-  span {
-    font-size: 20px;
-    font-weight: 950;
-  }
-
-  span:first-child {
-    color: $color-success;
-  }
-
-  span:last-child {
-    color: $color-info;
-  }
-
-  div {
-    height: 18px;
-    overflow: hidden;
-    border-radius: 3px;
-    background: $color-info;
-  }
-
-  i {
-    display: block;
-    width: 33%;
-    height: 100%;
-    background: $color-success;
-  }
-}
-
-.flowLabels,
-.moneyMove {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $space-3;
-  color: $color-text-secondary;
-  font-size: 12px;
-}
-
-.moneyMove {
-  margin-top: $space-3;
-  padding-top: $space-4;
-  border-top: 1px solid rgba(139, 154, 176, 0.16);
 
   strong {
     display: inline-flex;
-    align-items: center;
-    gap: $space-1;
-    color: $color-success;
-    font-size: 13px;
-  }
-}
-
-.modelCopy {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: $space-3;
-  align-items: start;
-  padding: $space-3;
-  border: 1px solid rgba($color-ai-accent, 0.3);
-  border-radius: $radius-md;
-  background:
-    radial-gradient(circle at 0 0, rgba($color-ai-accent, 0.18), transparent 36%),
-    rgba(9, 22, 40, 0.82);
-
-  svg {
-    color: $color-ai-accent;
-  }
-
-  p {
-    margin: 0;
-    color: $color-text-secondary;
-    font-size: 12px;
-    line-height: 1.65;
-  }
-}
-
-.feedStack {
-  display: none;
-  gap: $space-2;
-}
-
-.feedStack article {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
-  gap: $space-2;
-  align-items: center;
-  min-width: 0;
-
-  span {
-    color: $color-text-muted;
+    width: max-content;
+    margin-top: $space-2;
+    padding: 3px $space-2;
+    border-radius: 999px;
+    background: rgba($color-ai-accent, 0.1);
+    color: #d8c8ff;
     font-size: 11px;
-  }
-
-  p {
-    @include truncate;
-    margin: 0;
-    color: $color-text-secondary;
-    font-size: 12px;
-  }
-
-  strong {
-    font-size: 12px;
+    font-weight: 850;
   }
 }
 
-.modelPanel > a {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-2;
-  color: $color-info;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.actionsList {
-  display: grid;
-  gap: $space-2;
-}
-
-.actionsList button {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: $space-3;
-  min-height: 38px;
-  padding: 0 $space-3;
-  border: 1px solid rgba(153, 183, 230, 0.18);
-  border-radius: $radius-sm;
-  background: rgba(15, 30, 52, 0.72);
-  color: $color-text-secondary;
-  text-align: left;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease;
-
-  span {
-    @include truncate;
-    color: inherit;
-    font-size: 13px;
-    font-weight: 750;
-  }
-
-  &:hover,
-  &[aria-pressed='true'] {
-    border-color: rgba($color-info, 0.5);
-    background: rgba($color-info, 0.13);
-    color: $color-text-primary;
-  }
-
-  &:focus-visible {
-    @include focus-ring;
-  }
-}
-
-.actionsPanel > p {
-  display: inline-flex;
-  align-items: flex-start;
-  gap: $space-2;
-  min-height: 38px;
+.timelineEmpty {
   margin: 0;
-  color: $color-text-muted;
+  padding: $space-4;
+  border: 1px dashed rgba(153, 183, 230, 0.22);
+  border-radius: $radius-md;
+  background: rgba(8, 19, 35, 0.42);
+  color: $color-text-secondary;
   font-size: 12px;
-  line-height: 1.45;
-
-  svg {
-    flex: 0 0 auto;
-    color: $color-info;
-    margin-top: 1px;
-  }
+  line-height: 1.5;
 }
 
 .liveSummary {
@@ -1092,8 +1299,8 @@
   }
 
   p {
-    margin: 0;
     flex: 1;
+    margin: 0;
     font-size: 13px;
     line-height: 1.45;
   }
@@ -1105,6 +1312,18 @@
     color: $color-success;
     font-size: 12px;
     font-weight: 850;
+  }
+
+  span[data-status='provider_error'] {
+    color: #ffd98d;
+  }
+
+  span[data-status='unmapped'] {
+    color: #c8dcff;
+  }
+
+  span[data-status='not_configured'] {
+    color: $color-text-secondary;
   }
 }
 
@@ -1134,6 +1353,11 @@
   }
 }
 
+.sparkline.movementSparkline {
+  max-width: none;
+  height: 220px;
+}
+
 .green {
   color: $color-success !important;
 }
@@ -1158,45 +1382,49 @@
   color: #b8c2d2 !important;
 }
 
-@media (max-width: 1360px) {
-  .heroCard {
+@media (max-width: 1280px) {
+  .liveSection {
     grid-template-columns: 1fr;
   }
 
-  .probabilityPanel {
-    border-top: 1px solid rgba(142, 170, 212, 0.22);
-    border-left: 0;
+  .pickCard,
+  .featuredPick {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 1180px) {
+  .dashboardLayout {
+    grid-template-columns: 1fr;
   }
 
-  .analysisGrid {
-    grid-template-columns: minmax(320px, 0.92fr) minmax(430px, 1.2fr);
+  .heroCard,
+  .mainStack,
+  .liveRail {
+    grid-column: auto;
+    grid-row: auto;
   }
 
-  .movementPanel {
-    grid-column: 1 / -1;
-  }
-
-  .bottomGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .liveRail {
+    position: static;
   }
 }
 
 @media (max-width: 980px) {
-  .analysisGrid,
-  .bottomGrid {
+  .predictionDeck {
     grid-template-columns: 1fr;
   }
 
   .teamDeck {
     grid-template-columns: 1fr;
-    gap: $space-4;
-    padding-top: $space-5;
+    gap: $space-5;
+    padding-top: $space-6;
   }
 
   .teamBlock {
     h1,
     h2 {
-      font-size: 36px;
+      font-size: 40px;
     }
   }
 
@@ -1205,27 +1433,37 @@
     transform: none;
   }
 
-  .aiPickCard {
-    width: min(100%, 340px);
-    justify-self: center;
+  .matchCenter {
+    order: 2;
+    min-height: 94px;
+  }
+
+  .teamAway {
+    order: 3;
   }
 
   .playerImage {
     opacity: 0.5;
   }
 
-  .pickGrid,
-  .contextGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .matchSignals {
+    grid-template-columns: 1fr;
+  }
+
+  .pickCard,
+  .featuredPick {
+    grid-column: span 12;
   }
 }
 
 @media (max-width: 720px) {
+  .page {
+    gap: $space-4;
+  }
+
   .breadcrumbRow,
   .liveSummary,
-  .movementStats,
-  .flowLabels,
-  .moneyMove {
+  .movementStats {
     align-items: flex-start;
   }
 
@@ -1240,7 +1478,7 @@
   }
 
   .matchStage {
-    min-height: 640px;
+    min-height: 720px;
   }
 
   .stageHeader {
@@ -1269,15 +1507,22 @@
     display: none;
   }
 
+  .winnerPanel,
   .probabilityPanel,
   .reasonPanel,
-  .topPicksPanel,
+  .edgePanel,
   .movementPanel,
-  .contextPanel,
-  .flowPanel,
-  .modelPanel,
-  .actionsPanel {
+  .liveRail {
     padding: $space-4;
+  }
+
+  .winnerStatement > strong {
+    font-size: 34px;
+  }
+
+  .winnerMetrics,
+  .movementStats {
+    grid-template-columns: 1fr;
   }
 
   .probabilityRow {
@@ -1287,11 +1532,6 @@
     strong {
       text-align: left;
     }
-  }
-
-  .movementStats,
-  .moneyMove {
-    grid-template-columns: 1fr;
   }
 
   .movementStats {
@@ -1311,28 +1551,50 @@
       display: none;
     }
   }
+
+  .timelineStack article {
+    grid-template-columns: 64px minmax(0, 1fr);
+
+    &::before {
+      left: 70px;
+    }
+
+    &::after {
+      left: 66px;
+    }
+  }
 }
 
 @media (max-width: 520px) {
-  .pickGrid,
-  .contextGrid {
-    grid-template-columns: 1fr;
-  }
-
   .panelHeader {
     align-items: flex-start;
     flex-direction: column;
   }
 
   .matchStage {
-    min-height: 690px;
+    min-height: 760px;
   }
 
   .teamDeck {
     padding-inline: $space-4;
   }
 
-  .aiPickCard > strong {
-    font-size: 25px;
+  .teamBlock {
+    h1,
+    h2 {
+      font-size: 34px;
+    }
+  }
+
+  .winnerStatement > strong {
+    font-size: 30px;
+  }
+
+  .sectionIntro h2 {
+    font-size: 22px;
+  }
+
+  .pickCard {
+    padding: $space-4;
   }
 }

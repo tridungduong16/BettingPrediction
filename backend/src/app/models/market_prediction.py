@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +11,7 @@ from app.models.worldcup import WorldCupMatch
 MarketFamily = Literal["asian_handicap", "over_under", "one_x_two", "cards", "corners"]
 MarketRisk = Literal["low", "medium", "high"]
 PredictionConfidence = Literal["low", "medium", "high"]
+PredictionMode = Literal["pre_match", "live", "post_match_evaluation"]
 
 
 class MarketPredictionCandidate(BaseModel):
@@ -46,8 +47,10 @@ class MarketPredictionResponse(BaseModel):
     match_id: str
     generated_at: datetime
     model_name: str | None = None
+    prediction_mode: PredictionMode = "pre_match"
     match: WorldCupMatch
     live_snapshot: LiveMatchSnapshot | None = None
+    prediction_context: dict[str, Any] | None = None
     markets: list[MarketPredictionCandidate] = Field(min_length=1)
     summary: str
     predictions: list[MarketPrediction] = Field(min_length=1)

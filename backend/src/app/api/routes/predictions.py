@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.app_config import WorldCupSourceName
 from app.dependencies import get_market_prediction_service
-from app.models.market_prediction import MarketPredictionResponse
+from app.models.market_prediction import MarketPredictionResponse, PredictionMode
 from app.services.market_prediction_service import (
     MarketPredictionMatchNotFoundError,
     MarketPredictionService,
@@ -26,6 +26,7 @@ async def predict_match_markets(
     provider_fixture_id: str | None = None,
     force_refresh: bool = False,
     include_live: bool = True,
+    prediction_mode: PredictionMode = "pre_match",
 ) -> MarketPredictionResponse:
     try:
         return await service.predict_match_markets(
@@ -35,6 +36,7 @@ async def predict_match_markets(
             provider_fixture_id=provider_fixture_id,
             force_refresh=force_refresh,
             include_live=include_live,
+            prediction_mode=prediction_mode,
         )
     except MarketPredictionMatchNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
   Zap,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -32,6 +31,7 @@ import {
   selectMarketPredictions,
 } from '@/store/features/dashboard/selectors'
 import { dashboardActions, type DashboardLiveStatus } from '@/store/features/dashboard/slice'
+import type { FeedItemType } from '@/store/features/dashboard/types'
 import type { MarketFamily, MarketPrediction } from '@/store/features/dashboard/apiTypes'
 
 import styles from './Home.module.scss'
@@ -96,13 +96,20 @@ const edgeFactors = [
   },
 ] satisfies EdgeFactor[]
 
-const movementValues = [50, 51, 50, 52, 54, 53, 55, 54, 56, 52, 53, 52, 56, 55, 53, 54, 57, 55, 56, 58]
-
+const fallbackMovementValues = [50, 51, 50, 52, 54, 53, 55, 54, 56, 52, 53, 52, 56, 55, 53, 54, 57, 55, 56, 58]
+const fallbackMovementTicks = ['17:45', '18:00', '18:15', '18:30', '18:42']
 const liveStatusLabels: Record<DashboardLiveStatus, string> = {
   not_configured: 'chưa cấu hình',
   provider_error: 'lỗi nhà cung cấp',
   ready: 'sẵn sàng',
   unmapped: 'chưa liên kết trận live',
+}
+
+const liveRailStatusLabels: Record<DashboardLiveStatus, string> = {
+  not_configured: 'chưa cấu hình',
+  provider_error: 'lỗi live',
+  ready: 'live',
+  unmapped: 'chưa liên kết',
 }
 
 const marketToneByFamily: Record<MarketFamily, Tone> = {
@@ -131,6 +138,23 @@ const riskLabels: Record<NonNullable<MarketPrediction['risk']>, string> = {
   high: 'Rủi ro cao',
   low: 'Rủi ro thấp',
   medium: 'Rủi ro vừa',
+}
+
+const impactLabels: Record<'high' | 'medium' | 'low', string> = {
+  high: 'Tác động cao',
+  low: 'Tác động thấp',
+  medium: 'Tác động vừa',
+}
+
+const feedTypeLabels: Record<FeedItemType, string> = {
+  card: 'Thẻ',
+  goal: 'Bàn thắng',
+  lineup: 'Đội hình',
+  market: 'Kèo',
+  model: 'Mô hình',
+  news: 'Tin tức',
+  substitution: 'Thay người',
+  var: 'VAR',
 }
 
 const fallbackMarketPicks: PickCard[] = [
@@ -259,6 +283,24 @@ function formatTrend(value: number) {
   return `${sign}${value.toFixed(1)}%`
 }
 
+function isMatchMinuteTime(time: string) {
+  return /^\d+(?:\+\d+)?'$/.test(time.trim())
+}
+
+function formatTimelineTime(time: string) {
+  const normalizedTime = time.trim()
+
+  if (!normalizedTime) {
+    return 'Bây giờ'
+  }
+
+  if (isMatchMinuteTime(normalizedTime)) {
+    return `Phút ${normalizedTime.replace("'", '')}`
+  }
+
+  return normalizedTime
+}
+
 export default function Home() {
   const dispatch = useAppDispatch()
   const data = useAppSelector(selectDashboardData)
@@ -339,6 +381,25 @@ export default function Home() {
   )
 
   const trend = formatTrend(winnerOutcome.trend)
+  const movementSeries = data.movement.length ? data.movement.map((point) => point.home) : fallbackMovementValues
+  const movementTicks = data.movement.length ? data.movement.map((point) => point.label) : fallbackMovementTicks
+  const openingProbability = movementSeries[0] ?? winnerOutcome.value
+  const previousProbability = movementSeries.at(-2) ?? openingProbability
+  const hasMatchMinuteTimeline = data.feed.some((item) => isMatchMinuteTime(item.time))
+  const timelineItems = hasMatchMinuteTimeline ? [...data.feed].reverse() : data.feed
+  const liveScore = data.match.signals.find((signal) => signal.label.toLowerCase().includes('tỷ số'))?.value ?? '0-0'
+  const liveRailSubtitle =
+    liveStatus === 'ready'
+      ? 'Sự kiện, tỷ số và đồng hồ từ nhà cung cấp live'
+      : 'Trạng thái kết nối live và các cập nhật gần đây'
+  const marketNote =
+    marketPredictionStatus === 'loading'
+      ? 'Đang lấy dự đoán AI từ backend...'
+      : marketPredictionStatus === 'ready'
+        ? marketPredictions?.summary
+        : marketPredictionStatus === 'error'
+          ? `Chưa lấy được dự đoán AI: ${marketPredictionError}. Đang hiển thị dữ liệu mẫu.`
+          : 'Mỗi kèo hiển thị hướng AI chọn và reasoning ngắn gọn từ service LLM.'
 
   return (
     <div className={styles.page}>
@@ -354,210 +415,315 @@ export default function Home() {
         </div>
       </div>
 
-      <section className={styles.heroCard} id="matches" aria-label="Tổng quan dự đoán trận đấu">
-        <div className={styles.matchStage}>
-          <span className={clsx(styles.sideName, styles.sideNameHome)}>{data.match.homeTeam.name}</span>
-          <span className={clsx(styles.sideName, styles.sideNameAway)}>{data.match.awayTeam.name}</span>
-
-          <div className={clsx(styles.playerImage, styles.playerHome)}>
-            <img src="/images/worldian-generic-home-athlete.png" alt="" aria-hidden="true" />
-          </div>
-          <div className={clsx(styles.playerImage, styles.playerAway)}>
-            <img src="/images/worldian-generic-away-athlete.png" alt="" aria-hidden="true" />
-          </div>
-
-          <div className={styles.stageHeader}>
-            <strong>{data.match.round}</strong>
-            <span>
-              {data.match.stadium}, {data.match.city}
-            </span>
-            <em>{data.match.kickoff}</em>
-          </div>
-
-          <div className={styles.teamDeck}>
-            <div className={clsx(styles.teamBlock, styles.teamHome)}>
-              <img src={data.match.homeTeam.flagUrl} alt={`Cờ ${data.match.homeTeam.name}`} />
-              <h1>{data.match.homeTeam.name}</h1>
-              <span>Hạng FIFA #1</span>
-            </div>
-
-            <div className={styles.aiPickCard}>
-              <span>
-                <Sparkles size={15} aria-hidden="true" />
-                AI chọn
-              </span>
-              <strong>{data.prediction.winner} thắng</strong>
-              <div className={styles.confidenceScore}>
-                <div>
-                  <b>{data.prediction.confidence.toFixed(1)}</b>
-                  <small>/10</small>
-                </div>
-                <em>Rất cao</em>
-              </div>
-              <p>
-                <TrendingUp size={20} aria-hidden="true" />
-                <b>{trend}</b>
-                <span>30 phút qua</span>
-              </p>
-            </div>
-
-            <div className={clsx(styles.teamBlock, styles.teamAway)}>
-              <img src={data.match.awayTeam.flagUrl} alt={`Cờ ${data.match.awayTeam.name}`} />
-              <h2>{data.match.awayTeam.name}</h2>
-              <span>Hạng FIFA #2</span>
-            </div>
-          </div>
+      {liveStatusMessage ? (
+        <div className={styles.liveStatusBanner} data-status={liveStatus}>
+          <ShieldAlert size={15} aria-hidden="true" />
+          <span>{liveStatusMessage}</span>
         </div>
+      ) : null}
 
-        <aside className={styles.probabilityPanel} aria-label="Xác suất thắng">
-          <div className={styles.panelHeader}>
-            <h2>Xác suất thắng</h2>
-            <span className={styles.liveBadge}>
-              <Zap size={13} aria-hidden="true" />
-              Trực tiếp
-            </span>
+      <div className={styles.dashboardLayout}>
+        <section className={styles.heroCard} id="matches" aria-label="Tổng quan trận đấu">
+          <div className={styles.matchStage}>
+            <span className={clsx(styles.sideName, styles.sideNameHome)}>{data.match.homeTeam.name}</span>
+            <span className={clsx(styles.sideName, styles.sideNameAway)}>{data.match.awayTeam.name}</span>
+
+            <div className={clsx(styles.playerImage, styles.playerHome)}>
+              <img src="/images/worldian-generic-home-athlete.png" alt="" aria-hidden="true" />
+            </div>
+            <div className={clsx(styles.playerImage, styles.playerAway)}>
+              <img src="/images/worldian-generic-away-athlete.png" alt="" aria-hidden="true" />
+            </div>
+
+            <div className={styles.stageHeader}>
+              <strong>{data.match.round}</strong>
+              <span>
+                {data.match.stadium}, {data.match.city}
+              </span>
+              <em>{data.match.kickoff}</em>
+            </div>
+
+            <div className={styles.teamDeck}>
+              <div className={clsx(styles.teamBlock, styles.teamHome)}>
+                <img src={data.match.homeTeam.flagUrl} alt={`Cờ ${data.match.homeTeam.name}`} />
+                <h1>{data.match.homeTeam.name}</h1>
+                <span>{data.match.homeTeam.shortName}</span>
+              </div>
+
+              <div className={styles.matchCenter}>
+                <span>{data.match.competition}</span>
+                <strong>VS</strong>
+                <em>{data.match.round}</em>
+              </div>
+
+              <div className={clsx(styles.teamBlock, styles.teamAway)}>
+                <img src={data.match.awayTeam.flagUrl} alt={`Cờ ${data.match.awayTeam.name}`} />
+                <h2>{data.match.awayTeam.name}</h2>
+                <span>{data.match.awayTeam.shortName}</span>
+              </div>
+            </div>
           </div>
-          <div className={styles.probabilityRows}>
-            <ProbabilityBar label={winnerOutcome.label} value={winnerOutcome.value} tone="green" />
-            <ProbabilityBar label={drawOutcome.label} value={drawOutcome.value} tone="gray" />
-            <ProbabilityBar label={awayOutcome.label} value={awayOutcome.value} tone="blue" />
+        </section>
+
+        <aside className={styles.liveRail} aria-label="Live trận đấu">
+          <div className={styles.liveRailHeader}>
+            <div>
+              <h2>Live trận đấu</h2>
+              <p>{liveRailSubtitle}</p>
+            </div>
+            <span data-status={liveStatus}>{liveRailStatusLabels[liveStatus]}</span>
           </div>
-          <div className={styles.confidenceLine}>
-            <span>Độ tin cậy mô hình: {data.prediction.confidence.toFixed(1)} / 10</span>
-            <div aria-hidden="true">
-              {Array.from({ length: 10 }).map((_, index) => (
-                <i key={index} className={index < Math.round(data.prediction.confidence) ? styles.filled : undefined} />
+
+          <div className={styles.liveScoreStrip}>
+            <span>{data.match.homeTeam.shortName}</span>
+            <strong>{liveScore}</strong>
+            <span>{data.match.awayTeam.shortName}</span>
+          </div>
+
+          {timelineItems.length ? (
+            <div className={styles.timelineStack}>
+              {timelineItems.map((item) => (
+                <article key={item.id}>
+                  <time>{formatTimelineTime(item.time)}</time>
+                  <div>
+                    <h3>{item.title}</h3>
+                    <p>{item.detail}</p>
+                    <strong>{feedTypeLabels[item.type]}</strong>
+                  </div>
+                </article>
               ))}
             </div>
-          </div>
+          ) : (
+            <p className={styles.timelineEmpty}>Chưa có sự kiện live từ nhà cung cấp.</p>
+          )}
         </aside>
-      </section>
 
-      <section className={styles.analysisGrid} id="analysis" aria-label="Phân tích dự đoán">
-        <section className={styles.reasonPanel} aria-labelledby="reason-heading">
-          <div className={styles.panelHeader}>
-            <h2 id="reason-heading">Vì sao AI nghiêng về {data.prediction.winner}</h2>
-          </div>
-          <div className={styles.reasonList}>
-            {edgeFactors.map((factor) => {
-              const Icon = factor.icon
+        <div className={styles.mainStack}>
+          <section className={styles.predictionDeck} id="prediction" aria-label="Dự đoán AI">
+            <article className={styles.winnerPanel}>
+              <div className={styles.panelHeader}>
+                <h2>AI dự đoán chính</h2>
+                <span className={styles.liveBadge} data-status={liveStatus}>
+                  <Zap size={13} aria-hidden="true" />
+                  {data.prediction.status}
+                </span>
+              </div>
 
-              return (
-                <article key={factor.label}>
-                  <span className={clsx(styles.reasonIcon, styles[factor.tone])}>
-                    <Icon size={15} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3>{factor.label}</h3>
-                    <p>{factor.detail}</p>
+              <div className={styles.winnerStatement}>
+                <span>
+                  <Sparkles size={16} aria-hidden="true" />
+                  Lựa chọn hiện tại
+                </span>
+                <strong>{data.prediction.winner} thắng</strong>
+                <p>{data.prediction.summary}</p>
+              </div>
+
+              <div className={styles.matchSignals} aria-label="Tín hiệu trận đấu">
+                {data.match.signals.map((signal) => (
+                  <div key={signal.label} data-tone={signal.tone}>
+                    <span>{signal.label}</span>
+                    <strong>{signal.value}</strong>
                   </div>
-                  <strong className={styles[factor.tone]}>{factor.delta}</strong>
-                </article>
-              )
-            })}
-          </div>
-          <div className={styles.netEdge}>
-            <span>Lợi thế ròng</span>
-            <strong>+2.9%</strong>
-          </div>
-        </section>
+                ))}
+              </div>
 
-        <section className={styles.topPicksPanel} aria-labelledby="picks-heading">
-          <div className={styles.panelHeader}>
-            <h2 id="picks-heading">Lựa chọn AI nổi bật</h2>
-            <a href="#markets">
-              Xem tất cả kèo
-              <ArrowRight size={15} aria-hidden="true" />
-            </a>
-          </div>
-          <div className={styles.pickGrid}>
-            {topPicks.map((pick) => {
-              const Icon = pick.icon
+              <div className={styles.winnerMetrics}>
+                <div>
+                  <span>Độ tin cậy</span>
+                  <strong>
+                    {data.prediction.confidence.toFixed(1)}
+                    <small>/10</small>
+                  </strong>
+                </div>
+                <div>
+                  <span>Biến động</span>
+                  <strong className={styles.green}>{trend}</strong>
+                  <small>30 phút qua</small>
+                </div>
+              </div>
+            </article>
 
-              return (
-                <article key={pick.id} className={clsx(styles.pickCard, styles[`pick${pick.tone}`])}>
-                  <div className={styles.pickRank}>
-                    <Icon size={14} aria-hidden="true" />
-                    <span>{pick.rank}</span>
-                  </div>
-                  <h3>{pick.title}</h3>
-                  <span className={styles.pickLabel}>AI chọn</span>
-                  <strong>{pick.selection}</strong>
-                  <p>{pick.reasoning}</p>
-                  <div className={styles.pickMeta}>
-                    {pick.confidence ? <span>{pick.confidence}</span> : null}
-                    {pick.risk ? <span>{pick.risk}</span> : null}
-                  </div>
-                  {pick.dataGaps?.length ? (
-                    <small>Thiếu dữ liệu: {pick.dataGaps.join(', ')}</small>
-                  ) : null}
-                </article>
-              )
-            })}
-          </div>
-          <p className={clsx(styles.marketNote, marketPredictionStatus === 'error' && styles.warningNote)}>
-            {marketPredictionStatus === 'loading'
-              ? 'Đang lấy dự đoán AI từ backend...'
-              : marketPredictionStatus === 'ready'
-                ? marketPredictions?.summary
-                : marketPredictionStatus === 'error'
-                  ? `Chưa lấy được dự đoán AI: ${marketPredictionError}. Đang hiển thị dữ liệu mẫu.`
-                  : 'Mỗi kèo hiển thị hướng AI chọn và reasoning ngắn gọn từ service LLM.'}
-          </p>
-        </section>
+            <aside className={styles.probabilityPanel} aria-label="Xác suất thắng">
+              <div className={styles.panelHeader}>
+                <h2>Xác suất thắng</h2>
+                <span className={styles.liveBadge} data-status={liveStatus}>
+                  <Radio size={13} aria-hidden="true" />
+                  {liveRailStatusLabels[liveStatus]}
+                </span>
+              </div>
+              <div className={styles.probabilityRows}>
+                <ProbabilityBar label={winnerOutcome.label} value={winnerOutcome.value} tone="green" />
+                <ProbabilityBar label={drawOutcome.label} value={drawOutcome.value} tone="gray" />
+                <ProbabilityBar label={awayOutcome.label} value={awayOutcome.value} tone="blue" />
+              </div>
+              <div className={styles.confidenceLine}>
+                <span>Độ tin cậy mô hình: {data.prediction.confidence.toFixed(1)} / 10</span>
+                <div aria-hidden="true">
+                  {Array.from({ length: 10 }).map((_, index) => (
+                    <i key={index} className={index < Math.round(data.prediction.confidence) ? styles.filled : undefined} />
+                  ))}
+                </div>
+              </div>
+            </aside>
+          </section>
 
-        <section className={styles.movementPanel} aria-labelledby="movement-heading">
-          <div className={styles.panelHeader}>
-            <h2 id="movement-heading">Biến động xác suất live</h2>
-            <button type="button">
-              60 phút qua
-              <ChevronDown size={15} aria-hidden="true" />
-            </button>
-          </div>
-          <div className={styles.movementSubject}>
-            <img src={data.match.homeTeam.flagUrl} alt="" aria-hidden="true" />
-            <strong>{winnerOutcome.label} thắng</strong>
-          </div>
-          <div className={styles.chartBox}>
-            <Sparkline values={movementValues} width={540} height={150} className={styles.movementSparkline} />
-            <span className={styles.nowTag}>{winnerOutcome.value}%</span>
-            <div className={styles.chartScale} aria-hidden="true">
-              <span>60%</span>
-              <span>55%</span>
-              <span>50%</span>
-              <span>45%</span>
+          <section className={styles.reasoningSection} id="analysis" aria-label="Lý do dự đoán">
+            <div className={styles.sectionIntro}>
+              <h2>Vì sao AI nghiêng về {data.prediction.winner}</h2>
+              <p>Ưu tiên đọc reasoning trước analytics: luận điểm chính, dữ liệu tác động và lợi thế ròng được tách thành từng nhóm.</p>
             </div>
-            <div className={styles.chartTimes} aria-hidden="true">
-              <span>17:45</span>
-              <span>18:00</span>
-              <span>18:15</span>
-              <span>18:30</span>
-              <span>18:42</span>
+
+            <div className={styles.reasoningLayout}>
+              <article className={styles.reasonPanel} aria-labelledby="reason-heading">
+                <div className={styles.reasoningLead}>
+                  <h3 id="reason-heading">{data.reasoning.headline}</h3>
+                  <p>{data.reasoning.description}</p>
+                </div>
+
+                <div className={styles.reasonPointList}>
+                  {data.reasoning.points.map((point) => (
+                    <article key={point.id}>
+                      <span>{impactLabels[point.impact]}</span>
+                      <h4>{point.title}</h4>
+                      <p>{point.detail}</p>
+                    </article>
+                  ))}
+                </div>
+              </article>
+
+              <aside className={styles.edgePanel} aria-label="Tín hiệu điều chỉnh xác suất">
+                <div className={styles.panelHeader}>
+                  <h3>Tín hiệu làm lệch xác suất</h3>
+                </div>
+                <div className={styles.reasonList}>
+                  {edgeFactors.map((factor) => {
+                    const Icon = factor.icon
+
+                    return (
+                      <article key={factor.label}>
+                        <span className={clsx(styles.reasonIcon, styles[factor.tone])}>
+                          <Icon size={15} aria-hidden="true" />
+                        </span>
+                        <div>
+                          <h4>{factor.label}</h4>
+                          <p>{factor.detail}</p>
+                        </div>
+                        <strong className={styles[factor.tone]}>{factor.delta}</strong>
+                      </article>
+                    )
+                  })}
+                </div>
+                <div className={styles.netEdge}>
+                  <span>Lợi thế ròng</span>
+                  <strong>+2.9%</strong>
+                </div>
+              </aside>
             </div>
-          </div>
-          <div className={styles.movementStats}>
-            <div>
-              <span>Mở kèo</span>
-              <strong>54%</strong>
+          </section>
+
+          <section className={styles.marketsSection} id="markets" aria-label="Các kèo AI đề xuất">
+            <div className={styles.sectionIntro}>
+              <h2>Lựa chọn AI theo từng thị trường</h2>
+              <p>Kèo Châu Á, Tài/Xỉu, 1X2, thẻ phạt và corner được đặt thành các khối riêng để reasoning không bị nén vào một card.</p>
             </div>
-            <div>
-              <span>30 phút trước</span>
-              <strong>55%</strong>
+
+            <div className={styles.pickGrid}>
+              {topPicks.map((pick, index) => {
+                const Icon = pick.icon
+
+                return (
+                  <article
+                    key={pick.id}
+                    className={clsx(styles.pickCard, styles[`pick${pick.tone}`], index < 2 && styles.featuredPick)}
+                  >
+                    <div className={styles.pickTop}>
+                      <span className={styles.pickRank}>
+                        <Icon size={14} aria-hidden="true" />
+                        {pick.rank}
+                      </span>
+                      <span className={styles.pickLabel}>AI chọn</span>
+                    </div>
+                    <div className={styles.pickMarket}>
+                      <h3>{pick.title}</h3>
+                      <strong>{pick.selection}</strong>
+                    </div>
+                    <p className={styles.pickReasoning}>{pick.reasoning}</p>
+                    <div className={styles.pickMeta}>
+                      {pick.confidence ? <span>{pick.confidence}</span> : null}
+                      {pick.risk ? <span>{pick.risk}</span> : null}
+                    </div>
+                    {pick.dataGaps?.length ? (
+                      <div className={styles.pickGaps}>
+                        <span>Thiếu dữ liệu</span>
+                        <ul>
+                          {pick.dataGaps.map((gap) => (
+                            <li key={gap}>{gap}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </article>
+                )
+              })}
             </div>
-            <div>
-              <span>Hiện tại</span>
-              <strong className={styles.green}>{winnerOutcome.value}%</strong>
-            </div>
-          </div>
-        </section>
-      </section>
+
+            <p className={clsx(styles.marketNote, marketPredictionStatus === 'error' && styles.warningNote)}>{marketNote}</p>
+          </section>
+
+          <section className={styles.liveSection} aria-label="Biến động xác suất">
+            <section className={styles.movementPanel} aria-labelledby="movement-heading">
+              <div className={styles.panelHeader}>
+                <h2 id="movement-heading">Biến động xác suất live</h2>
+                <button type="button">
+                  60 phút qua
+                  <ChevronDown size={15} aria-hidden="true" />
+                </button>
+              </div>
+              <div className={styles.movementSubject}>
+                <img src={data.match.homeTeam.flagUrl} alt="" aria-hidden="true" />
+                <strong>{winnerOutcome.label} thắng</strong>
+              </div>
+              <div className={styles.chartBox}>
+                <Sparkline values={movementSeries} width={540} height={220} className={styles.movementSparkline} />
+                <span className={styles.nowTag}>{winnerOutcome.value}%</span>
+                <div className={styles.chartScale} aria-hidden="true">
+                  <span>60%</span>
+                  <span>55%</span>
+                  <span>50%</span>
+                  <span>45%</span>
+                </div>
+                <div className={styles.chartTimes} aria-hidden="true">
+                  {movementTicks.map((tick) => (
+                    <span key={tick}>{tick}</span>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.movementStats}>
+                <div>
+                  <span>Mở kèo</span>
+                  <strong>{openingProbability}%</strong>
+                </div>
+                <div>
+                  <span>Lần trước</span>
+                  <strong>{previousProbability}%</strong>
+                </div>
+                <div>
+                  <span>Hiện tại</span>
+                  <strong className={styles.green}>{winnerOutcome.value}%</strong>
+                </div>
+              </div>
+            </section>
+          </section>
+        </div>
+
+      </div>
 
       <section className={styles.liveSummary} aria-label="Tóm tắt hệ thống">
         <Bot size={18} aria-hidden="true" />
         <p>{liveStatusMessage ?? data.prediction.summary}</p>
-        <span>
+        <span data-status={liveStatus}>
           <ShieldCheck size={15} aria-hidden="true" />
-          {data.prediction.status}
+          {liveStatusLabels[liveStatus]}
         </span>
       </section>
     </div>

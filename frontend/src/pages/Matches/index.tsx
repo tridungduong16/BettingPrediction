@@ -191,8 +191,8 @@ export default function Matches() {
                 <CalendarClock size={16} aria-hidden="true" />
                 {formatLocalDate(nextMatch)} - {formatLocalTime(nextMatch)}
               </div>
-              <Link to={`${ROUTES.HOME}?matchId=${encodeURIComponent(nextMatch.id)}`}>
-                Mở phân tích
+              <Link to={`${ROUTES.PREDICTION_ANALYSIS}?matchId=${encodeURIComponent(nextMatch.id)}`}>
+                Mở phân tích & dự đoán
                 <ArrowRight size={15} aria-hidden="true" />
               </Link>
             </>
@@ -293,8 +293,8 @@ export default function Matches() {
                     </div>
                   </div>
 
-                  <Link className={styles.matchAction} to={`${ROUTES.HOME}?matchId=${encodeURIComponent(match.id)}`}>
-                    Phân tích
+                  <Link className={styles.matchAction} to={`${ROUTES.PREDICTION_ANALYSIS}?matchId=${encodeURIComponent(match.id)}`}>
+                    Phân tích & dự đoán
                     <ArrowRight size={15} aria-hidden="true" />
                   </Link>
                 </article>
