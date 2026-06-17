@@ -14,6 +14,7 @@ from app.models.market_prediction import (
     MatchInsightAgentOutput,
     MatchInsightResponse,
     PredictionMode,
+    ResponseLanguage,
 )
 from app.models.worldcup import WorldCupMatch
 from app.services.live_event_service import LiveEventService
@@ -58,6 +59,7 @@ class MarketPredictionService:
         force_refresh: bool = False,
         include_live: bool = True,
         include_news: bool = True,
+        language: ResponseLanguage = "vi",
         news_max_results: int | None = None,
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
@@ -83,11 +85,12 @@ class MarketPredictionService:
             force_refresh=force_refresh,
             max_results=news_max_results,
         )
-        markets = default_market_candidates(match)
+        markets = default_market_candidates(match, language=language)
         llm_context = self._match_context_service.build_market_prediction_context(
             match=match,
             live_snapshot=live_snapshot,
             prediction_mode=prediction_mode,
+            language=language,
             news_context=news_context,
             user_context=prediction_context,
         )
@@ -109,6 +112,7 @@ class MarketPredictionService:
         return MarketPredictionResponse(
             match_id=match.id,
             generated_at=datetime.now(UTC),
+            language=language,
             model_name=getattr(self._market_agent, "model_name", None),
             prediction_mode=prediction_mode,
             match=match,
@@ -130,6 +134,7 @@ class MarketPredictionService:
         force_refresh: bool = False,
         include_live: bool = True,
         include_news: bool = True,
+        language: ResponseLanguage = "vi",
         news_max_results: int | None = None,
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
@@ -159,6 +164,7 @@ class MarketPredictionService:
             match=match,
             live_snapshot=live_snapshot,
             prediction_mode=prediction_mode,
+            language=language,
             news_context=news_context,
             user_context=prediction_context,
         )
@@ -179,6 +185,7 @@ class MarketPredictionService:
         return MatchInsightResponse(
             match_id=match.id,
             generated_at=datetime.now(UTC),
+            language=language,
             model_name=getattr(self._insight_agent, "model_name", None),
             prediction_mode=prediction_mode,
             match=match,
@@ -252,9 +259,65 @@ class MarketPredictionService:
             )
 
 
-def default_market_candidates(match: WorldCupMatch) -> list[MarketPredictionCandidate]:
+def default_market_candidates(
+    match: WorldCupMatch,
+    *,
+    language: ResponseLanguage = "vi",
+) -> list[MarketPredictionCandidate]:
     home = match.team1
     away = match.team2
+
+    if language == "en":
+        return [
+            MarketPredictionCandidate(
+                id="asian-handicap",
+                family="asian_handicap",
+                name=f"Asian Handicap: {home} -1.0",
+                line="-1.0",
+                description=(
+                    "Common Asian handicap market. Pick the favorite to cover or the "
+                    "underdog to stay within the handicap."
+                ),
+                candidate_outcomes=[
+                    f"{home} -1.0 covers",
+                    f"{away} +1.0 covers",
+                    "Push",
+                ],
+            ),
+            MarketPredictionCandidate(
+                id="over-under",
+                family="over_under",
+                name="Over/Under: Over 2.5 goals",
+                line="2.5",
+                description="Total match goals compared with the 2.5 line.",
+                candidate_outcomes=["Over 2.5 goals", "Under 2.5 goals"],
+            ),
+            MarketPredictionCandidate(
+                id="one-x-two",
+                family="one_x_two",
+                name="1X2: Match result",
+                description=(
+                    "Official 90-minute result: home win, draw, or away win."
+                ),
+                candidate_outcomes=[f"{home} win", "Draw", f"{away} win"],
+            ),
+            MarketPredictionCandidate(
+                id="cards",
+                family="cards",
+                name="Cards: Over 4.5 cards",
+                line="4.5",
+                description="Total cards in the match compared with the 4.5 line.",
+                candidate_outcomes=["Over 4.5 cards", "Under 4.5 cards"],
+            ),
+            MarketPredictionCandidate(
+                id="corners",
+                family="corners",
+                name="Corners: Over 9.5 corners",
+                line="9.5",
+                description="Total corners in the match compared with the 9.5 line.",
+                candidate_outcomes=["Over 9.5 corners", "Under 9.5 corners"],
+            ),
+        ]
 
     return [
         MarketPredictionCandidate(

@@ -280,6 +280,16 @@ def test_default_market_candidates_cover_vietnam_priority_markets():
     assert markets[4].name == "Corner: Over 9.5 góc"
 
 
+def test_default_market_candidates_support_english():
+    markets = default_market_candidates(make_match(), language="en")
+
+    assert markets[0].name == "Asian Handicap: Brazil -1.0"
+    assert markets[1].candidate_outcomes == ["Over 2.5 goals", "Under 2.5 goals"]
+    assert markets[2].candidate_outcomes == ["Brazil win", "Draw", "France win"]
+    assert markets[3].name == "Cards: Over 4.5 cards"
+    assert markets[4].name == "Corners: Over 9.5 corners"
+
+
 @pytest.mark.asyncio
 async def test_market_prediction_service_returns_structured_predictions():
     match = make_match()
@@ -301,9 +311,12 @@ async def test_market_prediction_service_returns_structured_predictions():
     assert response.predictions[0].selection == "Brazil -1.0 thắng kèo"
     assert response.predictions[2].selection == "Brazil thắng"
     assert "data_gaps" not in response.predictions[0].model_dump()
+    assert response.language == "vi"
     assert response.prediction_mode == "pre_match"
     assert response.prediction_context is not None
+    assert response.prediction_context["language"] == "vi"
     assert response.prediction_context["prediction_mode"] == "pre_match"
+    assert agent.last_prediction_context["language"] == "vi"
 
 
 @pytest.mark.asyncio
@@ -340,6 +353,27 @@ async def test_market_prediction_service_adds_match_news_to_agent_context():
 
 
 @pytest.mark.asyncio
+async def test_market_prediction_service_passes_english_language_to_agent():
+    match = make_match()
+    agent = FakeMarketAgent()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        agent=agent,
+    )
+
+    response = await service.predict_match_markets(match_id=match.id, language="en")
+
+    assert response.language == "en"
+    assert response.prediction_context is not None
+    assert response.prediction_context["language"] == "en"
+    assert response.markets[0].name == "Asian Handicap: Brazil -1.0"
+    assert response.predictions[0].selection == "Brazil -1.0 covers"
+    assert response.predictions[2].selection == "Brazil win"
+    assert agent.last_prediction_context["language"] == "en"
+
+
+@pytest.mark.asyncio
 async def test_market_prediction_service_returns_separate_match_insight():
     match = make_match()
     insight_agent = FakeInsightAgent()
@@ -359,6 +393,7 @@ async def test_market_prediction_service_returns_separate_match_insight():
     )
 
     assert response.model_name == "fake-insight-model"
+    assert response.language == "vi"
     assert response.insight.winner == "Brazil"
     assert response.insight.outcomes[0].id == "home"
     assert response.insight.outcomes[0].value == 57
@@ -435,6 +470,7 @@ def test_live_prediction_context_includes_score_events_and_statistics():
     )
 
     assert context["prediction_mode"] == "live"
+    assert context["language"] == "vi"
     assert context["match"]["status_for_prediction"] == "live"
     assert context["actual_result"] is None
     assert context["live"]["score"] == {"home": 1, "away": 0}

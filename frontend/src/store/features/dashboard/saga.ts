@@ -11,7 +11,7 @@ import type {
   MatchInsightResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
-import { dashboardActions } from '@/store/features/dashboard/slice'
+import { dashboardActions, type DashboardMatchRequest } from '@/store/features/dashboard/slice'
 
 function errorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -21,45 +21,48 @@ function errorMessage(error: unknown) {
   return 'Yêu cầu dashboard gặp lỗi không xác định.'
 }
 
-function* loadMatch(action: PayloadAction<string>) {
+function* loadMatch(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const match: WorldCupMatch = yield call(getWorldCupMatch, action.payload)
-    yield put(dashboardActions.loadMatchSucceeded(match))
-    yield put(dashboardActions.loadMatchInsightRequested(action.payload))
-    yield put(dashboardActions.loadMarketPredictionsRequested(action.payload))
+    const { language, matchId } = action.payload
+    const match: WorldCupMatch = yield call(getWorldCupMatch, matchId)
+    yield put(dashboardActions.loadMatchSucceeded({ language, match }))
+    yield put(dashboardActions.loadMatchInsightRequested({ language, matchId }))
+    yield put(dashboardActions.loadMarketPredictionsRequested({ language, matchId }))
   } catch (error) {
     yield put(dashboardActions.loadMatchFailed(errorMessage(error)))
   }
 }
 
-function* loadMarketPredictions(action: PayloadAction<string>) {
+function* loadMarketPredictions(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const predictions: MarketPredictionResponse = yield call(getMarketPredictions, action.payload)
+    const { language, matchId } = action.payload
+    const predictions: MarketPredictionResponse = yield call(getMarketPredictions, matchId, { language })
     yield put(dashboardActions.loadMarketPredictionsSucceeded(predictions))
   } catch (error) {
     yield put(dashboardActions.loadMarketPredictionsFailed(errorMessage(error)))
   }
 }
 
-function* loadMatchInsight(action: PayloadAction<string>) {
+function* loadMatchInsight(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const insight: MatchInsightResponse = yield call(getMatchInsight, action.payload)
+    const { language, matchId } = action.payload
+    const insight: MatchInsightResponse = yield call(getMatchInsight, matchId, { language })
     yield put(dashboardActions.loadMatchInsightSucceeded(insight))
   } catch (error) {
     yield put(dashboardActions.loadMatchInsightFailed(errorMessage(error)))
   }
 }
 
-function* fetchLiveSnapshot(matchId: string) {
+function* fetchLiveSnapshot({ language, matchId }: DashboardMatchRequest) {
   try {
     const snapshot: LiveMatchSnapshot = yield call(getLiveMatchSnapshot, matchId, true)
-    yield put(dashboardActions.liveSnapshotReceived(snapshot))
+    yield put(dashboardActions.liveSnapshotReceived({ language, snapshot }))
   } catch (error) {
     yield put(dashboardActions.liveSnapshotFailed(errorMessage(error)))
   }
 }
 
-function* pollLiveSnapshots(action: PayloadAction<string>) {
+function* pollLiveSnapshots(action: PayloadAction<DashboardMatchRequest>) {
   const intervalMs = Number.isFinite(env.livePollingIntervalMs)
     ? Math.max(env.livePollingIntervalMs, 3000)
     : 10000

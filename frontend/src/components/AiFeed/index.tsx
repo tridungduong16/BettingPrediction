@@ -24,7 +24,7 @@ export function AiFeed({ items }: AiFeedProps) {
   return (
     <section id="feed" className={styles.panel} aria-labelledby="feed-title">
       <div className={styles.header}>
-        <span>Feed AI</span>
+        <span>Nhịp cập nhật</span>
         <h2 id="feed-title">Những thay đổi gần đây</h2>
       </div>
 

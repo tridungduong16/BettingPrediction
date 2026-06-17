@@ -12,6 +12,7 @@ MarketFamily = Literal["asian_handicap", "over_under", "one_x_two", "cards", "co
 MarketRisk = Literal["low", "medium", "high"]
 PredictionConfidence = Literal["low", "medium", "high"]
 PredictionMode = Literal["pre_match", "live", "post_match_evaluation"]
+ResponseLanguage = Literal["vi", "en"]
 TrendDirection = Literal["up", "down", "flat"]
 OutcomeId = Literal["home", "draw", "away"]
 ReasoningImpact = Literal["high", "medium", "low"]
@@ -90,6 +91,7 @@ class MatchInsightAgentOutput(BaseModel):
 class MarketPredictionResponse(BaseModel):
     match_id: str
     generated_at: datetime
+    language: ResponseLanguage = "vi"
     model_name: str | None = None
     prediction_mode: PredictionMode = "pre_match"
     match: WorldCupMatch
@@ -104,6 +106,7 @@ class MarketPredictionResponse(BaseModel):
 class MatchInsightResponse(BaseModel):
     match_id: str
     generated_at: datetime
+    language: ResponseLanguage = "vi"
     model_name: str | None = None
     prediction_mode: PredictionMode = "pre_match"
     match: WorldCupMatch

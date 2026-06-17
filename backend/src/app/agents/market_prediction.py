@@ -79,6 +79,14 @@ class FutboliaMarketPredictionAgent(BasePydanticAgent[None, MarketPredictionAgen
             ensure_ascii=False,
             indent=2,
         )
+        if context.prediction_context.get("language") == "en":
+            return (
+                "Predict the provided football markets from the context below.\n"
+                "Return exactly one prediction for each item in `markets`, preserving id, "
+                "family, name and line.\n\n"
+                f"```json\n{context_json}\n```"
+            )
+
         return (
             "Hãy dự đoán các kèo bóng đá được cung cấp dựa trên context sau.\n"
             "Trả về đúng một dự đoán cho mỗi item trong `markets`, giữ nguyên id, family, "

@@ -63,6 +63,14 @@ class FutboliaPredictionAgent(BasePydanticAgent[None, str]):
             ensure_ascii=False,
             indent=2,
         )
+        if context.prediction_context.get("language") == "en":
+            return (
+                "Match context:\n"
+                f"```json\n{context_json}\n```\n\n"
+                "User question:\n"
+                f"{question.strip()}"
+            )
+
         return (
             "Context trận đấu:\n"
             f"```json\n{context_json}\n```\n\n"

@@ -1,4 +1,5 @@
 import type { DashboardData } from '@/store/features/dashboard/types'
+import type { LanguageCode } from '@/i18n/languages'
 
 export const dashboardPlaceholder: DashboardData = {
   match: {
@@ -76,7 +77,7 @@ export const dashboardPlaceholder: DashboardData = {
   reasoning: {
     headline: 'Lợi thế của đội được chọn đến từ bối cảnh trận, tín hiệu xác suất và dữ liệu nguồn hiện có.',
     description:
-      'Mô hình ưu tiên reasoning theo trận hiện tại. Dữ liệu mẫu chỉ được dùng khi backend chưa trả được chi tiết trận đấu.',
+      'Phần nhận định ưu tiên dữ liệu của trận hiện tại. Dữ liệu mẫu chỉ được dùng khi backend chưa trả được chi tiết trận đấu.',
     points: [
       {
         id: 'match-context',
@@ -89,7 +90,7 @@ export const dashboardPlaceholder: DashboardData = {
         id: 'source-signal',
         title: 'Tín hiệu từ dữ liệu trận',
         detail:
-          'Tỷ số, đội hình, sự kiện live và biến động thị trường sẽ thay thế reasoning mẫu khi dữ liệu sẵn sàng.',
+          'Tỷ số, đội hình, sự kiện live và biến động thị trường sẽ thay thế luận điểm mẫu khi dữ liệu sẵn sàng.',
         impact: 'medium',
       },
       {
@@ -141,7 +142,7 @@ export const dashboardPlaceholder: DashboardData = {
       risk: 'Medium',
       signal: 'Đội nhà đang là cửa nghiêng trong mô hình mẫu',
       detail:
-        'Dòng handicap sẽ được tính lại theo trận thật khi service dự đoán thị trường trả reasoning hợp lệ.',
+        'Dòng handicap sẽ được tính lại theo trận thật khi nguồn dự đoán thị trường trả dữ liệu hợp lệ.',
     },
     {
       id: 'over-under',
@@ -245,4 +246,242 @@ export const dashboardPlaceholder: DashboardData = {
     'Điều gì thay đổi trong giờ qua?',
     'Kèo nào có rủi ro thấp nhất?',
   ],
+}
+
+export function getDashboardPlaceholder(language: LanguageCode = 'vi'): DashboardData {
+  if (language === 'en') {
+    return {
+      ...dashboardPlaceholder,
+      match: {
+        ...dashboardPlaceholder.match,
+        round: 'Group Stage',
+        kickoff: 'Scheduled',
+        stadium: 'Stadium',
+        city: 'City',
+        signals: [
+          {
+            label: 'Model edge',
+            value: '+2.8',
+            tone: 'positive',
+          },
+          {
+            label: 'Data status',
+            value: 'Medium',
+            tone: 'warning',
+          },
+          {
+            label: 'Data freshness',
+            value: 'From source',
+            tone: 'info',
+          },
+        ],
+        homeTeam: {
+          ...dashboardPlaceholder.match.homeTeam,
+          name: 'Home team',
+          shortName: 'HOM',
+        },
+        awayTeam: {
+          ...dashboardPlaceholder.match.awayTeam,
+          name: 'Away team',
+          shortName: 'AWY',
+        },
+      },
+      prediction: {
+        ...dashboardPlaceholder.prediction,
+        winner: 'Home team',
+        status: 'Live',
+        summary:
+          'Home team has a slight edge in the sample model. This content will be replaced by real match data as soon as the backend responds.',
+        outcomes: [
+          {
+            id: 'home',
+            label: 'Home team',
+            value: 58,
+            trend: 4.2,
+            direction: 'up',
+          },
+          {
+            id: 'draw',
+            label: 'Draw',
+            value: 21,
+            trend: -1.1,
+            direction: 'down',
+          },
+          {
+            id: 'away',
+            label: 'Away team',
+            value: 21,
+            trend: -3.1,
+            direction: 'down',
+          },
+        ],
+      },
+      reasoning: {
+        headline: 'The selected side edge comes from match context, probability signals and available source data.',
+        description:
+          'The match read prioritizes current fixture data. Sample data is only used when the backend cannot return match details yet.',
+        points: [
+          {
+            id: 'match-context',
+            title: 'Match context',
+            detail:
+              'Venue, round, schedule and source status are used as the baseline before more live events are available.',
+            impact: 'high',
+          },
+          {
+            id: 'source-signal',
+            title: 'Match data signal',
+            detail:
+              'Score, lineups, live events and market movement will replace the sample thesis when the data is ready.',
+            impact: 'medium',
+          },
+          {
+            id: 'data-confidence',
+            title: 'Confidence depends on live updates',
+            detail:
+              'If the live provider is not mapped to this match yet, the model keeps confidence conservative and shows the status clearly.',
+            impact: 'medium',
+          },
+        ],
+      },
+      edgeSignals: [
+        {
+          id: 'lineup-uncertainty',
+          label: 'Lineup signal needs confirmation',
+          detail: 'The model keeps confidence conservative until fresher lineup and player-status data is available.',
+          delta: '+1.4%',
+          tone: 'green',
+        },
+        {
+          id: 'probability-signal',
+          label: 'Probability signal is stable',
+          detail: 'The selected side is slightly ahead in the current probability set.',
+          delta: '+1.0%',
+          tone: 'green',
+        },
+        {
+          id: 'venue-context',
+          label: 'Venue and schedule context',
+          detail: 'Venue, time and source status are used as the baseline before detailed live events are available.',
+          delta: '+0.5%',
+          tone: 'green',
+        },
+        {
+          id: 'market-noise',
+          label: 'Public betting flow needs verification',
+          detail: 'Reliable public split data is not available yet, so the model does not let market noise override match data.',
+          delta: '-0.7%',
+          tone: 'red',
+        },
+      ],
+      markets: [
+        {
+          id: 'asian-handicap',
+          name: 'Asian Handicap: Home team -0.25',
+          probability: 61,
+          edge: 5.8,
+          risk: 'Medium',
+          signal: 'Home team is the model lean in the sample view',
+          detail:
+            'The handicap line will be recalculated for the real match when valid market prediction data arrives.',
+        },
+        {
+          id: 'over-under',
+          name: 'Over/Under: Over 2.5 goals',
+          probability: 57,
+          edge: 4.2,
+          risk: 'High',
+          signal: 'Goal model increases after lineup scan',
+          detail:
+            'The total depends heavily on the starting attacking shape. Over 2.5 improves if both teams keep high pressing structures and do not drop too deep early.',
+        },
+        {
+          id: 'match-result',
+          name: '1X2: Home team win',
+          probability: 58,
+          edge: 3.4,
+          risk: 'Low',
+          signal: 'Win probability is higher than the other two outcomes',
+          detail:
+            '1X2 is the basic match-result market: home win, draw or away win. The sample model currently leans home.',
+        },
+        {
+          id: 'cards',
+          name: 'Cards: Over 4.5 cards',
+          probability: 54,
+          edge: 2.6,
+          risk: 'Medium',
+          signal: 'Knockout-style intensity raises contact risk',
+          detail:
+            'Cards are an in-match event market. Probability increases when pressing is high, transitions are frequent and teams need tactical fouls to stop counters.',
+        },
+        {
+          id: 'corners',
+          name: 'Corners: Over 9.5 corners',
+          probability: 59,
+          edge: 2.3,
+          risk: 'Medium',
+          signal: 'Wide attack data is still needed',
+          detail:
+            'The corners market updates better when crosses, blocked shots and the main attacking zones for both teams are available.',
+        },
+      ],
+      feed: [
+        {
+          id: 'feed-1',
+          time: '18:42',
+          title: 'Prediction update',
+          detail: 'The selected side probability rose slightly after the model synced match data.',
+          type: 'model',
+        },
+        {
+          id: 'feed-2',
+          time: '18:27',
+          title: 'Lineup uncertainty detected',
+          detail: 'Some lineup positions still need confirmation. Current confidence impact is medium.',
+          type: 'lineup',
+        },
+        {
+          id: 'feed-3',
+          time: '18:08',
+          title: 'Market movement',
+          detail: 'The advancement market moved 2.4 points away from the model, creating a stronger edge signal.',
+          type: 'market',
+        },
+        {
+          id: 'feed-4',
+          time: '17:54',
+          title: 'Weather stable',
+          detail: 'Wind and rain risk remains low, so the model has not adjusted heavily.',
+          type: 'news',
+        },
+      ],
+      chat: [
+        {
+          id: 'chat-1',
+          sender: 'ai',
+          message:
+            'Home team is ahead at 58%. This is a sample answer and will be replaced by real match data when the backend is ready.',
+        },
+        {
+          id: 'chat-2',
+          sender: 'user',
+          message: 'What would make the away team the model favorite?',
+        },
+        {
+          id: 'chat-3',
+          sender: 'ai',
+          message:
+            'If live data, lineups and markets lean clearly toward the away team, the model will raise the away probability.',
+        },
+      ],
+      prompts: [
+        'Explain the selected side edge',
+        'What changed in the last hour?',
+        'Which market has the lowest risk?',
+      ],
+    }
+  }
+
+  return dashboardPlaceholder
 }

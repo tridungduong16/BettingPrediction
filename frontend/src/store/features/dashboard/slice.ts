@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
-import { dashboardPlaceholder } from '@/data/placeholder'
+import { dashboardPlaceholder, getDashboardPlaceholder } from '@/data/placeholder'
+import type { LanguageCode } from '@/i18n/languages'
 import type {
   LiveMatchSnapshot,
   LiveProviderStatus,
@@ -20,6 +21,21 @@ export type DashboardStatus = 'error' | 'idle' | 'loading' | 'ready'
 export type DashboardLiveStatus = LiveProviderStatus
 export type DashboardMarketPredictionStatus = 'error' | 'idle' | 'loading' | 'ready'
 export type DashboardInsightPredictionStatus = 'error' | 'idle' | 'loading' | 'ready'
+
+export interface DashboardMatchRequest {
+  language: LanguageCode
+  matchId: string
+}
+
+interface LoadMatchSucceededPayload {
+  language: LanguageCode
+  match: WorldCupMatch
+}
+
+interface LiveSnapshotReceivedPayload {
+  language: LanguageCode
+  snapshot: LiveMatchSnapshot
+}
 
 export interface DashboardState {
   data: DashboardData
@@ -49,10 +65,10 @@ const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState,
   reducers: {
-    loadMatchRequested(state, action: PayloadAction<string>) {
-      void action.payload
+    loadMatchRequested(state, action: PayloadAction<DashboardMatchRequest>) {
       state.status = 'loading'
       state.error = undefined
+      state.data = getDashboardPlaceholder(action.payload.language)
       state.insightPredictionError = undefined
       state.insightPredictionStatus = 'idle'
       state.matchInsight = undefined
@@ -60,10 +76,14 @@ const dashboardSlice = createSlice({
       state.marketPredictionStatus = 'idle'
       state.marketPredictions = undefined
     },
-    loadMatchSucceeded(state, action: PayloadAction<WorldCupMatch>) {
+    loadMatchSucceeded(state, action: PayloadAction<LoadMatchSucceededPayload>) {
       state.status = 'ready'
       state.error = undefined
-      state.data = mapWorldCupMatchToDashboardData(action.payload, state.data)
+      state.data = mapWorldCupMatchToDashboardData(
+        action.payload.match,
+        action.payload.language,
+        state.data,
+      )
     },
     loadMatchFailed(state, action: PayloadAction<string>) {
       state.status = 'error'
@@ -72,8 +92,8 @@ const dashboardSlice = createSlice({
     selectMarket(state, action: PayloadAction<string>) {
       state.selectedMarketId = action.payload
     },
-    loadMarketPredictionsRequested(state, action: PayloadAction<string>) {
-      void action.payload
+    loadMarketPredictionsRequested(state, action: PayloadAction<DashboardMatchRequest>) {
+      void action.payload.matchId
       state.marketPredictionStatus = 'loading'
       state.marketPredictionError = undefined
       state.marketPredictions = undefined
@@ -88,8 +108,8 @@ const dashboardSlice = createSlice({
       state.marketPredictionError = action.payload
       state.marketPredictions = undefined
     },
-    loadMatchInsightRequested(state, action: PayloadAction<string>) {
-      void action.payload
+    loadMatchInsightRequested(state, action: PayloadAction<DashboardMatchRequest>) {
+      void action.payload.matchId
       state.insightPredictionStatus = 'loading'
       state.insightPredictionError = undefined
       state.matchInsight = undefined
@@ -98,23 +118,31 @@ const dashboardSlice = createSlice({
       state.insightPredictionStatus = 'ready'
       state.insightPredictionError = undefined
       state.matchInsight = action.payload
-      state.data = applyMatchInsightToDashboardData(action.payload, state.data)
+      state.data = applyMatchInsightToDashboardData(action.payload, state.data, action.payload.language)
     },
     loadMatchInsightFailed(state, action: PayloadAction<string>) {
       state.insightPredictionStatus = 'error'
       state.insightPredictionError = action.payload
       state.matchInsight = undefined
     },
-    startLivePolling(state, action: PayloadAction<string>) {
+    startLivePolling(state, action: PayloadAction<DashboardMatchRequest>) {
       void state
-      void action.payload
+      void action.payload.matchId
     },
     stopLivePolling() {},
-    liveSnapshotReceived(state, action: PayloadAction<LiveMatchSnapshot>) {
-      state.liveStatus = action.payload.provider_status
-      state.lastLiveSnapshotAt = action.payload.observed_at
-      state.error = liveStatusMessage(action.payload.provider_status, action.payload.error)
-      state.data = applyLiveSnapshotToDashboardData(action.payload, state.data)
+    liveSnapshotReceived(state, action: PayloadAction<LiveSnapshotReceivedPayload>) {
+      state.liveStatus = action.payload.snapshot.provider_status
+      state.lastLiveSnapshotAt = action.payload.snapshot.observed_at
+      state.error = liveStatusMessage(
+        action.payload.snapshot.provider_status,
+        action.payload.snapshot.error,
+        action.payload.language,
+      )
+      state.data = applyLiveSnapshotToDashboardData(
+        action.payload.snapshot,
+        state.data,
+        action.payload.language,
+      )
     },
     liveSnapshotFailed(state, action: PayloadAction<string>) {
       state.liveStatus = 'provider_error'

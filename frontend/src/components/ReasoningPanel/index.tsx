@@ -20,8 +20,8 @@ export function ReasoningPanel({ reasoning }: ReasoningPanelProps) {
   return (
     <section className={styles.panel} aria-labelledby="reasoning-title">
       <SectionHeader
-        eyebrow="Vì sao mô hình dịch chuyển"
-        title="Lập luận trước khi phân tích"
+        eyebrow="Vì sao nhận định thay đổi"
+        title="Luận điểm chính"
         description={reasoning.description}
       />
 

@@ -1,0 +1,123 @@
+.gate {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: $space-6;
+  background: $color-bg-primary;
+}
+
+.panel {
+  width: min(100%, 520px);
+  padding: $space-8;
+  border: 1px solid rgba(139, 154, 176, 0.2);
+  border-radius: $radius-xl;
+  background: $color-card;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  margin-bottom: $space-8;
+  color: $color-text-primary;
+  font-size: 22px;
+  font-weight: 950;
+
+  img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+}
+
+.heading {
+  display: grid;
+  gap: $space-3;
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    width: fit-content;
+    color: $color-info;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  h1 {
+    color: $color-text-primary;
+    font-size: 32px;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 58ch;
+    color: $color-text-secondary;
+    font-size: 15px;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+}
+
+.options {
+  display: grid;
+  gap: $space-3;
+  margin-top: $space-8;
+}
+
+.options button {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $space-5;
+  border: 1px solid rgba(111, 166, 255, 0.34);
+  border-radius: $radius-md;
+  background: rgba(15, 33, 56, 0.82);
+  color: $color-text-primary;
+  font-size: 16px;
+  font-weight: 900;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    border-color: rgba(111, 166, 255, 0.74);
+    background: rgba(20, 45, 77, 0.96);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  svg {
+    color: $color-success;
+  }
+}
+
+@media (max-width: 560px) {
+  .gate {
+    padding: $space-4;
+  }
+
+  .panel {
+    padding: $space-6;
+  }
+
+  .heading h1 {
+    font-size: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .options button {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}

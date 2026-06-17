@@ -4,7 +4,7 @@ import re
 from typing import Any
 
 from app.models.live_events import LiveMatchEvent, LiveMatchSnapshot
-from app.models.market_prediction import PredictionMode
+from app.models.market_prediction import PredictionMode, ResponseLanguage
 from app.models.worldcup import WorldCupMatch
 
 LIVE_PREDICTION_PHASES = {
@@ -43,6 +43,7 @@ class MatchContextService:
         match: WorldCupMatch,
         live_snapshot: LiveMatchSnapshot | None,
         prediction_mode: PredictionMode,
+        language: ResponseLanguage = "vi",
         news_context: dict[str, Any] | None = None,
         user_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
@@ -52,6 +53,7 @@ class MatchContextService:
         )
         self._apply_news_quality(data_quality, news_context)
         return {
+            "language": language,
             "prediction_mode": prediction_mode,
             "match": self._match_context(match, prediction_mode=prediction_mode),
             "teams": self._teams_context(match, live_snapshot),

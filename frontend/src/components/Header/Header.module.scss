@@ -68,7 +68,51 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: $space-4;
+  gap: $space-3;
+}
+
+.googleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  min-height: 38px;
+  padding: 0 $space-4 0 $space-3;
+  border: 1px solid rgba(139, 154, 176, 0.22);
+  border-radius: 999px;
+  background: rgba(245, 248, 255, 0.96);
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    border-color: rgba(111, 166, 255, 0.5);
+    background: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.googleMark {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid rgba(139, 154, 176, 0.22);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #4285f4;
+  font-size: 14px;
+  font-weight: 950;
+  line-height: 1;
 }
 
 .livePill {
@@ -84,6 +128,41 @@
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.languageSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 36px;
+  padding: 3px;
+  border: 1px solid rgba(139, 154, 176, 0.2);
+  border-radius: 999px;
+  background: rgba(139, 154, 176, 0.08);
+}
+
+.languageSwitch button {
+  min-width: 34px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: $color-text-secondary;
+  font-size: 12px;
+  font-weight: 900;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.languageSwitch .activeLanguage {
+  background: rgba(52, 131, 255, 0.22);
+  color: $color-text-primary;
 }
 
 .iconButton,
@@ -181,6 +260,33 @@
 
   .actions {
     gap: $space-2;
+  }
+
+  .googleButton {
+    width: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    justify-content: center;
+    padding: 0;
+
+    span:last-child {
+      @include truncate;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  .languageSwitch {
+    min-height: 34px;
+  }
+
+  .languageSwitch button {
+    min-width: 32px;
+    height: 26px;
   }
 
   .avatarButton {

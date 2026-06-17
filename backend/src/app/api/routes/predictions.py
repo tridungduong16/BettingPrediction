@@ -10,6 +10,7 @@ from app.models.market_prediction import (
     MarketPredictionResponse,
     MatchInsightResponse,
     PredictionMode,
+    ResponseLanguage,
 )
 from app.services.market_prediction_service import (
     MarketPredictionMatchNotFoundError,
@@ -31,6 +32,7 @@ async def predict_match_markets(
     force_refresh: bool = False,
     include_live: bool = True,
     include_news: bool = True,
+    language: ResponseLanguage = "vi",
     news_max_results: Annotated[int | None, Query(ge=1, le=20)] = None,
     prediction_mode: PredictionMode = "pre_match",
 ) -> MarketPredictionResponse:
@@ -43,6 +45,7 @@ async def predict_match_markets(
             force_refresh=force_refresh,
             include_live=include_live,
             include_news=include_news,
+            language=language,
             news_max_results=news_max_results,
             prediction_mode=prediction_mode,
         )
@@ -64,6 +67,7 @@ async def predict_match_insight(
     force_refresh: bool = False,
     include_live: bool = True,
     include_news: bool = True,
+    language: ResponseLanguage = "vi",
     news_max_results: Annotated[int | None, Query(ge=1, le=20)] = None,
     prediction_mode: PredictionMode = "pre_match",
 ) -> MatchInsightResponse:
@@ -76,6 +80,7 @@ async def predict_match_insight(
             force_refresh=force_refresh,
             include_live=include_live,
             include_news=include_news,
+            language=language,
             news_max_results=news_max_results,
             prediction_mode=prediction_mode,
         )

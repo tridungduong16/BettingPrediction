@@ -22,7 +22,10 @@ import clsx from 'clsx'
 
 import { env } from '@/config/env'
 import { ROUTES } from '@/constants/routes'
+import { getDashboardPlaceholder } from '@/data/placeholder'
 import { useAppDispatch, useAppSelector } from '@/hooks/store'
+import { useI18n } from '@/i18n/I18nProvider'
+import type { LanguageCode } from '@/i18n/languages'
 import {
   selectDashboardData,
   selectDashboardError,
@@ -33,8 +36,8 @@ import {
   selectMarketPredictionStatus,
   selectMarketPredictions,
 } from '@/store/features/dashboard/selectors'
-import { dashboardActions, type DashboardLiveStatus } from '@/store/features/dashboard/slice'
-import type { EdgeSignal, FeedItemType } from '@/store/features/dashboard/types'
+import { dashboardActions } from '@/store/features/dashboard/slice'
+import type { EdgeSignal } from '@/store/features/dashboard/types'
 import type { MarketFamily, MarketPrediction } from '@/store/features/dashboard/apiTypes'
 
 import styles from './Home.module.scss'
@@ -59,6 +62,7 @@ interface PickCard {
   confidence?: string
   id: string
   icon: LucideIcon
+  iconImage?: string
   reasoning: string
   risk?: string
   selection: string
@@ -69,19 +73,7 @@ interface PickCard {
 
 const fallbackMovementValues = [50, 51, 50, 52, 54, 53, 55, 54, 56, 52, 53, 52, 56, 55, 53, 54, 57, 55, 56, 58]
 const fallbackMovementTicks = ['17:45', '18:00', '18:15', '18:30', '18:42']
-const liveStatusLabels: Record<DashboardLiveStatus, string> = {
-  not_configured: 'chưa cấu hình',
-  provider_error: 'lỗi nhà cung cấp',
-  ready: 'sẵn sàng',
-  unmapped: 'chưa liên kết trận live',
-}
-
-const liveRailStatusLabels: Record<DashboardLiveStatus, string> = {
-  not_configured: 'chưa cấu hình',
-  provider_error: 'lỗi live',
-  ready: 'live',
-  unmapped: 'chưa liên kết',
-}
+const asianHandicapIcon = '/images/market-asian-handicap-icon.png'
 
 const marketToneByFamily: Record<MarketFamily, Tone> = {
   asian_handicap: 'green',
@@ -99,36 +91,7 @@ const marketIconByFamily: Record<MarketFamily, LucideIcon> = {
   over_under: Goal,
 }
 
-const confidenceLabels: Record<NonNullable<MarketPrediction['confidence']>, string> = {
-  high: 'Tin cậy cao',
-  low: 'Tin cậy thấp',
-  medium: 'Tin cậy vừa',
-}
-
-const riskLabels: Record<NonNullable<MarketPrediction['risk']>, string> = {
-  high: 'Rủi ro cao',
-  low: 'Rủi ro thấp',
-  medium: 'Rủi ro vừa',
-}
-
 const edgeSignalIcons = [ShieldAlert, Activity, CloudRain, Scale] satisfies LucideIcon[]
-
-const impactLabels: Record<'high' | 'medium' | 'low', string> = {
-  high: 'Tác động cao',
-  low: 'Tác động thấp',
-  medium: 'Tác động vừa',
-}
-
-const feedTypeLabels: Record<FeedItemType, string> = {
-  card: 'Thẻ',
-  goal: 'Bàn thắng',
-  lineup: 'Đội hình',
-  market: 'Kèo',
-  model: 'Mô hình',
-  news: 'Tin tức',
-  substitution: 'Thay người',
-  var: 'VAR',
-}
 
 function buildSparkline(values: number[], width: number, height: number) {
   const min = Math.min(...values)
@@ -197,15 +160,15 @@ function isMatchMinuteTime(time: string) {
   return /^\d+(?:\+\d+)?'$/.test(time.trim())
 }
 
-function formatTimelineTime(time: string) {
+function formatTimelineTime(time: string, nowLabel: string, minuteLabel: string) {
   const normalizedTime = time.trim()
 
   if (!normalizedTime) {
-    return 'Bây giờ'
+    return nowLabel
   }
 
   if (isMatchMinuteTime(normalizedTime)) {
-    return `Phút ${normalizedTime.replace("'", '')}`
+    return `${minuteLabel} ${normalizedTime.replace("'", '')}`
   }
 
   return normalizedTime
@@ -222,8 +185,76 @@ function toEdgeFactors(signals: EdgeSignal[]): EdgeFactor[] {
   }))
 }
 
-function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: string): PickCard[] {
+function buildFallbackMarketPicks(
+  homeTeam: string,
+  awayTeam: string,
+  winner: string,
+  language: LanguageCode,
+  confidence: Record<NonNullable<MarketPrediction['confidence']>, string>,
+  risk: Record<NonNullable<MarketPrediction['risk']>, string>,
+): PickCard[] {
   const opponent = opponentForWinner(winner, homeTeam, awayTeam)
+
+  if (language === 'en') {
+    return [
+      {
+        id: 'asian-handicap',
+        title: `Asian Handicap: ${winner} -0.25`,
+        selection: `${winner} -0.25 covers`,
+        reasoning: `${winner} is the temporary lean over ${opponent}, but the handicap stays conservative while live data and confirmed lineups are incomplete.`,
+        rank: '#1',
+        tone: 'green',
+        icon: Scale,
+        iconImage: asianHandicapIcon,
+        confidence: confidence.medium,
+        risk: risk.medium,
+      },
+      {
+        id: 'over-under',
+        title: 'Over/Under: Over 2.5 goals',
+        selection: 'Over 2.5 goals',
+        reasoning: `${homeTeam} vs ${awayTeam} needs more match rhythm, shots and lineup data before the confidence can move higher.`,
+        rank: '#2',
+        tone: 'blue',
+        icon: Goal,
+        confidence: confidence.medium,
+        risk: risk.high,
+      },
+      {
+        id: 'one-x-two',
+        title: '1X2: Match result',
+        selection: `${winner} win`,
+        reasoning: `The current read leans toward ${winner}; this temporary view only uses this match data and does not reuse another fixture.`,
+        rank: '#3',
+        tone: 'purple',
+        icon: Flame,
+        confidence: confidence.medium,
+        risk: risk.low,
+      },
+      {
+        id: 'cards',
+        title: 'Cards: Over 4.5 cards',
+        selection: 'Over 4.5 cards',
+        reasoning: 'The cards market needs referee data, duel intensity and match state before the pick can be more certain.',
+        rank: '#4',
+        tone: 'orange',
+        icon: ShieldAlert,
+        confidence: confidence.low,
+        risk: risk.medium,
+      },
+      {
+        id: 'corners',
+        title: 'Corners: Over 9.5 corners',
+        selection: 'Over 9.5 corners',
+        reasoning: `The corners market becomes clearer when wide attacks, crosses and blocked shots from ${homeTeam} or ${awayTeam} are available.`,
+        rank: '#5',
+        tone: 'green',
+        icon: Crosshair,
+        confidence: confidence.medium,
+        risk: risk.medium,
+      },
+    ]
+  }
 
   return [
     {
@@ -234,8 +265,9 @@ function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: st
       rank: '#1',
       tone: 'green',
       icon: Scale,
-      confidence: 'Tin cậy vừa',
-      risk: 'Rủi ro vừa',
+      iconImage: asianHandicapIcon,
+      confidence: confidence.medium,
+      risk: risk.medium,
     },
     {
       id: 'over-under',
@@ -245,19 +277,19 @@ function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: st
       rank: '#2',
       tone: 'blue',
       icon: Goal,
-      confidence: 'Tin cậy vừa',
-      risk: 'Rủi ro cao',
+      confidence: confidence.medium,
+      risk: risk.high,
     },
     {
       id: 'one-x-two',
       title: '1X2: Kết quả trận đấu',
       selection: `${winner} thắng`,
-      reasoning: `Mô hình đang nghiêng về ${winner}; fallback này chỉ dùng dữ liệu trận hiện tại và không tái sử dụng luận điểm của cặp đấu mẫu.`,
+      reasoning: `Nhận định hiện nghiêng về ${winner}; phần tạm này chỉ dùng dữ liệu trận hiện tại và không dùng lại luận điểm của cặp đấu mẫu.`,
       rank: '#3',
       tone: 'purple',
       icon: Flame,
-      confidence: 'Tin cậy vừa',
-      risk: 'Rủi ro thấp',
+      confidence: confidence.medium,
+      risk: risk.low,
     },
     {
       id: 'cards',
@@ -267,8 +299,8 @@ function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: st
       rank: '#4',
       tone: 'orange',
       icon: ShieldAlert,
-      confidence: 'Tin cậy thấp',
-      risk: 'Rủi ro vừa',
+      confidence: confidence.low,
+      risk: risk.medium,
     },
     {
       id: 'corners',
@@ -278,16 +310,17 @@ function buildFallbackMarketPicks(homeTeam: string, awayTeam: string, winner: st
       rank: '#5',
       tone: 'green',
       icon: Crosshair,
-      confidence: 'Tin cậy vừa',
-      risk: 'Rủi ro vừa',
+      confidence: confidence.medium,
+      risk: risk.medium,
     },
   ]
 }
 
 export default function Home() {
+  const { copy, language } = useI18n()
   const { matchId: routeMatchId } = useParams<{ matchId: string }>()
   const dispatch = useAppDispatch()
-  const data = useAppSelector(selectDashboardData)
+  const dashboardData = useAppSelector(selectDashboardData)
   const dashboardStatus = useAppSelector(selectDashboardStatus)
   const dashboardError = useAppSelector(selectDashboardError)
   const liveStatus = useAppSelector(selectDashboardLiveStatus)
@@ -295,6 +328,7 @@ export default function Home() {
   const marketPredictions = useAppSelector(selectMarketPredictions)
   const marketPredictionStatus = useAppSelector(selectMarketPredictionStatus)
   const marketPredictionError = useAppSelector(selectMarketPredictionError)
+  const data = dashboardStatus === 'idle' ? getDashboardPlaceholder(language) : dashboardData
   const winnerOutcome = data.prediction.outcomes[0]
   const drawOutcome = data.prediction.outcomes[1]
   const awayOutcome = data.prediction.outcomes[2]
@@ -305,46 +339,57 @@ export default function Home() {
   const matchId = routeMatchId ?? env.defaultMatchId
 
   useEffect(() => {
-    dispatch(dashboardActions.loadMatchRequested(matchId))
+    dispatch(dashboardActions.loadMatchRequested({ language, matchId }))
 
     return () => {
       dispatch(dashboardActions.stopLivePolling())
     }
-  }, [dispatch, matchId])
+  }, [dispatch, language, matchId])
 
   useEffect(() => {
     if (dashboardStatus !== 'ready') {
       return undefined
     }
 
-    dispatch(dashboardActions.startLivePolling(matchId))
+    dispatch(dashboardActions.startLivePolling({ language, matchId }))
 
     return () => {
       dispatch(dashboardActions.stopLivePolling())
     }
-  }, [dashboardStatus, dispatch, matchId])
+  }, [dashboardStatus, dispatch, language, matchId])
 
   const liveStatusMessage = useMemo(() => {
     if (dashboardStatus === 'error') {
-      return `Backend chưa sẵn sàng: ${dashboardError ?? 'Không thể tải chi tiết trận đấu'}. Đang hiển thị dashboard mẫu.`
+      return copy.home.backendNotReady(dashboardError ?? copy.home.noMatchError)
+    }
+
+    if (liveStatus === 'unmapped') {
+      return undefined
     }
 
     if (dashboardError && liveStatus !== 'ready') {
-      return `${dashboardError} Đang dùng phân tích fallback theo dữ liệu trận hiện có.`
+      return dashboardError
     }
 
     if (lastLiveSnapshotAt && liveStatus !== 'ready') {
-      return `Trạng thái nhà cung cấp live: ${liveStatusLabels[liveStatus]}. Đang dùng phân tích fallback theo dữ liệu trận hiện có.`
+      return copy.home.statusProvider(copy.home.liveStatusLabels[liveStatus])
     }
 
     return undefined
-  }, [dashboardError, dashboardStatus, lastLiveSnapshotAt, liveStatus])
+  }, [copy.home, dashboardError, dashboardStatus, lastLiveSnapshotAt, liveStatus])
 
   const edgeFactors = useMemo(() => toEdgeFactors(data.edgeSignals), [data.edgeSignals])
 
   const fallbackMarketPicks = useMemo(
-    () => buildFallbackMarketPicks(homeTeamName, awayTeamName, predictedWinner),
-    [awayTeamName, homeTeamName, predictedWinner],
+    () => buildFallbackMarketPicks(
+      homeTeamName,
+      awayTeamName,
+      predictedWinner,
+      language,
+      copy.home.confidence,
+      copy.home.risk,
+    ),
+    [awayTeamName, copy.home.confidence, copy.home.risk, homeTeamName, language, predictedWinner],
   )
 
   const topPicks = useMemo(
@@ -363,11 +408,12 @@ export default function Home() {
         rank: `#${index + 1}`,
         tone: marketToneByFamily[prediction.family],
         icon: marketIconByFamily[prediction.family],
-        confidence: confidenceLabels[prediction.confidence],
-        risk: riskLabels[prediction.risk],
+        iconImage: prediction.family === 'asian_handicap' ? asianHandicapIcon : undefined,
+        confidence: copy.home.confidence[prediction.confidence],
+        risk: copy.home.risk[prediction.risk],
       })) satisfies PickCard[]
     },
-    [fallbackMarketPicks, marketPredictions],
+    [copy.home.confidence, copy.home.risk, fallbackMarketPicks, marketPredictions],
   )
 
   const trend = formatTrend(winnerOutcome.trend)
@@ -377,34 +423,39 @@ export default function Home() {
   const previousProbability = movementSeries.at(-2) ?? openingProbability
   const hasMatchMinuteTimeline = data.feed.some((item) => isMatchMinuteTime(item.time))
   const timelineItems = hasMatchMinuteTimeline ? [...data.feed].reverse() : data.feed
-  const liveScore = data.match.signals.find((signal) => signal.label.toLowerCase().includes('tỷ số'))?.value ?? '0-0'
+  const scoreSignalNeedle = language === 'vi' ? 'tỷ số' : 'score'
+  const liveScore = data.match.signals.find((signal) => signal.label.toLowerCase().includes(scoreSignalNeedle))?.value ?? '0-0'
   const matchTitle = `${data.match.homeTeam.name} vs ${data.match.awayTeam.name}`
   const liveRailSubtitle =
     liveStatus === 'ready'
-      ? 'Sự kiện, tỷ số và đồng hồ từ nhà cung cấp live'
-      : 'Trạng thái kết nối live và các cập nhật gần đây'
+      ? copy.home.liveRailSubtitleReady
+      : copy.home.liveRailSubtitleStatus
   const marketNote =
     marketPredictionStatus === 'loading'
-      ? 'Đang lấy dự đoán AI từ backend...'
+      ? copy.home.marketNoteLoading
       : marketPredictionStatus === 'ready'
         ? marketPredictions?.summary
         : marketPredictionStatus === 'error'
-          ? `Chưa lấy được dự đoán AI: ${marketPredictionError}. Đang dùng fallback theo trận hiện tại.`
-          : 'Mỗi kèo hiển thị hướng AI chọn và reasoning ngắn gọn từ service LLM.'
+          ? copy.home.marketNoteError(marketPredictionError)
+          : copy.home.marketNoteDefault
+  const isDrawWinner = data.prediction.winner === copy.home.draw || data.prediction.winner === 'Hòa' || data.prediction.winner === 'Draw'
+  const winnerStatement = isDrawWinner
+    ? copy.home.draw
+    : copy.home.winLabel(data.prediction.winner)
 
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumbRow}>
-        <div className={styles.breadcrumbs} aria-label="Đường dẫn">
+        <div className={styles.breadcrumbs} aria-label={copy.home.breadcrumbLabel}>
           <Link className={styles.backLink} to={ROUTES.HOME}>
             <ArrowLeft size={14} aria-hidden="true" />
-            Trận đấu
+            {copy.home.backToMatches}
           </Link>
           <ArrowRight size={14} aria-hidden="true" />
           <span>{matchTitle}</span>
         </div>
         <div className={styles.updated}>
-          Cập nhật: {data.prediction.lastUpdated}
+          {copy.home.updated}: {data.prediction.lastUpdated}
           <Radio size={15} aria-hidden="true" />
         </div>
       </div>
@@ -417,7 +468,7 @@ export default function Home() {
       ) : null}
 
       <div className={styles.dashboardLayout}>
-        <section className={styles.heroCard} id="matches" aria-label="Tổng quan trận đấu">
+        <section className={styles.heroCard} id="matches" aria-label={copy.home.matchOverviewLabel}>
           <div className={styles.matchStage}>
             <span className={clsx(styles.sideName, styles.sideNameHome)}>{data.match.homeTeam.name}</span>
             <span className={clsx(styles.sideName, styles.sideNameAway)}>{data.match.awayTeam.name}</span>
@@ -459,13 +510,13 @@ export default function Home() {
           </div>
         </section>
 
-        <aside className={styles.liveRail} aria-label="Live trận đấu">
+        <aside className={styles.liveRail} aria-label={copy.home.liveRailLabel}>
           <div className={styles.liveRailHeader}>
             <div>
-              <h2>Live trận đấu</h2>
+              <h2>{copy.home.liveRailLabel}</h2>
               <p>{liveRailSubtitle}</p>
             </div>
-            <span data-status={liveStatus}>{liveRailStatusLabels[liveStatus]}</span>
+            <span data-status={liveStatus}>{copy.home.liveRailStatusLabels[liveStatus]}</span>
           </div>
 
           <div className={styles.liveScoreStrip}>
@@ -478,25 +529,25 @@ export default function Home() {
             <div className={styles.timelineStack}>
               {timelineItems.map((item) => (
                 <article key={item.id}>
-                  <time>{formatTimelineTime(item.time)}</time>
+                  <time>{formatTimelineTime(item.time, copy.home.now, copy.home.minute)}</time>
                   <div>
                     <h3>{item.title}</h3>
                     <p>{item.detail}</p>
-                    <strong>{feedTypeLabels[item.type]}</strong>
+                    <strong>{copy.home.feedType[item.type]}</strong>
                   </div>
                 </article>
               ))}
             </div>
           ) : (
-            <p className={styles.timelineEmpty}>Chưa có sự kiện live từ nhà cung cấp.</p>
+            <p className={styles.timelineEmpty}>{copy.home.liveScoreEmpty}</p>
           )}
         </aside>
 
         <div className={styles.mainStack}>
-          <section className={styles.predictionDeck} id="prediction" aria-label="Dự đoán AI">
+          <section className={styles.predictionDeck} id="prediction" aria-label={copy.home.mainPrediction}>
             <article className={styles.winnerPanel}>
               <div className={styles.panelHeader}>
-                <h2>AI dự đoán chính</h2>
+                <h2>{copy.home.mainPrediction}</h2>
                 <span className={styles.liveBadge} data-status={liveStatus}>
                   <Zap size={13} aria-hidden="true" />
                   {data.prediction.status}
@@ -506,13 +557,13 @@ export default function Home() {
               <div className={styles.winnerStatement}>
                 <span>
                   <Sparkles size={16} aria-hidden="true" />
-                  Lựa chọn hiện tại
+                  {copy.home.currentPick}
                 </span>
-                <strong>{data.prediction.winner === 'Hòa' ? 'Hòa' : `${data.prediction.winner} thắng`}</strong>
+                <strong>{winnerStatement}</strong>
                 <p>{data.prediction.summary}</p>
               </div>
 
-              <div className={styles.matchSignals} aria-label="Tín hiệu trận đấu">
+              <div className={styles.matchSignals} aria-label={copy.home.matchOverviewLabel}>
                 {data.match.signals.map((signal) => (
                   <div key={signal.label} data-tone={signal.tone}>
                     <span>{signal.label}</span>
@@ -523,26 +574,26 @@ export default function Home() {
 
               <div className={styles.winnerMetrics}>
                 <div>
-                  <span>Độ tin cậy</span>
+                  <span>{copy.home.confidenceLabel}</span>
                   <strong>
                     {data.prediction.confidence.toFixed(1)}
                     <small>/10</small>
                   </strong>
                 </div>
                 <div>
-                  <span>Biến động</span>
+                  <span>{copy.home.movementLabel}</span>
                   <strong className={styles.green}>{trend}</strong>
-                  <small>30 phút qua</small>
+                  <small>{copy.home.trendWindow}</small>
                 </div>
               </div>
             </article>
 
-            <aside className={styles.probabilityPanel} aria-label="Xác suất thắng">
+            <aside className={styles.probabilityPanel} aria-label={copy.home.probabilityLabel}>
               <div className={styles.panelHeader}>
-                <h2>Xác suất thắng</h2>
+                <h2>{copy.home.probabilityTitle}</h2>
                 <span className={styles.liveBadge} data-status={liveStatus}>
                   <Radio size={13} aria-hidden="true" />
-                  {liveRailStatusLabels[liveStatus]}
+                  {copy.home.liveRailStatusLabels[liveStatus]}
                 </span>
               </div>
               <div className={styles.probabilityRows}>
@@ -551,7 +602,7 @@ export default function Home() {
                 <ProbabilityBar label={awayOutcome.label} value={awayOutcome.value} tone="blue" />
               </div>
               <div className={styles.confidenceLine}>
-                <span>Độ tin cậy mô hình: {data.prediction.confidence.toFixed(1)} / 10</span>
+                <span>{copy.home.modelConfidence}: {data.prediction.confidence.toFixed(1)} / 10</span>
                 <div aria-hidden="true">
                   {Array.from({ length: 10 }).map((_, index) => (
                     <i key={index} className={index < Math.round(data.prediction.confidence) ? styles.filled : undefined} />
@@ -561,10 +612,10 @@ export default function Home() {
             </aside>
           </section>
 
-          <section className={styles.reasoningSection} id="analysis" aria-label="Lý do dự đoán">
+          <section className={styles.reasoningSection} id="analysis" aria-label={copy.home.analysisLabel}>
             <div className={styles.sectionIntro}>
-              <h2>Vì sao AI nghiêng về {data.prediction.winner}</h2>
-              <p>Ưu tiên đọc reasoning trước analytics: luận điểm chính, dữ liệu tác động và lợi thế ròng được tách thành từng nhóm.</p>
+              <h2>{copy.home.reasoningTitle(data.prediction.winner)}</h2>
+              <p>{copy.home.reasoningIntro}</p>
             </div>
 
             <div className={styles.reasoningLayout}>
@@ -577,7 +628,7 @@ export default function Home() {
                 <div className={styles.reasonPointList}>
                   {data.reasoning.points.map((point) => (
                     <article key={point.id}>
-                      <span>{impactLabels[point.impact]}</span>
+                      <span>{copy.home.impact[point.impact]}</span>
                       <h4>{point.title}</h4>
                       <p>{point.detail}</p>
                     </article>
@@ -585,9 +636,9 @@ export default function Home() {
                 </div>
               </article>
 
-              <aside className={styles.edgePanel} aria-label="Tín hiệu điều chỉnh xác suất">
+              <aside className={styles.edgePanel} aria-label={copy.home.edgePanelLabel}>
                 <div className={styles.panelHeader}>
-                  <h3>Tín hiệu làm lệch xác suất</h3>
+                  <h3>{copy.home.edgePanelLabel}</h3>
                 </div>
                 <div className={styles.reasonList}>
                   {edgeFactors.map((factor) => {
@@ -608,17 +659,17 @@ export default function Home() {
                   })}
                 </div>
                 <div className={styles.netEdge}>
-                  <span>Lợi thế ròng</span>
+                  <span>{copy.home.netEdge}</span>
                   <strong>{data.netEdge}</strong>
                 </div>
               </aside>
             </div>
           </section>
 
-          <section className={styles.marketsSection} id="markets" aria-label="Các kèo AI đề xuất">
+          <section className={styles.marketsSection} id="markets" aria-label={copy.home.marketsLabel}>
             <div className={styles.sectionIntro}>
-              <h2>Lựa chọn AI theo từng thị trường</h2>
-              <p>Kèo Châu Á, Tài/Xỉu, 1X2, thẻ phạt và corner được đặt thành các khối riêng để reasoning không bị nén vào một card.</p>
+              <h2>{copy.home.marketsTitle}</h2>
+              <p>{copy.home.marketsIntro}</p>
             </div>
 
             <div className={styles.pickGrid}>
@@ -628,14 +679,25 @@ export default function Home() {
                 return (
                   <article
                     key={pick.id}
-                    className={clsx(styles.pickCard, styles[`pick${pick.tone}`], index < 2 && styles.featuredPick)}
+                    className={clsx(
+                      styles.pickCard,
+                      styles[`pick${pick.tone}`],
+                      index < 2 && styles.featuredPick,
+                      pick.iconImage && styles.illustratedPick,
+                    )}
                   >
                     <div className={styles.pickTop}>
                       <span className={styles.pickRank}>
-                        <Icon size={14} aria-hidden="true" />
+                        {pick.iconImage ? (
+                          <span className={styles.pickIconBadge}>
+                            <img className={styles.pickIconImage} src={pick.iconImage} alt="" aria-hidden="true" />
+                          </span>
+                        ) : (
+                          <Icon size={14} aria-hidden="true" />
+                        )}
                         {pick.rank}
                       </span>
-                      <span className={styles.pickLabel}>AI chọn</span>
+                      <span className={styles.pickLabel}>{copy.home.aiPick}</span>
                     </div>
                     <div className={styles.pickMarket}>
                       <h3>{pick.title}</h3>
@@ -654,18 +716,18 @@ export default function Home() {
             <p className={clsx(styles.marketNote, marketPredictionStatus === 'error' && styles.warningNote)}>{marketNote}</p>
           </section>
 
-          <section className={styles.liveSection} aria-label="Biến động xác suất">
+          <section className={styles.liveSection} aria-label={copy.home.movementLabel}>
             <section className={styles.movementPanel} aria-labelledby="movement-heading">
               <div className={styles.panelHeader}>
-                <h2 id="movement-heading">Biến động xác suất live</h2>
+                <h2 id="movement-heading">{copy.home.movementTitle}</h2>
                 <button type="button">
-                  60 phút qua
+                  {copy.home.chartRange}
                   <ChevronDown size={15} aria-hidden="true" />
                 </button>
               </div>
               <div className={styles.movementSubject}>
                 <img src={data.match.homeTeam.flagUrl} alt="" aria-hidden="true" />
-                <strong>{winnerOutcome.label} thắng</strong>
+                <strong>{copy.home.winProbabilitySubject(winnerOutcome.label)}</strong>
               </div>
               <div className={styles.chartBox}>
                 <Sparkline values={movementSeries} width={540} height={220} className={styles.movementSparkline} />
@@ -684,15 +746,15 @@ export default function Home() {
               </div>
               <div className={styles.movementStats}>
                 <div>
-                  <span>Mở kèo</span>
+                  <span>{copy.home.openingLine}</span>
                   <strong>{openingProbability}%</strong>
                 </div>
                 <div>
-                  <span>Lần trước</span>
+                  <span>{copy.home.previous}</span>
                   <strong>{previousProbability}%</strong>
                 </div>
                 <div>
-                  <span>Hiện tại</span>
+                  <span>{copy.home.current}</span>
                   <strong className={styles.green}>{winnerOutcome.value}%</strong>
                 </div>
               </div>
@@ -702,12 +764,12 @@ export default function Home() {
 
       </div>
 
-      <section className={styles.liveSummary} aria-label="Tóm tắt hệ thống">
+      <section className={styles.liveSummary} aria-label={copy.home.systemSummaryLabel}>
         <Bot size={18} aria-hidden="true" />
         <p>{liveStatusMessage ?? data.prediction.summary}</p>
         <span data-status={liveStatus}>
           <ShieldCheck size={15} aria-hidden="true" />
-          {liveStatusLabels[liveStatus]}
+          {copy.home.liveStatusLabels[liveStatus]}
         </span>
       </section>
     </div>

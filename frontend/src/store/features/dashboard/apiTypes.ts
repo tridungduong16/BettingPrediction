@@ -140,6 +140,7 @@ export type MarketFamily = 'asian_handicap' | 'cards' | 'corners' | 'one_x_two' 
 export type MarketRisk = 'high' | 'low' | 'medium'
 export type PredictionConfidence = 'high' | 'low' | 'medium'
 export type PredictionMode = 'live' | 'post_match_evaluation' | 'pre_match'
+export type ResponseLanguage = 'en' | 'vi'
 export type TrendDirection = 'down' | 'flat' | 'up'
 export type OutcomeId = 'away' | 'draw' | 'home'
 export type ReasoningImpact = 'high' | 'low' | 'medium'
@@ -170,6 +171,7 @@ export interface MarketPrediction {
 export interface MarketPredictionResponse {
   match_id: string
   generated_at: string
+  language: ResponseLanguage
   model_name?: string | null
   match: WorldCupMatch
   live_snapshot?: LiveMatchSnapshot | null
@@ -223,6 +225,7 @@ export interface MatchInsight {
 export interface MatchInsightResponse {
   match_id: string
   generated_at: string
+  language: ResponseLanguage
   model_name?: string | null
   prediction_mode: PredictionMode
   match: WorldCupMatch

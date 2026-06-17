@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Send, Sparkles } from 'lucide-react'
 import clsx from 'clsx'
 
+import { useI18n } from '@/i18n/I18nProvider'
 import type { ChatMessage } from '@/store/features/dashboard/types'
 
 import styles from './ChatPanel.module.scss'
@@ -12,8 +13,13 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ messages, prompts }: ChatPanelProps) {
+  const { copy } = useI18n()
   const [chatMessages, setChatMessages] = useState(messages)
   const [draft, setDraft] = useState('')
+
+  useEffect(() => {
+    setChatMessages(messages)
+  }, [messages])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -34,8 +40,7 @@ export function ChatPanel({ messages, prompts }: ChatPanelProps) {
       {
         id: `ai-${Date.now()}`,
         sender: 'ai',
-        message:
-          'Đánh giá hiện tại đang dùng dữ liệu của trận này. Khi có live events, đội hình và thị trường mới, AI sẽ cập nhật lại reasoning theo đội đang được chọn.',
+        message: copy.chat.aiFallback,
       },
     ])
     setDraft('')
@@ -45,8 +50,8 @@ export function ChatPanel({ messages, prompts }: ChatPanelProps) {
     <section className={styles.panel} aria-labelledby="chat-title">
       <div className={styles.header}>
         <div>
-          <span>Chat AI</span>
-          <h2 id="chat-title">Hỏi về trận đấu này</h2>
+          <span>{copy.chat.headerLabel}</span>
+          <h2 id="chat-title">{copy.chat.title}</h2>
         </div>
         <Sparkles size={18} aria-hidden="true" />
       </div>
@@ -72,12 +77,12 @@ export function ChatPanel({ messages, prompts }: ChatPanelProps) {
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <input
-          aria-label="Hỏi Worldian AI"
-          placeholder="Hỏi điều gì vừa thay đổi..."
+          aria-label={copy.chat.ariaLabel}
+          placeholder={copy.chat.placeholder}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
         />
-        <button type="submit" aria-label="Gửi tin nhắn">
+        <button type="submit" aria-label={copy.chat.sendLabel}>
           <Send size={17} aria-hidden="true" />
         </button>
       </form>

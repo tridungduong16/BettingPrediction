@@ -885,6 +885,12 @@
 
 }
 
+.illustratedPick {
+  &::after {
+    display: none;
+  }
+}
+
 .featuredPick {
   grid-column: span 6;
   min-height: 278px;
@@ -904,10 +910,48 @@
 }
 
 .pickRank {
-  gap: $space-1;
+  gap: $space-2;
   color: currentColor;
   font-size: 11px;
   font-weight: 950;
+
+  svg {
+    flex: 0 0 auto;
+  }
+}
+
+.pickIconBadge {
+  position: relative;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba($color-success, 0.46);
+  border-radius: $radius-md;
+  background:
+    radial-gradient(circle at 70% 26%, rgba($color-info, 0.22), transparent 34%),
+    linear-gradient(145deg, rgba($color-success, 0.24), rgba(8, 19, 35, 0.82));
+  box-shadow:
+    0 0 0 1px rgba(2, 8, 19, 0.58),
+    0 0 12px rgba($color-success, 0.26);
+
+  &::after {
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: calc($radius-md - 3px);
+    pointer-events: none;
+    content: '';
+  }
+}
+
+.pickIconImage {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: $radius-sm;
 }
 
 .pickLabel {
@@ -1589,4 +1633,5 @@
   .pickCard {
     padding: $space-4;
   }
+
 }

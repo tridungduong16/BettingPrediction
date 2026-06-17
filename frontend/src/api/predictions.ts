@@ -1,4 +1,5 @@
 import { request } from '@/api/http'
+import type { LanguageCode } from '@/i18n/languages'
 import type {
   MarketPredictionResponse,
   MatchInsightResponse,
@@ -8,6 +9,7 @@ interface MarketPredictionQuery {
   forceRefresh?: boolean
   includeLive?: boolean
   includeNews?: boolean
+  language?: LanguageCode
   newsMaxResults?: number
   providerFixtureId?: string
   source?: 'auto' | 'openfootball' | 'upbound'
@@ -22,6 +24,7 @@ export function getMarketPredictions(matchId: string, query: MarketPredictionQue
         force_refresh: query.forceRefresh,
         include_live: query.includeLive,
         include_news: query.includeNews,
+        language: query.language,
         news_max_results: query.newsMaxResults,
         provider_fixture_id: query.providerFixtureId,
         source: query.source,
@@ -39,6 +42,7 @@ export function getMatchInsight(matchId: string, query: MarketPredictionQuery = 
         force_refresh: query.forceRefresh,
         include_live: query.includeLive,
         include_news: query.includeNews,
+        language: query.language,
         news_max_results: query.newsMaxResults,
         provider_fixture_id: query.providerFixtureId,
         source: query.source,

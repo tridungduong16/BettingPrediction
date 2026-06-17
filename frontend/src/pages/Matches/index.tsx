@@ -16,6 +16,8 @@ import {
 
 import { getWorldCupMatches } from '@/api/worldcup'
 import { matchDetailPath } from '@/constants/routes'
+import { localeForLanguage, type LanguageCode } from '@/i18n/languages'
+import { useI18n } from '@/i18n/I18nProvider'
 import type { WorldCupDataset, WorldCupMatch } from '@/store/features/dashboard/apiTypes'
 
 import styles from './Matches.module.scss'
@@ -29,27 +31,50 @@ interface MatchesState {
   status: MatchesStatus
 }
 
-const matchDayFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  weekday: 'long',
-  year: 'numeric',
-})
-
-const matchTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-})
-
-const sourceTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour12: false,
-})
+const dateFormatters = {
+  en: {
+    matchDay: new Intl.DateTimeFormat(localeForLanguage('en'), {
+      day: '2-digit',
+      month: 'short',
+      weekday: 'long',
+      year: 'numeric',
+    }),
+    matchTime: new Intl.DateTimeFormat(localeForLanguage('en'), {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }),
+    sourceTime: new Intl.DateTimeFormat(localeForLanguage('en'), {
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour12: false,
+    }),
+  },
+  vi: {
+    matchDay: new Intl.DateTimeFormat(localeForLanguage('vi'), {
+      day: '2-digit',
+      month: '2-digit',
+      weekday: 'long',
+      year: 'numeric',
+    }),
+    matchTime: new Intl.DateTimeFormat(localeForLanguage('vi'), {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }),
+    sourceTime: new Intl.DateTimeFormat(localeForLanguage('vi'), {
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour12: false,
+    }),
+  },
+} satisfies Record<LanguageCode, Record<'matchDay' | 'matchTime' | 'sourceTime', Intl.DateTimeFormat>>
 
 const calendarDatePattern = /^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})$/
 
@@ -94,18 +119,18 @@ function canOpenMatchAnalysis(match: WorldCupMatch) {
   return analysisDate ? analysisDate.getTime() < getAnalysisCutoffTime() : false
 }
 
-function getSourceSchedule(match: WorldCupMatch) {
-  return [match.date, match.time].filter(Boolean).join(' - ') || 'Chưa có giờ'
+function getSourceSchedule(match: WorldCupMatch, noTimeLabel: string) {
+  return [match.date, match.time].filter(Boolean).join(' - ') || noTimeLabel
 }
 
-function formatLocalDate(match: WorldCupMatch) {
+function formatLocalDate(match: WorldCupMatch, language: LanguageCode, noDateLabel: string) {
   const kickoff = getKickoffDate(match)
-  return kickoff ? matchDayFormatter.format(kickoff) : match.date || 'Chưa có ngày'
+  return kickoff ? dateFormatters[language].matchDay.format(kickoff) : match.date || noDateLabel
 }
 
-function formatLocalTime(match: WorldCupMatch) {
+function formatLocalTime(match: WorldCupMatch, language: LanguageCode, noTimeLabel: string) {
   const kickoff = getKickoffDate(match)
-  return kickoff ? matchTimeFormatter.format(kickoff) : match.time || 'Chưa có giờ'
+  return kickoff ? dateFormatters[language].matchTime.format(kickoff) : match.time || noTimeLabel
 }
 
 function getSortValue(match: WorldCupMatch) {
@@ -113,9 +138,9 @@ function getSortValue(match: WorldCupMatch) {
   return getKickoffDate(match)?.getTime() ?? (Number.isNaN(parsedDate) ? Number.MAX_SAFE_INTEGER : parsedDate)
 }
 
-function groupMatchesByDate(matches: WorldCupMatch[]) {
+function groupMatchesByDate(matches: WorldCupMatch[], language: LanguageCode, noDateLabel: string) {
   return matches.reduce<Array<{ dateLabel: string; matches: WorldCupMatch[] }>>((groups, match) => {
-    const dateLabel = formatLocalDate(match)
+    const dateLabel = formatLocalDate(match, language, noDateLabel)
     const existingGroup = groups.find((group) => group.dateLabel === dateLabel)
 
     if (existingGroup) {
@@ -128,11 +153,11 @@ function groupMatchesByDate(matches: WorldCupMatch[]) {
   }, [])
 }
 
-function normalizeSearch(value: string) {
-  return value.trim().toLocaleLowerCase('vi-VN')
+function normalizeSearch(value: string, language: LanguageCode) {
+  return value.trim().toLocaleLowerCase(localeForLanguage(language))
 }
 
-function matchSearchText(match: WorldCupMatch) {
+function matchSearchText(match: WorldCupMatch, language: LanguageCode) {
   return [
     match.team1,
     match.team2,
@@ -143,37 +168,39 @@ function matchSearchText(match: WorldCupMatch) {
   ]
     .filter(Boolean)
     .join(' ')
-    .toLocaleLowerCase('vi-VN')
+    .toLocaleLowerCase(localeForLanguage(language))
 }
 
 function MatchAnalysisAction({ className, match }: { className?: string; match: WorldCupMatch }) {
+  const { copy } = useI18n()
   const available = canOpenMatchAnalysis(match)
 
   if (!available) {
     return (
       <button
         aria-disabled="true"
-        aria-label="Chưa thể xem AI phân tích cho trận này"
+        aria-label={copy.matches.analysisUnavailableLabel}
         className={className}
         disabled
-        title="Chỉ mở phân tích cho trận trước hoặc trong vòng 1 ngày so với hôm nay"
+        title={copy.matches.analysisUnavailableTitle}
         type="button"
       >
-        Xem AI phân tích
+        {copy.matches.openAnalysis}
         <ArrowRight size={15} aria-hidden="true" />
       </button>
     )
   }
 
   return (
-    <Link className={className} to={matchDetailPath(match.id)}>
-      Xem AI phân tích
+    <Link aria-label={copy.matches.analysisAvailableLabel} className={className} to={matchDetailPath(match.id)}>
+      {copy.matches.openAnalysis}
       <ArrowRight size={15} aria-hidden="true" />
     </Link>
   )
 }
 
 export default function Matches() {
+  const { copy, language } = useI18n()
   const [state, setState] = useState<MatchesState>({ status: 'loading' })
   const [search, setSearch] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
@@ -191,7 +218,7 @@ export default function Matches() {
         }
 
         setState({
-          error: error instanceof Error ? error.message : 'Không thể tải lịch trận.',
+          error: error instanceof Error ? error.message : copy.matches.errorFallback,
           status: 'error',
         })
       })
@@ -199,22 +226,25 @@ export default function Matches() {
     return () => {
       controller.abort()
     }
-  }, [reloadKey])
+  }, [copy.matches.errorFallback, reloadKey])
 
   const upcomingMatches = useMemo(() => {
     const now = state.loadedAtMs ?? 0
-    const query = normalizeSearch(search)
+    const query = normalizeSearch(search, language)
 
     return (state.dataset?.matches ?? [])
       .filter((match) => {
         const kickoff = getKickoffDate(match)
         return !kickoff || kickoff.getTime() >= now
       })
-      .filter((match) => !query || matchSearchText(match).includes(query))
+      .filter((match) => !query || matchSearchText(match, language).includes(query))
       .sort((first, second) => getSortValue(first) - getSortValue(second))
-  }, [search, state.dataset, state.loadedAtMs])
+  }, [language, search, state.dataset, state.loadedAtMs])
 
-  const groupedMatches = useMemo(() => groupMatchesByDate(upcomingMatches), [upcomingMatches])
+  const groupedMatches = useMemo(
+    () => groupMatchesByDate(upcomingMatches, language, copy.matches.noDate),
+    [copy.matches.noDate, language, upcomingMatches],
+  )
   const nextMatch = upcomingMatches[0]
   const source = state.dataset?.source
   const refreshMatches = () => {
@@ -231,44 +261,45 @@ export default function Matches() {
         <div className={styles.heroCopy}>
           <span className={styles.kicker}>
             <Trophy size={15} aria-hidden="true" />
-            World Cup {source?.year ?? 2026}
+            {copy.matches.worldCup(source?.year ?? 2026)}
           </span>
-          <h1 id="matches-heading">Lịch trận sắp diễn ra</h1>
+          <h1 id="matches-heading">{copy.matches.title}</h1>
           <p>
             {source
-              ? `${upcomingMatches.length} trận từ backend, nguồn ${source.source_name}.`
-              : 'Đang tải lịch trận từ backend.'}
+              ? copy.matches.sourceSummary(upcomingMatches.length, source.source_name)
+              : copy.matches.loading}
           </p>
         </div>
 
-        <div className={styles.heroPanel} aria-label="Trận tiếp theo">
-          <span>Trận tiếp theo</span>
+        <div className={styles.heroPanel} aria-label={copy.matches.nextMatch}>
+          <span>{copy.matches.nextMatch}</span>
           {nextMatch ? (
             <>
               <strong>
-                {nextMatch.team1} vs {nextMatch.team2}
+                {nextMatch.team1} {copy.matches.vs} {nextMatch.team2}
               </strong>
               <div>
                 <CalendarClock size={16} aria-hidden="true" />
-                {formatLocalDate(nextMatch)} - {formatLocalTime(nextMatch)}
+                {formatLocalDate(nextMatch, language, copy.matches.noDate)} -{' '}
+                {formatLocalTime(nextMatch, language, copy.matches.noTime)}
               </div>
               <MatchAnalysisAction className={styles.heroAction} match={nextMatch} />
             </>
           ) : (
-            <strong>Chưa có trận phù hợp</strong>
+            <strong>{copy.matches.noMatch}</strong>
           )}
         </div>
       </section>
 
-      <section className={styles.toolbar} aria-label="Bộ lọc lịch trận">
+      <section className={styles.toolbar} aria-label={copy.matches.toolbarLabel}>
         <label className={styles.searchBox}>
           <Search size={17} aria-hidden="true" />
-          <span className="sr-only">Tìm trận đấu</span>
+          <span className="sr-only">{copy.matches.searchLabel}</span>
           <input
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Tìm đội, bảng, vòng, sân..."
+            placeholder={copy.matches.searchPlaceholder}
           />
         </label>
         <button
@@ -278,23 +309,23 @@ export default function Matches() {
           disabled={state.status === 'loading'}
         >
           <RefreshCw size={16} aria-hidden="true" />
-          Làm mới
+          {copy.matches.refresh}
         </button>
       </section>
 
       {source ? (
-        <dl className={styles.sourceStrip} aria-label="Thông tin nguồn dữ liệu">
+        <dl className={styles.sourceStrip} aria-label={copy.matches.sourceScheduleLabel}>
           <div>
-            <dt>Tổng trận backend</dt>
+            <dt>{copy.matches.sourceTotal}</dt>
             <dd>{source.match_count}</dd>
           </div>
           <div>
-            <dt>Cập nhật</dt>
-            <dd>{sourceTimeFormatter.format(new Date(source.fetched_at))}</dd>
+            <dt>{copy.matches.sourceLoaded}</dt>
+            <dd>{dateFormatters[language].sourceTime.format(new Date(source.fetched_at))}</dd>
           </div>
           <div>
-            <dt>Cache</dt>
-            <dd>{source.stale_cache ? 'cache cũ' : source.cache_hit ? 'cache' : 'mới'}</dd>
+            <dt>{copy.matches.sourceCache}</dt>
+            <dd>{source.stale_cache ? copy.matches.cacheOld : source.cache_hit ? copy.matches.cacheHit : copy.matches.cacheFresh}</dd>
           </div>
         </dl>
       ) : null}
@@ -302,7 +333,7 @@ export default function Matches() {
       {state.status === 'loading' ? (
         <div className={styles.statePanel} role="status">
           <Loader2 size={22} aria-hidden="true" />
-          Đang tải lịch trận từ backend...
+          {copy.matches.loading}
         </div>
       ) : null}
 
@@ -316,7 +347,7 @@ export default function Matches() {
       {state.status === 'ready' && groupedMatches.length === 0 ? (
         <div className={styles.statePanel}>
           <CalendarDays size={22} aria-hidden="true" />
-          Không có trận sắp diễn ra khớp bộ lọc.
+          {copy.matches.empty}
         </div>
       ) : null}
 
@@ -329,14 +360,14 @@ export default function Matches() {
                 <article key={match.id} className={styles.matchCard}>
                   <div className={styles.matchTime}>
                     <Clock3 size={16} aria-hidden="true" />
-                    <strong>{formatLocalTime(match)}</strong>
-                    <span>{getSourceSchedule(match)}</span>
+                    <strong>{formatLocalTime(match, language, copy.matches.noTime)}</strong>
+                    <span>{getSourceSchedule(match, copy.matches.noTime)}</span>
                   </div>
 
                   <div className={styles.matchMain}>
                     <div className={styles.teams}>
                       <strong>{match.team1}</strong>
-                      <span>vs</span>
+                      <span>{copy.matches.vs}</span>
                       <strong>{match.team2}</strong>
                     </div>
                     <div className={styles.matchMeta}>
@@ -346,7 +377,7 @@ export default function Matches() {
                       </span>
                       <span>
                         <MapPin size={14} aria-hidden="true" />
-                        {match.ground ?? match.city ?? 'Chưa có sân'}
+                        {match.ground ?? match.city ?? copy.matches.cityFallback}
                       </span>
                     </div>
                   </div>

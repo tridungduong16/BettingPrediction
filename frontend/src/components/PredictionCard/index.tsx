@@ -23,7 +23,7 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
     <section className={styles.card} aria-labelledby="prediction-title">
       <div className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>Dự đoán AI</span>
+          <span className={styles.eyebrow}>Nhận định trận đấu</span>
           <h2 id="prediction-title">Nghiêng về {prediction.winner}</h2>
         </div>
         <div
