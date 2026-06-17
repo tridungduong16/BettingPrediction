@@ -27,6 +27,7 @@ from app.services.market_prediction_service import (
     default_market_candidates,
 )
 from app.services.match_context_service import MatchContextService
+from app.services.prediction_cache import InMemoryPredictionCache
 
 
 def make_match() -> WorldCupMatch:
@@ -121,14 +122,20 @@ def make_live_snapshot(match_id: str) -> LiveMatchSnapshot:
 class FakeWorldCupService:
     def __init__(self, match: WorldCupMatch | None) -> None:
         self.match = match
+        self.calls = 0
 
     async def get_match(self, **kwargs) -> WorldCupMatch | None:
+        self.calls += 1
         self.last_kwargs = kwargs
         return self.match
 
 
 class FakeLiveEventService:
+    def __init__(self) -> None:
+        self.calls = 0
+
     async def get_snapshot(self, **kwargs) -> LiveMatchSnapshot:
+        self.calls += 1
         self.last_kwargs = kwargs
         return LiveMatchSnapshot(
             match_id=kwargs["match_id"],
@@ -145,7 +152,11 @@ class FakeLiveEventService:
 class FakeMarketAgent:
     model_name = "fake-market-model"
 
+    def __init__(self) -> None:
+        self.calls = 0
+
     async def predict_markets(self, *, match, live_snapshot, markets, prediction_context=None):
+        self.calls += 1
         self.last_match = match
         self.last_live_snapshot = live_snapshot
         self.last_markets = markets
@@ -164,9 +175,16 @@ class FakeMarketAgent:
                     selection=market.candidate_outcomes[0],
                     probability=57,
                     confidence="medium",
+                    confidence_score=64,
+                    confidence_rationale=(
+                        "Fixture context is available, but live and lineup signals are incomplete."
+                    ),
                     risk="medium",
-                    reasoning="Mô hình fake chọn outcome đầu tiên để kiểm tra orchestration.",
-                    drivers=["Fixture context available"],
+                    reasoning=(
+                        "Mô hình fake chọn outcome đầu tiên để kiểm tra orchestration. "
+                        "Confidence giữ ở mức vừa vì dữ liệu live và đội hình chưa đầy đủ."
+                    ),
+                    drivers=["Fixture context available", "Live data incomplete"],
                 )
                 for market in markets
             ],
@@ -175,6 +193,9 @@ class FakeMarketAgent:
 
 
 class FakeNewsSearchService:
+    def __init__(self) -> None:
+        self.calls = 0
+
     async def search_match_news(
         self,
         *,
@@ -184,6 +205,7 @@ class FakeNewsSearchService:
         force_refresh: bool = False,
         recency=None,
     ) -> MatchNewsSearchResponse:
+        self.calls += 1
         self.last_kwargs = {
             "home_team": home_team,
             "away_team": away_team,
@@ -212,13 +234,21 @@ class FakeNewsSearchService:
 class FakeInsightAgent:
     model_name = "fake-insight-model"
 
+    def __init__(self) -> None:
+        self.calls = 0
+
     async def predict_insight(self, *, match, live_snapshot, prediction_context=None):
+        self.calls += 1
         self.last_match = match
         self.last_live_snapshot = live_snapshot
         self.last_prediction_context = prediction_context
         return MatchInsightAgentOutput(
             winner=match["home_team"],
             confidence=7.4,
+            confidence_level="medium",
+            confidence_rationale=(
+                "Fixture and news context are available, but the fake live provider has no events."
+            ),
             status="Dự đoán trước trận",
             summary=f"{match['home_team']} nhỉnh hơn trong context test.",
             outcomes=[
@@ -247,7 +277,21 @@ class FakeInsightAgent:
                         title="Bối cảnh trận",
                         detail="Fixture context available.",
                         impact="high",
-                    )
+                    ),
+                    MatchInsightReasoningPoint(
+                        id="news-context",
+                        title="Bối cảnh tin tức",
+                        detail="News context is passed through to the insight agent.",
+                        impact="medium",
+                    ),
+                    MatchInsightReasoningPoint(
+                        id="live-gap",
+                        title="Dữ liệu live còn thiếu",
+                        detail=(
+                            "The fake live provider has no events, so confidence stays moderate."
+                        ),
+                        impact="medium",
+                    ),
                 ],
             ),
             edge_signals=[
@@ -257,7 +301,21 @@ class FakeInsightAgent:
                     detail="Nguồn lịch thi đấu đã sẵn sàng.",
                     delta="+1.0%",
                     tone="green",
-                )
+                ),
+                MatchInsightEdgeSignal(
+                    id="news-edge",
+                    label="Tin tức trận đấu",
+                    detail="News context is available for the model.",
+                    delta="+0.6%",
+                    tone="blue",
+                ),
+                MatchInsightEdgeSignal(
+                    id="live-gap",
+                    label="Thiếu live events",
+                    detail="No fake live event is available in this test.",
+                    delta="-0.5%",
+                    tone="orange",
+                ),
             ],
             net_edge="+2.1%",
         )
@@ -309,6 +367,8 @@ async def test_market_prediction_service_returns_structured_predictions():
     assert len(response.markets) == 5
     assert len(response.predictions) == 5
     assert response.predictions[0].selection == "Brazil -1.0 thắng kèo"
+    assert response.predictions[0].confidence_score == 64
+    assert response.predictions[0].confidence_rationale
     assert response.predictions[2].selection == "Brazil thắng"
     assert "data_gaps" not in response.predictions[0].model_dump()
     assert response.language == "vi"
@@ -317,6 +377,94 @@ async def test_market_prediction_service_returns_structured_predictions():
     assert response.prediction_context["language"] == "vi"
     assert response.prediction_context["prediction_mode"] == "pre_match"
     assert agent.last_prediction_context["language"] == "vi"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_caches_market_predictions():
+    match = make_match()
+    agent = FakeMarketAgent()
+    worldcup_service = FakeWorldCupService(match)
+    live_service = FakeLiveEventService()
+    service = MarketPredictionService(
+        worldcup_service=worldcup_service,
+        live_event_service=live_service,
+        prediction_cache=InMemoryPredictionCache(),
+        prediction_cache_ttl_seconds=60,
+        agent=agent,
+    )
+
+    first = await service.predict_match_markets(match_id=match.id)
+    second = await service.predict_match_markets(match_id=match.id)
+
+    assert first.generated_at == second.generated_at
+    assert second.predictions[0].selection == "Brazil -1.0 thắng kèo"
+    assert agent.calls == 1
+    assert worldcup_service.calls == 1
+    assert live_service.calls == 1
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_force_refresh_bypasses_market_cache():
+    match = make_match()
+    agent = FakeMarketAgent()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        prediction_cache=InMemoryPredictionCache(),
+        prediction_cache_ttl_seconds=60,
+        agent=agent,
+    )
+
+    await service.predict_match_markets(match_id=match.id)
+    await service.predict_match_markets(match_id=match.id, force_refresh=True)
+
+    assert agent.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_caches_match_insight():
+    match = make_match()
+    insight_agent = FakeInsightAgent()
+    worldcup_service = FakeWorldCupService(match)
+    live_service = FakeLiveEventService()
+    news_service = FakeNewsSearchService()
+    service = MarketPredictionService(
+        worldcup_service=worldcup_service,
+        live_event_service=live_service,
+        news_search_service=news_service,
+        insight_agent=insight_agent,
+        agent=FakeMarketAgent(),
+        prediction_cache=InMemoryPredictionCache(),
+        prediction_cache_ttl_seconds=60,
+    )
+
+    first = await service.predict_match_insight(match_id=match.id, news_max_results=3)
+    second = await service.predict_match_insight(match_id=match.id, news_max_results=3)
+
+    assert first.generated_at == second.generated_at
+    assert second.insight.winner == "Brazil"
+    assert insight_agent.calls == 1
+    assert worldcup_service.calls == 1
+    assert live_service.calls == 1
+    assert news_service.calls == 1
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_does_not_cache_live_predictions():
+    match = make_match()
+    agent = FakeMarketAgent()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        prediction_cache=InMemoryPredictionCache(),
+        prediction_cache_ttl_seconds=60,
+        agent=agent,
+    )
+
+    await service.predict_match_markets(match_id=match.id, prediction_mode="live")
+    await service.predict_match_markets(match_id=match.id, prediction_mode="live")
+
+    assert agent.calls == 2
 
 
 @pytest.mark.asyncio
@@ -395,9 +543,13 @@ async def test_market_prediction_service_returns_separate_match_insight():
     assert response.model_name == "fake-insight-model"
     assert response.language == "vi"
     assert response.insight.winner == "Brazil"
+    assert response.insight.confidence_level == "medium"
+    assert response.insight.confidence_rationale
     assert response.insight.outcomes[0].id == "home"
     assert response.insight.outcomes[0].value == 57
+    assert len(response.insight.reasoning.points) == 3
     assert response.insight.reasoning.points[0].impact == "high"
+    assert len(response.insight.edge_signals) == 3
     assert response.insight.edge_signals[0].delta == "+1.0%"
     assert insight_agent.last_prediction_context["news"]["query"] == (
         "thông tin trận Brazil và France"

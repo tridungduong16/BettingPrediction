@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
@@ -20,7 +23,10 @@ from app.models.worldcup import WorldCupMatch
 from app.services.live_event_service import LiveEventService
 from app.services.match_context_service import MatchContextService
 from app.services.news_search_service import NewsSearchService
+from app.services.prediction_cache import PredictionCacheBackend, PredictionCacheError
 from app.services.worldcup_service import WorldCupService
+
+logger = logging.getLogger(__name__)
 
 
 class MarketPredictionUnavailableError(RuntimeError):
@@ -39,6 +45,9 @@ class MarketPredictionService:
         live_event_service: LiveEventService,
         match_context_service: MatchContextService | None = None,
         news_search_service: NewsSearchService | None = None,
+        prediction_cache: PredictionCacheBackend | None = None,
+        prediction_cache_ttl_seconds: int = 0,
+        prediction_cache_version: str = "v1",
         agent: Any | None = None,
         insight_agent: Any | None = None,
     ) -> None:
@@ -46,6 +55,9 @@ class MarketPredictionService:
         self._live_event_service = live_event_service
         self._match_context_service = match_context_service or MatchContextService()
         self._news_search_service = news_search_service
+        self._prediction_cache = prediction_cache
+        self._prediction_cache_ttl_seconds = prediction_cache_ttl_seconds
+        self._prediction_cache_version = prediction_cache_version
         self._market_agent = agent or FutboliaMarketPredictionAgent()
         self._insight_agent = insight_agent or FutboliaMatchInsightAgent()
 
@@ -64,6 +76,25 @@ class MarketPredictionService:
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> MarketPredictionResponse:
+        cache_key = self._prediction_cache_key(
+            kind="markets",
+            match_id=match_id,
+            year=year,
+            source=source,
+            provider_fixture_id=provider_fixture_id,
+            include_live=include_live,
+            include_news=include_news,
+            language=language,
+            news_max_results=news_max_results,
+            prediction_mode=prediction_mode,
+            prediction_context=prediction_context,
+            model_name=getattr(self._market_agent, "model_name", None),
+        )
+        if not force_refresh and self._can_cache_prediction(prediction_mode):
+            cached = await self._read_cached_response(cache_key, MarketPredictionResponse)
+            if cached is not None:
+                return cached
+
         match = await self._worldcup_service.get_match(
             match_id=match_id,
             year=year,
@@ -109,7 +140,7 @@ class MarketPredictionService:
             raise MarketPredictionUnavailableError(str(exc)) from exc
 
         self._validate_agent_output(markets, output)
-        return MarketPredictionResponse(
+        response = MarketPredictionResponse(
             match_id=match.id,
             generated_at=datetime.now(UTC),
             language=language,
@@ -123,6 +154,9 @@ class MarketPredictionService:
             predictions=output.predictions,
             data_quality_notes=output.data_quality_notes,
         )
+        if self._can_cache_prediction(prediction_mode):
+            await self._write_cached_response(cache_key, response)
+        return response
 
     async def predict_match_insight(
         self,
@@ -139,6 +173,25 @@ class MarketPredictionService:
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> MatchInsightResponse:
+        cache_key = self._prediction_cache_key(
+            kind="insight",
+            match_id=match_id,
+            year=year,
+            source=source,
+            provider_fixture_id=provider_fixture_id,
+            include_live=include_live,
+            include_news=include_news,
+            language=language,
+            news_max_results=news_max_results,
+            prediction_mode=prediction_mode,
+            prediction_context=prediction_context,
+            model_name=getattr(self._insight_agent, "model_name", None),
+        )
+        if not force_refresh and self._can_cache_prediction(prediction_mode):
+            cached = await self._read_cached_response(cache_key, MatchInsightResponse)
+            if cached is not None:
+                return cached
+
         match = await self._worldcup_service.get_match(
             match_id=match_id,
             year=year,
@@ -182,7 +235,7 @@ class MarketPredictionService:
             raise MarketPredictionUnavailableError(str(exc)) from exc
 
         self._validate_insight_output(output)
-        return MatchInsightResponse(
+        response = MatchInsightResponse(
             match_id=match.id,
             generated_at=datetime.now(UTC),
             language=language,
@@ -193,6 +246,91 @@ class MarketPredictionService:
             prediction_context=llm_context,
             insight=output,
         )
+        if self._can_cache_prediction(prediction_mode):
+            await self._write_cached_response(cache_key, response)
+        return response
+
+    def _can_cache_prediction(self, prediction_mode: PredictionMode) -> bool:
+        return (
+            self._prediction_cache is not None
+            and self._prediction_cache_ttl_seconds > 0
+            and prediction_mode == "pre_match"
+        )
+
+    def _prediction_cache_key(
+        self,
+        *,
+        kind: str,
+        match_id: str,
+        year: int | None,
+        source: WorldCupSourceName,
+        provider_fixture_id: str | None,
+        include_live: bool,
+        include_news: bool,
+        language: ResponseLanguage,
+        news_max_results: int | None,
+        prediction_mode: PredictionMode,
+        prediction_context: dict[str, Any] | None,
+        model_name: str | None,
+    ) -> str:
+        payload = {
+            "include_live": include_live,
+            "include_news": include_news,
+            "kind": kind,
+            "language": language,
+            "match_id": match_id,
+            "model_name": model_name,
+            "news_max_results": news_max_results,
+            "prediction_context": prediction_context or {},
+            "prediction_mode": prediction_mode,
+            "provider_fixture_id": provider_fixture_id,
+            "source": source,
+            "version": self._prediction_cache_version,
+            "year": year,
+        }
+        encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str)
+        digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+        return f"prediction:{kind}:{match_id}:{language}:{prediction_mode}:{digest}"
+
+    async def _read_cached_response(
+        self,
+        key: str,
+        response_model: type[MarketPredictionResponse] | type[MatchInsightResponse],
+    ) -> MarketPredictionResponse | MatchInsightResponse | None:
+        if self._prediction_cache is None:
+            return None
+
+        try:
+            payload = await self._prediction_cache.get_json(key)
+        except (PredictionCacheError, json.JSONDecodeError) as exc:
+            logger.warning("Prediction cache read failed for %s: %s", key, exc)
+            return None
+
+        if payload is None:
+            return None
+
+        try:
+            return response_model.model_validate(payload)
+        except Exception as exc:
+            logger.warning("Prediction cache payload is invalid for %s: %s", key, exc)
+            return None
+
+    async def _write_cached_response(
+        self,
+        key: str,
+        response: MarketPredictionResponse | MatchInsightResponse,
+    ) -> None:
+        if self._prediction_cache is None:
+            return
+
+        try:
+            await self._prediction_cache.set_json(
+                key,
+                response.model_dump(mode="json"),
+                self._prediction_cache_ttl_seconds,
+            )
+        except PredictionCacheError as exc:
+            logger.warning("Prediction cache write failed for %s: %s", key, exc)
 
     async def _get_live_snapshot(
         self,

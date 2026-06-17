@@ -1,0 +1,313 @@
+.heroCard {
+  grid-column: 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  background:
+    linear-gradient(180deg, rgba(28, 49, 78, 0.64), rgba(8, 17, 31, 0.94)),
+    $color-card;
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.12);
+  scroll-margin-top: 82px;
+  isolation: isolate;
+}
+
+.matchStage {
+  position: relative;
+  min-height: 330px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 18% 44%, rgba(31, 232, 89, 0.26), transparent 34%),
+    radial-gradient(circle at 82% 45%, rgba(37, 101, 255, 0.28), transparent 36%),
+    linear-gradient(90deg, rgba(20, 85, 28, 0.84), rgba(5, 15, 29, 0.84) 48%, rgba(17, 39, 105, 0.9));
+
+  &::before,
+  &::after {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: '';
+  }
+
+  &::before {
+    z-index: 0;
+    opacity: 0.46;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+  }
+
+  &::after {
+    z-index: 1;
+    background:
+      radial-gradient(ellipse at 50% 82%, rgba(255, 255, 255, 0.2), transparent 32%),
+      linear-gradient(180deg, rgba(3, 7, 15, 0.06), rgba(3, 7, 15, 0.52));
+  }
+}
+
+.sideName {
+  position: absolute;
+  z-index: 1;
+  top: 38px;
+  bottom: 18px;
+  color: rgba(255, 255, 255, 0.08);
+  font-size: 92px;
+  font-weight: 950;
+  line-height: 0.82;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  pointer-events: none;
+}
+
+.sideNameHome {
+  left: 16px;
+  transform: rotate(180deg);
+}
+
+.sideNameAway {
+  right: 18px;
+}
+
+.playerImage {
+  position: absolute;
+  z-index: 2;
+  inset-block-end: -72px;
+  width: 42%;
+  pointer-events: none;
+
+  img {
+    width: auto;
+    height: 372px;
+    max-width: none;
+    object-fit: contain;
+    filter: drop-shadow(0 28px 26px rgba(0, 0, 0, 0.34));
+  }
+}
+
+.playerHome {
+  left: -34px;
+}
+
+.playerAway {
+  right: -58px;
+
+  img {
+    margin-left: auto;
+  }
+}
+
+.stageHeader {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  gap: $space-1;
+  padding: 22px $space-5 0;
+  text-align: center;
+
+  strong {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  span {
+    color: $color-text-secondary;
+    font-size: 14px;
+  }
+
+  em {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 35px;
+    margin-top: $space-2;
+    padding: 0 $space-5;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(3, 9, 20, 0.48);
+    color: $color-text-primary;
+    font-style: normal;
+    font-weight: 750;
+  }
+}
+
+.teamDeck {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(128px, 178px) minmax(180px, 1fr);
+  gap: clamp(12px, 3vw, 34px);
+  align-items: center;
+  min-height: 238px;
+  padding: 0 clamp(22px, 4vw, 48px) 22px;
+}
+
+.teamBlock {
+  display: grid;
+  justify-items: center;
+  gap: $space-2;
+  text-align: center;
+
+  img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: $radius-lg;
+  }
+
+  h1,
+  h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 44px;
+    font-weight: 950;
+    line-height: 0.98;
+    text-transform: uppercase;
+    text-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  span {
+    color: rgba(223, 231, 245, 0.78);
+    font-size: 14px;
+    font-weight: 750;
+  }
+}
+
+.teamHome {
+  transform: translateX(8px);
+}
+
+.teamAway {
+  transform: translateX(-8px);
+}
+
+.matchCenter {
+  display: grid;
+  justify-items: center;
+  gap: $space-2;
+  min-height: 112px;
+  align-content: center;
+  color: $color-text-secondary;
+  text-align: center;
+
+  span,
+  em {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 850;
+  }
+
+  strong {
+    color: #ffffff;
+    font-size: 34px;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  em {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    padding: 0 $space-3;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(3, 9, 20, 0.42);
+    color: $color-text-primary;
+  }
+}
+
+@media (max-width: 1180px) {
+  .heroCard {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .teamDeck {
+    grid-template-columns: 1fr;
+    gap: $space-5;
+    padding-top: $space-6;
+  }
+
+  .teamBlock {
+    h1,
+    h2 {
+      font-size: 40px;
+    }
+  }
+
+  .teamHome,
+  .teamAway {
+    transform: none;
+  }
+
+  .matchCenter {
+    order: 2;
+    min-height: 94px;
+  }
+
+  .teamAway {
+    order: 3;
+  }
+
+  .playerImage {
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 720px) {
+  .matchStage {
+    min-height: 720px;
+  }
+
+  .stageHeader {
+    padding-inline: $space-4;
+  }
+
+  .playerImage {
+    inset-block-end: -48px;
+    width: 56%;
+    opacity: 0.36;
+
+    img {
+      height: 330px;
+    }
+  }
+
+  .playerHome {
+    left: -104px;
+  }
+
+  .playerAway {
+    right: -124px;
+  }
+
+  .sideName {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .matchStage {
+    min-height: 760px;
+  }
+
+  .teamDeck {
+    padding-inline: $space-4;
+  }
+
+  .teamBlock {
+    h1,
+    h2 {
+      font-size: 34px;
+    }
+  }
+}

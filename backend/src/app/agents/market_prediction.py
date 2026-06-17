@@ -83,14 +83,17 @@ class FutboliaMarketPredictionAgent(BasePydanticAgent[None, MarketPredictionAgen
             return (
                 "Predict the provided football markets from the context below.\n"
                 "Return exactly one prediction for each item in `markets`, preserving id, "
-                "family, name and line.\n\n"
+                "family, name and line. Include probability, confidence, confidence_score, "
+                "confidence_rationale, risk, detailed reasoning and 2-4 evidence drivers for "
+                "every prediction.\n\n"
                 f"```json\n{context_json}\n```"
             )
 
         return (
             "Hãy dự đoán các kèo bóng đá được cung cấp dựa trên context sau.\n"
             "Trả về đúng một dự đoán cho mỗi item trong `markets`, giữ nguyên id, family, "
-            "name và line.\n\n"
+            "name và line. Mỗi prediction phải có probability, confidence, confidence_score, "
+            "confidence_rationale, risk, reasoning chi tiết và 2-4 drivers dựa trên evidence.\n\n"
             f"```json\n{context_json}\n```"
         )
 

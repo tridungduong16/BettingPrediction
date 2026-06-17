@@ -4,3 +4,439 @@
 [ 1606884ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:20102
 [ 1646237ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:20102
 [ 1662907ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:20102
+[ 2608727ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781674969050:0
+[ 2608728ms] [ERROR] [vite] Failed to reload /src/pages/Home/index.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5173/@vite/client:808
+[ 3198098ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: marketToneByFamily is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:228:15
+    at Array.map (<anonymous>)
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:222:26
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:216:20)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3198100ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: marketToneByFamily is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:228:15
+    at Array.map (<anonymous>)
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:222:26
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:216:20)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3198101ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: marketToneByFamily is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:228:15
+    at Array.map (<anonymous>)
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:222:26
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:216:20)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3198101ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: marketToneByFamily is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:228:15
+    at Array.map (<anonymous>)
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:222:26
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:216:20)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3198102ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: marketToneByFamily is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:228:15
+    at Array.map (<anonymous>)
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:222:26
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:216:20)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21) The above error occurred in the <Home> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7000
+[ 3198102ms] [ERROR] React Router caught the following error during render ReferenceError: marketToneByFamily is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:228:15
+    at Array.map (<anonymous>)
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:222:26
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675558359:216:20)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6541
+[ 3213822ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: selectedPick is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:921:44
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:919:90)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3213822ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: selectedPick is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:921:44
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:919:90)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3213826ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: selectedPick is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:921:44
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:919:90)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3213826ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: selectedPick is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:921:44
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:919:90)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3213827ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: selectedPick is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:921:44
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:919:90)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) The above error occurred in the <Home> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7000
+[ 3213827ms] [ERROR] React Router caught the following error during render ReferenceError: selectedPick is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:921:44
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675574097:919:90)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6541
+[ 3333247ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: formatTimelineTime is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:482:56
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:480:121)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3333248ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: formatTimelineTime is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:482:56
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:480:121)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3333250ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: formatTimelineTime is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:482:56
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:480:121)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3333251ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: formatTimelineTime is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:482:56
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:480:121)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3333252ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: formatTimelineTime is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:482:56
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:480:121)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) The above error occurred in the <Home> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7000
+[ 3333252ms] [ERROR] React Router caught the following error during render ReferenceError: formatTimelineTime is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:482:56
+    at Array.map (<anonymous>)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675693397:480:121)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12561:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:12424:43) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6541
+[ 3493088ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:37
+    at updateMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6545:21)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18969:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3493089ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:37
+    at updateMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6545:21)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18969:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3493089ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:37
+    at updateMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6545:21)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18969:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3493090ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:37
+    at updateMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6545:21)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18969:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3493090ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:37
+    at updateMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6545:21)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18969:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) The above error occurred in the <Home> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7000
+[ 3493090ms] [ERROR] React Router caught the following error during render ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:37
+    at updateMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6545:21)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18969:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675852930:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6541
+[ 3518155ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3518155ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3518161ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3518162ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3518163ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) The above error occurred in the <Home> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7000
+[ 3518164ms] [ERROR] React Router caught the following error during render ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781675878399:90:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6541
+[ 3897132ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3897132ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3897134ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3897134ms] [ERROR] Error handled by React Router default ErrorBoundary: ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6502
+[ 3897134ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) The above error occurred in the <Home> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7000
+[ 3897134ms] [ERROR] React Router caught the following error during render ReferenceError: toEdgeFactors is not defined
+    at http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:37
+    at mountMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:6527:25)
+    at Object.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18709:20)
+    at exports.useMemo (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-42LCURWG.js?v=4360a432:947:36)
+    at Home (http://127.0.0.1:5173/src/pages/Home/index.tsx?t=1781676257426:91:23)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:18509:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:5654:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:7475:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:8525:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:997:72) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=4360a432:6541
+[ 5911391ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:20102
+[ 6016992ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:5173/src/pages/Home/components/MarketPicksSection.module.scss?t=1781678377327:0
+[ 6016992ms] [ERROR] [vite] Failed to reload /src/pages/Home/components/MarketPicksSection.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://127.0.0.1:5173/@vite/client:808
+[ 6171183ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[ 6171764ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:20102
+[ 6975314ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://127.0.0.1:5173/api/predictions/matches/2026-061-portugal-vs-dr-congo/markets?language=vi:0
+[14949904ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:864
+[14950160ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=4360a432:20102

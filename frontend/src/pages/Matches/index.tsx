@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import {
   AlertTriangle,
   ArrowRight,
-  CalendarClock,
   CalendarDays,
   Clock3,
   Loader2,
@@ -16,6 +15,7 @@ import {
 
 import { getWorldCupMatches } from '@/api/worldcup'
 import { matchDetailPath } from '@/constants/routes'
+import { displayTeamName, getTeamIdentity } from '@/helpers/teamIdentity'
 import { localeForLanguage, type LanguageCode } from '@/i18n/languages'
 import { useI18n } from '@/i18n/I18nProvider'
 import type { WorldCupDataset, WorldCupMatch } from '@/store/features/dashboard/apiTypes'
@@ -161,6 +161,8 @@ function matchSearchText(match: WorldCupMatch, language: LanguageCode) {
   return [
     match.team1,
     match.team2,
+    displayTeamName(match.team1, language),
+    displayTeamName(match.team2, language),
     match.group,
     match.round,
     match.ground,
@@ -169,6 +171,17 @@ function matchSearchText(match: WorldCupMatch, language: LanguageCode) {
     .filter(Boolean)
     .join(' ')
     .toLocaleLowerCase(localeForLanguage(language))
+}
+
+function TeamLabel({ teamName, language }: { language: LanguageCode; teamName: string }) {
+  const team = getTeamIdentity(teamName, language)
+
+  return (
+    <span className={styles.teamLabel}>
+      <img src={team.flagUrl} alt="" aria-hidden="true" loading="lazy" />
+      <strong>{team.displayName}</strong>
+    </span>
+  )
 }
 
 function MatchAnalysisAction({ className, match }: { className?: string; match: WorldCupMatch }) {
@@ -245,7 +258,6 @@ export default function Matches() {
     () => groupMatchesByDate(upcomingMatches, language, copy.matches.noDate),
     [copy.matches.noDate, language, upcomingMatches],
   )
-  const nextMatch = upcomingMatches[0]
   const source = state.dataset?.source
   const refreshMatches = () => {
     setState((current) => ({
@@ -258,6 +270,18 @@ export default function Matches() {
   return (
     <div className={styles.page}>
       <section className={styles.hero} aria-labelledby="matches-heading">
+        <video
+          aria-hidden="true"
+          autoPlay
+          className={styles.heroVideo}
+          loop
+          muted
+          playsInline
+          preload="metadata"
+        >
+          <source media="(max-width: 720px)" src="/background_vertical.mp4" type="video/mp4" />
+          <source src="/background3.mp4" type="video/mp4" />
+        </video>
         <div className={styles.heroCopy}>
           <span className={styles.kicker}>
             <Trophy size={15} aria-hidden="true" />
@@ -265,29 +289,8 @@ export default function Matches() {
           </span>
           <h1 id="matches-heading">{copy.matches.title}</h1>
           <p>
-            {source
-              ? copy.matches.sourceSummary(upcomingMatches.length, source.source_name)
-              : copy.matches.loading}
+            {source ? copy.matches.sourceSummary(upcomingMatches.length) : copy.matches.loading}
           </p>
-        </div>
-
-        <div className={styles.heroPanel} aria-label={copy.matches.nextMatch}>
-          <span>{copy.matches.nextMatch}</span>
-          {nextMatch ? (
-            <>
-              <strong>
-                {nextMatch.team1} {copy.matches.vs} {nextMatch.team2}
-              </strong>
-              <div>
-                <CalendarClock size={16} aria-hidden="true" />
-                {formatLocalDate(nextMatch, language, copy.matches.noDate)} -{' '}
-                {formatLocalTime(nextMatch, language, copy.matches.noTime)}
-              </div>
-              <MatchAnalysisAction className={styles.heroAction} match={nextMatch} />
-            </>
-          ) : (
-            <strong>{copy.matches.noMatch}</strong>
-          )}
         </div>
       </section>
 
@@ -322,10 +325,6 @@ export default function Matches() {
           <div>
             <dt>{copy.matches.sourceLoaded}</dt>
             <dd>{dateFormatters[language].sourceTime.format(new Date(source.fetched_at))}</dd>
-          </div>
-          <div>
-            <dt>{copy.matches.sourceCache}</dt>
-            <dd>{source.stale_cache ? copy.matches.cacheOld : source.cache_hit ? copy.matches.cacheHit : copy.matches.cacheFresh}</dd>
           </div>
         </dl>
       ) : null}
@@ -366,9 +365,9 @@ export default function Matches() {
 
                   <div className={styles.matchMain}>
                     <div className={styles.teams}>
-                      <strong>{match.team1}</strong>
-                      <span>{copy.matches.vs}</span>
-                      <strong>{match.team2}</strong>
+                      <TeamLabel teamName={match.team1} language={language} />
+                      <span className={styles.vsLabel}>{copy.matches.vs}</span>
+                      <TeamLabel teamName={match.team2} language={language} />
                     </div>
                     <div className={styles.matchMeta}>
                       <span>

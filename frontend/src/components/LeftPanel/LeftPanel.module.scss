@@ -53,6 +53,13 @@
   }
 }
 
+@media (max-width: 768px) {
+  .toggleButton {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 .nav {
   display: grid;
   gap: $space-1;
@@ -148,8 +155,9 @@
     gap: $space-2;
   }
 
-  .item {
-    min-height: 42px;
+  .item,
+  .collapsed .item {
+    min-height: 44px;
   }
 
   .collapsed {

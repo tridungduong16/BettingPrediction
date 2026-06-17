@@ -79,15 +79,17 @@ class FutboliaMatchInsightAgent(BasePydanticAgent[None, MatchInsightAgentOutput]
         if context.prediction_context.get("language") == "en":
             return (
                 "Create an overall match prediction from the context below.\n"
-                "Return the exact structured output schema: winner, confidence, status, "
-                "summary, outcomes, reasoning, edge_signals and net_edge.\n\n"
+                "Return the exact structured output schema: winner, confidence, "
+                "confidence_level, confidence_rationale, status, summary, outcomes, reasoning, "
+                "edge_signals and net_edge.\n\n"
                 f"```json\n{context_json}\n```"
             )
 
         return (
             "Hãy tạo dự đoán tổng quan cho trận đấu dựa trên context sau.\n"
-            "Trả về đúng schema structured output: winner, confidence, status, summary, "
-            "outcomes, reasoning, edge_signals và net_edge.\n\n"
+            "Trả về đúng schema structured output: winner, confidence, confidence_level, "
+            "confidence_rationale, status, summary, outcomes, reasoning, edge_signals và "
+            "net_edge.\n\n"
             f"```json\n{context_json}\n```"
         )
 

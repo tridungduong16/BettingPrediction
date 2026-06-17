@@ -22,7 +22,7 @@ export const dashboardPlaceholder: DashboardData = {
       },
       {
         label: 'Độ mới dữ liệu',
-        value: 'Theo nguồn',
+        value: 'Đã cập nhật',
         tone: 'info',
       },
     ],
@@ -49,7 +49,7 @@ export const dashboardPlaceholder: DashboardData = {
     status: 'Trực tiếp',
     lastUpdated: '18:42:21',
     summary:
-      'Đội nhà đang có lợi thế nhẹ theo mô hình mẫu. Nội dung này sẽ được thay bằng dữ liệu trận thật ngay khi backend trả kết quả.',
+      'Đội nhà đang có lợi thế nhẹ theo mô hình tạm. Dữ liệu trận thật sẽ tự cập nhật khi lịch trận sẵn sàng.',
     outcomes: [
       {
         id: 'home',
@@ -75,22 +75,22 @@ export const dashboardPlaceholder: DashboardData = {
     ],
   },
   reasoning: {
-    headline: 'Lợi thế của đội được chọn đến từ bối cảnh trận, tín hiệu xác suất và dữ liệu nguồn hiện có.',
+    headline: 'Lợi thế của đội được chọn đến từ bối cảnh trận, tín hiệu xác suất và dữ liệu hiện có.',
     description:
-      'Phần nhận định ưu tiên dữ liệu của trận hiện tại. Dữ liệu mẫu chỉ được dùng khi backend chưa trả được chi tiết trận đấu.',
+      'Phần nhận định ưu tiên dữ liệu của trận hiện tại. Dữ liệu tạm chỉ được dùng khi chi tiết trận chưa sẵn sàng.',
     points: [
       {
         id: 'match-context',
         title: 'Bối cảnh trận đấu',
         detail:
-          'Địa điểm, vòng đấu, lịch thi đấu và trạng thái nguồn được dùng làm nền trước khi có thêm live events.',
+          'Địa điểm, vòng đấu, lịch thi đấu và trạng thái cập nhật được dùng làm nền trước khi có thêm live events.',
         impact: 'high',
       },
       {
         id: 'source-signal',
         title: 'Tín hiệu từ dữ liệu trận',
         detail:
-          'Tỷ số, đội hình, sự kiện live và biến động thị trường sẽ thay thế luận điểm mẫu khi dữ liệu sẵn sàng.',
+          'Tỷ số, đội hình, sự kiện live và biến động thị trường sẽ thay thế luận điểm tạm khi dữ liệu sẵn sàng.',
         impact: 'medium',
       },
       {
@@ -227,7 +227,7 @@ export const dashboardPlaceholder: DashboardData = {
       id: 'chat-1',
       sender: 'ai',
       message:
-        'Đội nhà đang nhỉnh hơn với xác suất 58%. Đây là câu trả lời mẫu và sẽ được thay bằng dữ liệu trận thật khi backend sẵn sàng.',
+        'Đội nhà đang nhỉnh hơn với xác suất 58%. Đây là câu trả lời tạm và sẽ được thay bằng dữ liệu trận thật khi sẵn sàng.',
     },
     {
       id: 'chat-2',
@@ -271,7 +271,7 @@ export function getDashboardPlaceholder(language: LanguageCode = 'vi'): Dashboar
           },
           {
             label: 'Data freshness',
-            value: 'From source',
+            value: 'Updated',
             tone: 'info',
           },
         ],
@@ -291,7 +291,7 @@ export function getDashboardPlaceholder(language: LanguageCode = 'vi'): Dashboar
         winner: 'Home team',
         status: 'Live',
         summary:
-          'Home team has a slight edge in the sample model. This content will be replaced by real match data as soon as the backend responds.',
+          'Home team has a slight edge in the temporary model. Real match data will update automatically when the schedule is ready.',
         outcomes: [
           {
             id: 'home',
@@ -317,22 +317,22 @@ export function getDashboardPlaceholder(language: LanguageCode = 'vi'): Dashboar
         ],
       },
       reasoning: {
-        headline: 'The selected side edge comes from match context, probability signals and available source data.',
+        headline: 'The selected side edge comes from match context, probability signals and available match data.',
         description:
-          'The match read prioritizes current fixture data. Sample data is only used when the backend cannot return match details yet.',
+          'The match read prioritizes current fixture data. Temporary data is used only while match details are unavailable.',
         points: [
           {
             id: 'match-context',
             title: 'Match context',
             detail:
-              'Venue, round, schedule and source status are used as the baseline before more live events are available.',
+              'Venue, round, schedule and update status are used as the baseline before more live events are available.',
             impact: 'high',
           },
           {
             id: 'source-signal',
             title: 'Match data signal',
             detail:
-              'Score, lineups, live events and market movement will replace the sample thesis when the data is ready.',
+              'Score, lineups, live events and market movement will replace the temporary thesis when the data is ready.',
             impact: 'medium',
           },
           {
@@ -461,7 +461,7 @@ export function getDashboardPlaceholder(language: LanguageCode = 'vi'): Dashboar
           id: 'chat-1',
           sender: 'ai',
           message:
-            'Home team is ahead at 58%. This is a sample answer and will be replaced by real match data when the backend is ready.',
+            'Home team is ahead at 58%. This temporary answer will be replaced when match data is ready.',
         },
         {
           id: 'chat-2',

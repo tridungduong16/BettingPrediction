@@ -38,6 +38,7 @@ interface LiveSnapshotReceivedPayload {
 }
 
 export interface DashboardState {
+  activeMatchId?: string
   data: DashboardData
   error?: string
   insightPredictionError?: string
@@ -66,6 +67,7 @@ const dashboardSlice = createSlice({
   initialState,
   reducers: {
     loadMatchRequested(state, action: PayloadAction<DashboardMatchRequest>) {
+      state.activeMatchId = action.payload.matchId
       state.status = 'loading'
       state.error = undefined
       state.data = getDashboardPlaceholder(action.payload.language)

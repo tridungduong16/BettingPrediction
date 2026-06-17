@@ -107,9 +107,16 @@ async def test_market_prediction_agent_logs_llm_context_and_output(caplog):
                     selection="Mexico thắng",
                     probability=56,
                     confidence="medium",
+                    confidence_score=62,
+                    confidence_rationale=(
+                        "Fixture context is available, but live and lineup data are missing."
+                    ),
                     risk="medium",
-                    reasoning="Mexico có lợi thế nhẹ.",
-                    drivers=["Fixture context"],
+                    reasoning=(
+                        "Mexico có lợi thế nhẹ từ bối cảnh trận hiện có. Tuy nhiên, chưa có "
+                        "dữ liệu live hoặc đội hình để đẩy độ tin cậy lên cao hơn."
+                    ),
+                    drivers=["Fixture context", "Missing live data"],
                 )
             ],
         )

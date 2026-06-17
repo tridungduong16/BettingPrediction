@@ -73,9 +73,10 @@
 
 .googleButton {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: $space-2;
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 $space-4 0 $space-3;
   border: 1px solid rgba(139, 154, 176, 0.22);
   border-radius: 999px;
@@ -132,6 +133,7 @@
 
 .languageSwitch {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 2px;
   min-height: 36px;
@@ -142,8 +144,8 @@
 }
 
 .languageSwitch button {
-  min-width: 34px;
-  height: 28px;
+  height: 44px;
+  min-width: 44px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -167,6 +169,7 @@
 
 .iconButton,
 .avatarButton {
+  flex: 0 0 44px;
   display: grid;
   place-items: center;
   border: 0;
@@ -179,8 +182,8 @@
 
 .iconButton {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   background: transparent;
 
@@ -201,8 +204,8 @@
 }
 
 .avatarButton {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(111, 166, 255, 0.55);
   border-radius: 50%;
   background: linear-gradient(180deg, #1d68e6, #0d45ba);
@@ -214,6 +217,13 @@
 @media (max-width: 1080px) {
   .inner {
     gap: $space-5;
+  }
+}
+
+@media (max-width: 1280px) {
+  .livePill,
+  .iconButton {
+    display: none;
   }
 }
 
@@ -240,32 +250,20 @@
   }
 }
 
-@media (max-width: 520px) {
-  .inner {
-    padding: 0 $space-3;
-  }
-
-  .brandIcon {
-    width: 30px;
-    height: 30px;
-  }
-
-  .brandText {
-    font-size: 18px;
-  }
-
-  .livePill {
-    display: none;
-  }
-
+@media (max-width: 720px) {
   .actions {
     gap: $space-2;
   }
 
+  .livePill,
+  .iconButton {
+    display: none;
+  }
+
   .googleButton {
-    width: 38px;
-    min-width: 38px;
-    min-height: 38px;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
     justify-content: center;
     padding: 0;
 
@@ -281,16 +279,37 @@
   }
 
   .languageSwitch {
-    min-height: 34px;
+    min-height: 44px;
   }
 
   .languageSwitch button {
-    min-width: 32px;
-    height: 26px;
+    min-width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 520px) {
+  .inner {
+    padding: 0 $space-3;
+  }
+
+  .brandIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .brandText {
+    font-size: 18px;
   }
 
   .avatarButton {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .iconButton,
+  .avatarButton {
+    width: 44px;
+    height: 44px;
   }
 }

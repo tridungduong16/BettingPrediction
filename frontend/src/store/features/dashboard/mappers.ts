@@ -1,4 +1,5 @@
 import { getDashboardPlaceholder } from '@/data/placeholder'
+import { displayTeamName, getTeamIdentity } from '@/helpers/teamIdentity'
 import { localeForLanguage, type LanguageCode } from '@/i18n/languages'
 import type {
   LiveEventType,
@@ -19,71 +20,6 @@ import type {
   ReasoningInfo,
   Team,
 } from '@/store/features/dashboard/types'
-
-const teamCountryCodes: Record<string, string> = {
-  Argentina: 'ar',
-  Australia: 'au',
-  Belgium: 'be',
-  Brazil: 'br',
-  Canada: 'ca',
-  Chile: 'cl',
-  Colombia: 'co',
-  Croatia: 'hr',
-  Denmark: 'dk',
-  Ecuador: 'ec',
-  England: 'gb-eng',
-  France: 'fr',
-  Germany: 'de',
-  Ghana: 'gh',
-  Italy: 'it',
-  Japan: 'jp',
-  Mexico: 'mx',
-  Morocco: 'ma',
-  Netherlands: 'nl',
-  Poland: 'pl',
-  Portugal: 'pt',
-  Senegal: 'sn',
-  Serbia: 'rs',
-  Spain: 'es',
-  'South Africa': 'za',
-  'South Korea': 'kr',
-  Switzerland: 'ch',
-  Uruguay: 'uy',
-  USA: 'us',
-}
-
-const teamDisplayNamesVi: Record<string, string> = {
-  Argentina: 'Argentina',
-  Australia: 'Úc',
-  Belgium: 'Bỉ',
-  Brazil: 'Brazil',
-  Canada: 'Canada',
-  Chile: 'Chile',
-  Colombia: 'Colombia',
-  Croatia: 'Croatia',
-  Denmark: 'Đan Mạch',
-  Draw: 'Hòa',
-  Ecuador: 'Ecuador',
-  England: 'Anh',
-  France: 'Pháp',
-  Germany: 'Đức',
-  Ghana: 'Ghana',
-  Italy: 'Ý',
-  Japan: 'Nhật Bản',
-  Mexico: 'Mexico',
-  Morocco: 'Morocco',
-  Netherlands: 'Hà Lan',
-  Poland: 'Ba Lan',
-  Portugal: 'Bồ Đào Nha',
-  Senegal: 'Senegal',
-  Serbia: 'Serbia',
-  Spain: 'Tây Ban Nha',
-  'South Africa': 'Nam Phi',
-  'South Korea': 'Hàn Quốc',
-  Switzerland: 'Thụy Sĩ',
-  Uruguay: 'Uruguay',
-  USA: 'Mỹ',
-}
 
 const roundLabels = {
   en: {
@@ -305,48 +241,20 @@ function formatKickoff(match: WorldCupMatch, language: LanguageCode) {
   return [match.date, match.time].filter(Boolean).join(' ')
 }
 
-function shortName(name: string) {
-  const words = name.replace(/&/g, ' ').split(/\s+/).filter(Boolean)
-  if (words.length === 1) {
-    return words[0].slice(0, 3).toUpperCase()
-  }
-
-  return words.map((word) => word[0]).join('').slice(0, 3).toUpperCase()
-}
-
-function displayTeamName(name?: string | null, language: LanguageCode = 'vi') {
-  if (!name) {
-    return ''
-  }
-
-  if (language === 'en') {
-    return name === 'Draw' ? 'Draw' : name
-  }
-
-  return teamDisplayNamesVi[name] ?? name
-}
-
 function displayRound(round: string, language: LanguageCode) {
   const labels: Record<string, string> = roundLabels[language]
   return labels[round] ?? round
 }
 
-function fallbackFlag(name: string) {
-  const initials = shortName(name).slice(0, 2)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120"><rect width="160" height="120" rx="18" fill="#eef4ff"/><text x="80" y="70" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="800" fill="#12245a">${initials}</text></svg>`
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`
-}
-
 function mapTeam(name: string, language: LanguageCode): Team {
-  const countryCode = teamCountryCodes[name]
-  const displayName = displayTeamName(name, language)
+  const team = getTeamIdentity(name, language)
   const fallback = getDashboardPlaceholder(language)
 
   return {
-    name: displayName,
-    shortName: shortName(name),
-    countryCode: countryCode?.toUpperCase() ?? shortName(name),
-    flagUrl: countryCode ? `https://flagcdn.com/w160/${countryCode}.png` : fallbackFlag(name),
+    name: team.displayName,
+    shortName: team.shortName,
+    countryCode: team.countryCode,
+    flagUrl: team.flagUrl,
     form: fallback.match.homeTeam.form,
   }
 }
@@ -825,6 +733,8 @@ export function applyMatchInsightToDashboardData(
       ...base.prediction,
       winner,
       confidence: insight.confidence,
+      confidenceLevel: insight.confidence_level,
+      confidenceRationale: insight.confidence_rationale,
       status: insight.status,
       lastUpdated: formatTime(response.generated_at, language),
       summary: insight.summary,

@@ -2,6 +2,8 @@ import type { RootState } from '@/store'
 
 export const selectDashboardData = (state: RootState) => state.dashboard.data
 
+export const selectDashboardActiveMatchId = (state: RootState) => state.dashboard.activeMatchId
+
 export const selectDashboardStatus = (state: RootState) => state.dashboard.status
 
 export const selectDashboardError = (state: RootState) => state.dashboard.error

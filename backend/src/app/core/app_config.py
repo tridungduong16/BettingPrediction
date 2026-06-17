@@ -79,6 +79,15 @@ class AppConfig(BaseModel):
     perplexity_search_max_results: int = 8
     perplexity_search_country: str | None = "VN"
     perplexity_search_language_filter: list[str] = Field(default_factory=lambda: ["vi", "en"])
+    prediction_cache_ttl_seconds: int = 21600
+    prediction_cache_key_prefix: str = "futbolia"
+    prediction_cache_version: str = "v1"
+    redis_url: str | None = None
+    redis_host: str | None = None
+    redis_port: int = 6379
+    redis_db: int = 0
+    redis_password: str | None = None
+    redis_timeout_seconds: float = 1.0
 
     @property
     def BIFROST_ENDPOINT_URL(self) -> str | None:
@@ -204,6 +213,15 @@ def get_app_config() -> AppConfig:
             os.getenv("PERPLEXITY_SEARCH_LANGUAGE_FILTER"),
             ["vi", "en"],
         ),
+        prediction_cache_ttl_seconds=int(os.getenv("PREDICTION_CACHE_TTL_SECONDS", "21600")),
+        prediction_cache_key_prefix=os.getenv("PREDICTION_CACHE_KEY_PREFIX", "futbolia"),
+        prediction_cache_version=os.getenv("PREDICTION_CACHE_VERSION", "v1"),
+        redis_url=os.getenv("REDIS_URL") or None,
+        redis_host=os.getenv("REDIS_HOST") or None,
+        redis_port=int(os.getenv("REDIS_PORT", "6379")),
+        redis_db=int(os.getenv("REDIS_DB", "0")),
+        redis_password=os.getenv("REDIS_PASSWORD") or None,
+        redis_timeout_seconds=float(os.getenv("REDIS_TIMEOUT_SECONDS", "1")),
     )
 
 

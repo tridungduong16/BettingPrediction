@@ -37,6 +37,8 @@ export interface ProbabilityOutcome {
 export interface PredictionInfo {
   winner: string
   confidence: number
+  confidenceLevel?: 'high' | 'low' | 'medium'
+  confidenceRationale?: string
   status: string
   lastUpdated: string
   summary: string

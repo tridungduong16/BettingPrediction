@@ -36,9 +36,11 @@ class MarketPrediction(BaseModel):
     line: str | None = None
     probability: int = Field(ge=0, le=100)
     confidence: PredictionConfidence
+    confidence_score: int = Field(ge=0, le=100)
+    confidence_rationale: str = Field(min_length=1)
     risk: MarketRisk
     reasoning: str
-    drivers: list[str] = Field(default_factory=list)
+    drivers: list[str] = Field(min_length=2, max_length=4)
 
 
 class MarketPredictionAgentOutput(BaseModel):
@@ -65,7 +67,7 @@ class MatchInsightReasoningPoint(BaseModel):
 class MatchInsightReasoning(BaseModel):
     headline: str
     description: str
-    points: list[MatchInsightReasoningPoint] = Field(min_length=1)
+    points: list[MatchInsightReasoningPoint] = Field(min_length=3, max_length=5)
 
 
 class MatchInsightEdgeSignal(BaseModel):
@@ -79,11 +81,13 @@ class MatchInsightEdgeSignal(BaseModel):
 class MatchInsightAgentOutput(BaseModel):
     winner: str
     confidence: float = Field(ge=0, le=10)
+    confidence_level: PredictionConfidence
+    confidence_rationale: str = Field(min_length=1)
     status: str
     summary: str
     outcomes: list[MatchInsightOutcome] = Field(min_length=3, max_length=3)
     reasoning: MatchInsightReasoning
-    edge_signals: list[MatchInsightEdgeSignal] = Field(min_length=1)
+    edge_signals: list[MatchInsightEdgeSignal] = Field(min_length=3, max_length=5)
     net_edge: str
     data_quality_notes: list[str] = Field(default_factory=list)
 

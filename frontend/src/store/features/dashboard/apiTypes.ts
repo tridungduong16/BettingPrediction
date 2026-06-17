@@ -163,6 +163,8 @@ export interface MarketPrediction {
   line?: string | null
   probability: number
   confidence: PredictionConfidence
+  confidence_score?: number
+  confidence_rationale?: string
   risk: MarketRisk
   reasoning: string
   drivers: string[]
@@ -213,6 +215,8 @@ export interface MatchInsightEdgeSignal {
 export interface MatchInsight {
   winner: string
   confidence: number
+  confidence_level?: PredictionConfidence
+  confidence_rationale?: string
   status: string
   summary: string
   outcomes: MatchInsightOutcome[]
