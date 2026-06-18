@@ -22,7 +22,7 @@ function trimSlashes(value: string) {
   return value.replace(/\/+$/, '')
 }
 
-function buildUrl(path: string, query?: Record<string, QueryValue>) {
+export function buildApiUrl(path: string, query?: Record<string, QueryValue>) {
   const baseUrl = trimSlashes(env.apiUrl)
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
   const url = new URL(`${baseUrl}${normalizedPath}`, window.location.origin)
@@ -47,8 +47,9 @@ async function parseResponse(response: Response) {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const response = await fetch(buildUrl(path, options.query), {
+  const response = await fetch(buildApiUrl(path, options.query), {
     ...options,
+    credentials: options.credentials ?? 'include',
     headers: {
       Accept: 'application/json',
       ...options.headers,

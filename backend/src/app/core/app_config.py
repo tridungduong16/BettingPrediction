@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field, field_validator
 
 WorldCupSourceName = Literal["auto", "upbound", "openfootball"]
+CookieSameSite = Literal["lax", "strict", "none"]
 
 
 def _backend_dir() -> Path:
@@ -23,6 +24,12 @@ def _split_csv(value: str | None, default: list[str]) -> list[str]:
     if value is None or value.strip() == "":
         return default
     return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def _parse_bool(value: str | None, default: bool = False) -> bool:
+    if value is None or value.strip() == "":
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def normalize_openai_base_url(value: str | None) -> str | None:
@@ -42,6 +49,7 @@ def normalize_openai_base_url(value: str | None) -> str | None:
 
 class AppConfig(BaseModel):
     app_env: str = Field(default="local")
+    frontend_url: str = "http://localhost:5173"
     cors_allowed_origins: list[str] = Field(default_factory=list)
     worldcup_default_year: int = 2026
     worldcup_cache_ttl_seconds: int = 900
@@ -88,6 +96,20 @@ class AppConfig(BaseModel):
     redis_db: int = 0
     redis_password: str | None = None
     redis_timeout_seconds: float = 1.0
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    google_redirect_uri: str | None = None
+    google_oauth_scope: str = "openid email profile"
+    jwt_secret_key: str | None = None
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 60
+    session_secret_key: str = "local-dev-session-secret-change-me"
+    session_cookie_name: str = "futbolia_oauth_session"
+    session_cookie_secure: bool = False
+    session_cookie_samesite: CookieSameSite = "lax"
+    auth_cookie_name: str = "futbolia_access_token"
+    auth_cookie_secure: bool = False
+    auth_cookie_samesite: CookieSameSite = "lax"
 
     @property
     def BIFROST_ENDPOINT_URL(self) -> str | None:
@@ -155,6 +177,7 @@ def get_app_config() -> AppConfig:
 
     return AppConfig(
         app_env=os.getenv("APP_ENV", "local"),
+        frontend_url=os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/"),
         cors_allowed_origins=_split_csv(os.getenv("CORS_ALLOWED_ORIGINS"), default_origins),
         worldcup_default_year=int(os.getenv("WORLDCUP_DEFAULT_YEAR", "2026")),
         worldcup_cache_ttl_seconds=int(os.getenv("WORLDCUP_CACHE_TTL_SECONDS", "900")),
@@ -222,6 +245,22 @@ def get_app_config() -> AppConfig:
         redis_db=int(os.getenv("REDIS_DB", "0")),
         redis_password=os.getenv("REDIS_PASSWORD") or None,
         redis_timeout_seconds=float(os.getenv("REDIS_TIMEOUT_SECONDS", "1")),
+        google_client_id=os.getenv("GOOGLE_CLIENT_ID") or None,
+        google_client_secret=os.getenv("GOOGLE_CLIENT_SECRET") or None,
+        google_redirect_uri=os.getenv("GOOGLE_REDIRECT_URI") or None,
+        google_oauth_scope=os.getenv("GOOGLE_OAUTH_SCOPE", "openid email profile"),
+        jwt_secret_key=os.getenv("JWT_SECRET_KEY") or None,
+        jwt_algorithm=os.getenv("JWT_ALGORITHM", "HS256"),
+        jwt_access_token_expire_minutes=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60")),
+        session_secret_key=os.getenv("SESSION_SECRET_KEY")
+        or os.getenv("JWT_SECRET_KEY")
+        or "local-dev-session-secret-change-me",
+        session_cookie_name=os.getenv("SESSION_COOKIE_NAME", "futbolia_oauth_session"),
+        session_cookie_secure=_parse_bool(os.getenv("SESSION_COOKIE_SECURE"), False),
+        session_cookie_samesite=os.getenv("SESSION_COOKIE_SAMESITE", "lax").lower(),
+        auth_cookie_name=os.getenv("AUTH_COOKIE_NAME", "futbolia_access_token"),
+        auth_cookie_secure=_parse_bool(os.getenv("AUTH_COOKIE_SECURE"), False),
+        auth_cookie_samesite=os.getenv("AUTH_COOKIE_SAMESITE", "lax").lower(),
     )
 
 

@@ -1,5 +1,6 @@
-import { Bell, Radio } from 'lucide-react'
+import { Bell, LogOut, Radio } from 'lucide-react'
 
+import { useAuth } from '@/auth/AuthProvider'
 import { supportedLanguages } from '@/i18n/languages'
 import { useI18n } from '@/i18n/I18nProvider'
 
@@ -16,11 +17,26 @@ function Brand({ ariaLabel, className }: { ariaLabel: string; className?: string
   )
 }
 
+function avatarInitial(value: string | null | undefined) {
+  return value?.trim().charAt(0).toUpperCase() || 'M'
+}
+
 export function Header() {
   const { copy, language, setLanguage } = useI18n()
+  const { signInWithGoogle, signOut, status, user } = useAuth()
+  const isAuthenticated = status === 'authenticated' && Boolean(user)
 
   function handleGoogleSignIn() {
-    // TODO: Connect this to the Google client once OAuth config is available.
+    signInWithGoogle()
+  }
+
+  function handleAvatarClick() {
+    if (isAuthenticated) {
+      void signOut()
+      return
+    }
+
+    handleGoogleSignIn()
   }
 
   return (
@@ -33,12 +49,19 @@ export function Header() {
         </div>
 
         <div className={styles.actions}>
-          <button className={styles.googleButton} type="button" onClick={handleGoogleSignIn}>
-            <span className={styles.googleMark} aria-hidden="true">
-              G
-            </span>
-            <span>{copy.header.signInWithGoogle}</span>
-          </button>
+          {!isAuthenticated ? (
+            <button
+              className={styles.googleButton}
+              type="button"
+              disabled={status === 'loading'}
+              onClick={handleGoogleSignIn}
+            >
+              <span className={styles.googleMark} aria-hidden="true">
+                G
+              </span>
+              <span>{copy.header.signInWithGoogle}</span>
+            </button>
+          ) : null}
           <span className={styles.livePill}>
             <Radio size={13} aria-hidden="true" />
             {copy.common.live}
@@ -60,8 +83,27 @@ export function Header() {
             <Bell size={21} aria-hidden="true" />
             <span aria-hidden="true" />
           </button>
-          <button className={styles.avatarButton} type="button" aria-label={copy.common.openProfile}>
-            M
+          <button
+            className={styles.avatarButton}
+            type="button"
+            aria-label={isAuthenticated ? copy.header.signOut : copy.common.openProfile}
+            title={
+              isAuthenticated && user?.email
+                ? `${copy.header.signedInAs} ${user.email}`
+                : undefined
+            }
+            onClick={handleAvatarClick}
+          >
+            {isAuthenticated && user?.picture ? (
+              <img src={user.picture} alt="" referrerPolicy="no-referrer" />
+            ) : (
+              avatarInitial(user?.name ?? user?.email)
+            )}
+            {isAuthenticated ? (
+              <span className={styles.signOutHint} aria-hidden="true">
+                <LogOut size={13} />
+              </span>
+            ) : null}
           </button>
         </div>
       </div>

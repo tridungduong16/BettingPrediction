@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.router import api_router
 from app.core.app_config import get_app_config
@@ -12,6 +13,14 @@ def create_app() -> FastAPI:
         title="Futbolia Backend",
         version="0.1.0",
         description="Scrapes and serves World Cup fixture/result data.",
+    )
+
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=config.session_secret_key,
+        session_cookie=config.session_cookie_name,
+        same_site=config.session_cookie_samesite,
+        https_only=config.session_cookie_secure,
     )
 
     app.add_middleware(
@@ -28,4 +37,3 @@ def create_app() -> FastAPI:
 
     app.include_router(api_router)
     return app
-

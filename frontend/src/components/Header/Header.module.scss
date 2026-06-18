@@ -100,6 +100,12 @@
   &:focus-visible {
     @include focus-ring;
   }
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.68;
+    transform: none;
+  }
 }
 
 .googleMark {
@@ -204,6 +210,8 @@
 }
 
 .avatarButton {
+  position: relative;
+  overflow: hidden;
   width: 44px;
   height: 44px;
   border: 1px solid rgba(111, 166, 255, 0.55);
@@ -212,6 +220,33 @@
   color: #ffffff;
   font-size: 16px;
   font-weight: 900;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover .signOutHint {
+    opacity: 1;
+  }
+}
+
+.signOutHint {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid rgba(2, 7, 17, 0.8);
+  border-radius: 50%;
+  background: rgba(2, 7, 17, 0.88);
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 160ms ease;
 }
 
 @media (max-width: 1080px) {

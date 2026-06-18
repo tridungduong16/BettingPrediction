@@ -14,6 +14,8 @@ export const translations = {
     },
     header: {
       languageLabel: 'Language',
+      signedInAs: 'Signed in as',
+      signOut: 'Sign out',
       signInWithGoogle: 'Sign in with Google',
     },
     home: {
@@ -161,6 +163,8 @@ export const translations = {
     },
     header: {
       languageLabel: 'Ngôn ngữ',
+      signedInAs: 'Đang đăng nhập bằng',
+      signOut: 'Đăng xuất',
       signInWithGoogle: 'Đăng nhập với Google',
     },
     home: {
