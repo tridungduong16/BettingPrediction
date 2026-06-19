@@ -87,3 +87,56 @@ async def test_perplexity_news_search_connector_posts_structured_search_request(
     assert server_time == "2026-06-16T00:00:00Z"
     assert results[0].title == "France vs Senegal team news"
     assert results[0].url == "https://example.com/france-senegal"
+
+
+@pytest.mark.asyncio
+async def test_news_search_service_searches_latest_information_with_raw_query():
+    captured: dict[str, object] = {}
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = json.loads(request.content.decode())
+        return httpx.Response(
+            200,
+            json={
+                "id": "search-456",
+                "server_time": "2026-06-20T00:00:00Z",
+                "results": [
+                    {
+                        "title": "Brazil vs France latest lineup news",
+                        "url": "https://example.com/brazil-france-lineups",
+                        "snippet": "Latest lineup and injury updates.",
+                        "date": "2026-06-20",
+                    }
+                ],
+            },
+        )
+
+    config = AppConfig(
+        perplexity_api_key="pplx-test-key",
+        perplexity_search_url="https://api.perplexity.ai/search",
+        perplexity_search_max_results=8,
+    )
+    connector = PerplexityNewsSearchConnector(
+        config=config,
+        transport=httpx.MockTransport(handler),
+    )
+    service = NewsSearchService(config=config, perplexity_connector=connector)
+
+    response = await service.search_latest_information(
+        query="Brazil France latest lineup news",
+        max_results=2,
+        recency="day",
+    )
+
+    assert captured["body"] == {
+        "query": "Brazil France latest lineup news",
+        "max_results": 2,
+        "search_context_size": "medium",
+        "country": "VN",
+        "search_language_filter": ["vi", "en"],
+        "search_recency_filter": "day",
+    }
+    assert response.provider_status == "ready"
+    assert response.query == "Brazil France latest lineup news"
+    assert response.source_id == "search-456"
+    assert response.results[0].url == "https://example.com/brazil-france-lineups"

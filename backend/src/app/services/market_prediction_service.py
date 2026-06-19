@@ -65,7 +65,9 @@ class MarketPredictionService:
         self._prediction_cache_version = prediction_cache_version
         self._market_agent = agent or FutboliaMarketPredictionAgent()
         self._insight_agent = insight_agent or FutboliaMatchInsightAgent()
-        self._chat_agent = chat_agent or FutboliaPredictionAgent()
+        self._chat_agent = chat_agent or FutboliaPredictionAgent(
+            news_search_service=self._news_search_service,
+        )
 
     async def predict_match_markets(
         self,

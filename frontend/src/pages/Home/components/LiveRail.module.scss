@@ -1,9 +1,5 @@
 .liveRail {
-  position: sticky;
-  top: 88px;
   display: grid;
-  grid-column: 2;
-  grid-row: 1 / span 2;
   gap: $space-4;
   min-width: 0;
   padding: $space-4;
@@ -184,14 +180,6 @@
   color: $color-text-secondary;
   font-size: 12px;
   line-height: 1.5;
-}
-
-@media (max-width: 1180px) {
-  .liveRail {
-    position: static;
-    grid-column: auto;
-    grid-row: auto;
-  }
 }
 
 @media (max-width: 720px) {

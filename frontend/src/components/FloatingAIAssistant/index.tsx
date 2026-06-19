@@ -1,13 +1,16 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Bot, Loader2, MessageCircle, Send, X } from 'lucide-react'
+import { Loader2, Send, X } from 'lucide-react'
 
 import { streamMatchChat } from '@/api/predictions'
 import type { LanguageCode } from '@/i18n/languages'
 import type { ChatMessage } from '@/store/features/dashboard/types'
 
 import styles from './FloatingAIAssistant.module.scss'
+import { MarkdownMessage } from './MarkdownMessage'
 
 type AssistantStatus = 'error' | 'idle' | 'streaming'
+
+const ASSISTANT_LOGO_SRC = '/brand/okasian-logo.svg'
 
 interface FloatingAIAssistantProps {
   disabled?: boolean
@@ -15,6 +18,7 @@ interface FloatingAIAssistantProps {
   language: LanguageCode
   matchId: string
   prompts: string[]
+  variant?: 'embedded' | 'floating'
 }
 
 function assistantCopy(language: LanguageCode) {
@@ -24,8 +28,8 @@ function assistantCopy(language: LanguageCode) {
       error: 'The analyst stream is unavailable right now.',
       input: 'Ask anything...',
       label: 'AI Analyst',
-      open: 'Open AI analyst',
-      panelTitle: 'AI Match Assistant',
+      open: 'Open AI Analyst',
+      panelTitle: 'Okasian',
       send: 'Send',
       status: 'Reading match context...',
       typing: 'AI Analyst is writing',
@@ -38,7 +42,7 @@ function assistantCopy(language: LanguageCode) {
     input: 'Hỏi bất cứ điều gì...',
     label: 'AI Analyst',
     open: 'Mở AI Analyst',
-    panelTitle: 'AI Match Assistant',
+    panelTitle: 'Okasian',
     send: 'Gửi',
     status: 'Đang đọc context trận...',
     typing: 'AI Analyst đang trả lời',
@@ -67,6 +71,7 @@ export function FloatingAIAssistant({
   language,
   matchId,
   prompts,
+  variant = 'floating',
 }: FloatingAIAssistantProps) {
   const copy = assistantCopy(language)
   const panelId = useId()
@@ -88,10 +93,10 @@ export function FloatingAIAssistant({
   useEffect(() => () => streamAbortRef.current?.abort(), [])
 
   useEffect(() => {
-    if (isOpen) {
+    if (variant === 'floating' && isOpen) {
       window.setTimeout(() => inputRef.current?.focus(), 80)
     }
-  }, [isOpen])
+  }, [isOpen, variant])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -201,28 +206,46 @@ export function FloatingAIAssistant({
     setIsOpen(false)
   }
 
+  const isEmbedded = variant === 'embedded'
+  const shouldRenderPanel = isEmbedded || isOpen
+  const rootClassName = [
+    styles.assistant,
+    isEmbedded ? styles.embedded : undefined,
+  ].filter(Boolean).join(' ')
+  const panelClassName = [
+    styles.panel,
+    isEmbedded ? styles.panelEmbedded : undefined,
+  ].filter(Boolean).join(' ')
+
   return (
-    <aside className={styles.assistant} aria-label={copy.panelTitle}>
-      {isOpen ? (
-        <section className={styles.panel} id={panelId}>
+    <aside className={rootClassName} aria-label={copy.panelTitle}>
+      {shouldRenderPanel ? (
+        <section className={panelClassName} id={panelId}>
           <div className={styles.header}>
             <div className={styles.titleGroup}>
               <span className={styles.iconShell} aria-hidden="true">
-                <Bot size={18} />
+                <img
+                  alt=""
+                  className={styles.assistantLogo}
+                  draggable={false}
+                  src={ASSISTANT_LOGO_SRC}
+                />
               </span>
               <div>
                 <p>{copy.label}</p>
                 <h2>{copy.panelTitle}</h2>
               </div>
             </div>
-            <button
-              aria-label={copy.close}
-              className={styles.iconButton}
-              onClick={closeAssistant}
-              type="button"
-            >
-              <X size={17} aria-hidden="true" />
-            </button>
+            {!isEmbedded ? (
+              <button
+                aria-label={copy.close}
+                className={styles.iconButton}
+                onClick={closeAssistant}
+                type="button"
+              >
+                <X size={17} aria-hidden="true" />
+              </button>
+            ) : null}
           </div>
 
           <div className={styles.promptGrid} aria-label={copy.open}>
@@ -247,9 +270,15 @@ export function FloatingAIAssistant({
                 data-sender={message.sender}
                 key={message.id}
               >
-                <p>
-                  {message.message || (message.sender === 'ai' && status === 'streaming' ? copy.status : '')}
-                </p>
+                {message.sender === 'ai' ? (
+                  <MarkdownMessage
+                    className={styles.markdownMessage}
+                    content={message.message}
+                    fallback={status === 'streaming' ? copy.status : ''}
+                  />
+                ) : (
+                  <p>{message.message}</p>
+                )}
               </article>
             ))}
           </div>
@@ -280,18 +309,27 @@ export function FloatingAIAssistant({
         </section>
       ) : null}
 
-      <button
-        aria-controls={panelId}
-        aria-expanded={isOpen}
-        aria-label={copy.open}
-        className={styles.trigger}
-        disabled={disabled}
-        onClick={() => setIsOpen((current) => !current)}
-        type="button"
-      >
-        <MessageCircle size={19} aria-hidden="true" />
-        <span>{copy.label}</span>
-      </button>
+      {!isEmbedded ? (
+        <button
+          aria-controls={panelId}
+          aria-expanded={isOpen}
+          aria-label={copy.open}
+          className={styles.trigger}
+          disabled={disabled}
+          onClick={() => setIsOpen((current) => !current)}
+          type="button"
+        >
+          <span className={styles.triggerLogo} aria-hidden="true">
+            <img
+              alt=""
+              className={styles.assistantLogo}
+              draggable={false}
+              src={ASSISTANT_LOGO_SRC}
+            />
+          </span>
+          <span>{copy.label}</span>
+        </button>
+      ) : null}
     </aside>
   )
 }

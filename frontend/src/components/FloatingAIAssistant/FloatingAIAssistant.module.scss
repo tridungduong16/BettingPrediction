@@ -9,6 +9,20 @@
   pointer-events: none;
 }
 
+.embedded {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  justify-items: stretch;
+  gap: 0;
+  pointer-events: auto;
+}
+
 .trigger,
 .panel {
   pointer-events: auto;
@@ -65,6 +79,26 @@
   animation: panelIn 180ms ease-out;
 }
 
+.assistant:not(.embedded) .panel {
+  height: min(720px, calc(100vh - 112px));
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+.panelEmbedded {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  border-color: $color-border;
+  border-radius: $radius-xl;
+  background:
+    linear-gradient(180deg, rgba(28, 49, 78, 0.64), rgba(8, 17, 31, 0.94)),
+    $color-card;
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.12);
+  animation: none;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -102,6 +136,7 @@
 }
 
 .iconShell,
+.triggerLogo,
 .iconButton,
 .form button {
   display: grid;
@@ -112,10 +147,31 @@
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
-  border: 1px solid rgba($color-success, 0.34);
+  padding: 3px;
+  border: 1px solid rgba($color-info, 0.3);
   border-radius: $radius-sm;
-  background: rgba($color-success, 0.1);
-  color: $color-success;
+  background:
+    linear-gradient(180deg, rgba($color-info, 0.16), rgba($color-success, 0.08)),
+    rgba($color-bg-secondary, 0.86);
+}
+
+.triggerLogo {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid rgba($color-success, 0.22);
+  border-radius: $radius-sm;
+  background: rgba($color-bg-secondary, 0.74);
+}
+
+.assistantLogo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(#{$radius-sm} - 2px);
+  object-fit: cover;
+  user-select: none;
 }
 
 .iconButton {
@@ -183,13 +239,23 @@
   padding: $space-5;
 }
 
+.panelEmbedded .messages {
+  min-height: 0;
+  max-height: none;
+}
+
+.assistant:not(.embedded) .messages {
+  min-height: 0;
+  max-height: none;
+}
+
 .message {
   max-width: 92%;
   padding: $space-4;
   border-radius: $radius-sm;
   overflow-wrap: anywhere;
 
-  p {
+  > p {
     margin: 0;
     color: $color-text-secondary;
     font-size: 15px;
@@ -210,6 +276,104 @@
 
   p {
     color: $color-text-primary;
+  }
+}
+
+.markdownMessage {
+  color: $color-text-secondary;
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: pretty;
+
+  > * {
+    margin: 0;
+  }
+
+  > * + * {
+    margin-top: $space-3;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: 850;
+  }
+
+  a {
+    color: $color-info;
+    font-weight: 750;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: #72abff;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  ul,
+  ol {
+    display: grid;
+    gap: $space-1;
+    padding-left: 1.2rem;
+  }
+
+  li {
+    padding-left: 0.1rem;
+  }
+
+  blockquote {
+    padding-left: $space-3;
+    border-left: 1px solid rgba($color-info, 0.42);
+    color: $color-text-primary;
+  }
+
+  code {
+    padding: 0.1rem 0.32rem;
+    border: 1px solid rgba(153, 183, 230, 0.18);
+    border-radius: 5px;
+    background: rgba($color-surface-raise, 0.72);
+    color: $color-text-primary;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.88em;
+  }
+
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: $space-3;
+    border: 1px solid rgba(153, 183, 230, 0.18);
+    border-radius: $radius-sm;
+    background: rgba(5, 12, 24, 0.64);
+
+    code {
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+  }
+
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    padding: $space-2 $space-3;
+    border: 1px solid rgba(153, 183, 230, 0.18);
+    text-align: left;
+  }
+
+  th {
+    color: $color-text-primary;
+    font-weight: 850;
   }
 }
 
@@ -295,11 +459,36 @@
   }
 }
 
+@media (max-width: 1180px) {
+  .embedded {
+    position: static;
+    height: auto;
+  }
+
+  .panelEmbedded {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
 @media (max-width: 640px) {
   .assistant {
     right: 12px;
     bottom: 12px;
     left: 12px;
+  }
+
+  .embedded {
+    position: static;
+    inset: auto;
+    height: auto;
+  }
+
+  .panelEmbedded {
+    height: auto;
+    min-height: 0;
+    max-height: none;
   }
 
   .panel,

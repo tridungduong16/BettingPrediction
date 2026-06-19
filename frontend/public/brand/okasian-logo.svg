@@ -1,0 +1,63 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Okasian logo</title>
+  <desc id="desc">AI Analyst nodes over a football tactics board.</desc>
+  <defs>
+    <linearGradient id="tile" x1="16" y1="8" x2="84" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B2A46"/>
+      <stop offset="0.58" stop-color="#071426"/>
+      <stop offset="1" stop-color="#020713"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="20" y1="22" x2="77" y2="76" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7DF8FF"/>
+      <stop offset="1" stop-color="#3483FF"/>
+    </linearGradient>
+    <linearGradient id="lime" x1="61" y1="16" x2="80" y2="39" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7FF72"/>
+      <stop offset="1" stop-color="#20E66B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(49 49) rotate(90) scale(43)">
+      <stop stop-color="#2CF4FF" stop-opacity="0.34"/>
+      <stop offset="0.62" stop-color="#3483FF" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#030816" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="8" y="8" width="80" height="80" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.8"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="88" height="88" rx="22" fill="url(#tile)"/>
+  <rect x="5" y="5" width="86" height="86" rx="21" stroke="#9BB7E6" stroke-opacity="0.18" stroke-width="2"/>
+  <rect x="12" y="12" width="72" height="72" rx="18" fill="url(#glow)"/>
+
+  <g opacity="0.5" stroke="#8FEFFF" stroke-width="1.45">
+    <rect x="20" y="22" width="56" height="38" rx="4"/>
+    <path d="M48 22V60"/>
+    <circle cx="48" cy="41" r="8.5"/>
+    <path d="M20 34H30"/>
+    <path d="M66 34H76"/>
+    <path d="M20 48H30"/>
+    <path d="M66 48H76"/>
+  </g>
+
+  <g filter="url(#softGlow)" opacity="0.95">
+    <path d="M28 69L40 54L53 61L67 37" stroke="url(#cyan)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M58 29L68 23L78 29L78 41L68 47L58 41V29Z" fill="#0D2038" stroke="url(#lime)" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M63 35H73" stroke="#EFFFF6" stroke-width="2" stroke-linecap="round"/>
+    <path d="M68 30V40" stroke="#EFFFF6" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <g>
+    <circle cx="28" cy="69" r="6.4" fill="#0A1526" stroke="#7DF8FF" stroke-width="3"/>
+    <circle cx="40" cy="54" r="5.2" fill="#0A1526" stroke="#20E66B" stroke-width="3"/>
+    <circle cx="53" cy="61" r="5.2" fill="#0A1526" stroke="#7DF8FF" stroke-width="3"/>
+    <circle cx="67" cy="37" r="6.4" fill="#0A1526" stroke="#D7FF72" stroke-width="3"/>
+    <circle cx="28" cy="69" r="2.2" fill="#F5F8FF"/>
+    <circle cx="40" cy="54" r="1.9" fill="#F5F8FF"/>
+    <circle cx="53" cy="61" r="1.9" fill="#F5F8FF"/>
+    <circle cx="67" cy="37" r="2.2" fill="#F5F8FF"/>
+  </g>
+
+  <path d="M48 29L51 37L59 40L51 43L48 51L45 43L37 40L45 37L48 29Z" fill="#F5F8FF"/>
+  <path d="M48 33.5L49.7 38L54.2 39.8L49.7 41.5L48 46L46.3 41.5L41.8 39.8L46.3 38L48 33.5Z" fill="#20E66B"/>
+</svg>

@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from app.agents.base import AgentConfig, BasePydanticAgent, StreamEvent
 from app.agents.model_adapters import resolve_pydantic_model
 from app.agents.prompts import load_prediction_chat_prompt
+from app.agents.search_tools import build_latest_information_search_tool
 from app.core.app_config import app_config
 from app.models.live_events import LiveMatchSnapshot
 from app.models.worldcup import WorldCupMatch
@@ -27,13 +28,17 @@ class FutboliaPredictionAgent(BasePydanticAgent[None, str]):
         system_prompt: str | None = None,
         model_name: str | None = None,
         tools: list | None = None,
+        news_search_service: Any | None = None,
     ) -> None:
         self.model_name = model_name or app_config.MODEL_NAME
+        agent_tools = list(tools or [])
+        if news_search_service is not None:
+            agent_tools.append(build_latest_information_search_tool(news_search_service))
         config = AgentConfig(
             model=resolve_pydantic_model(self.model_name),
             system_prompt=system_prompt or load_prediction_chat_prompt(),
         )
-        super().__init__(config=config, tools=tools or [])
+        super().__init__(config=config, tools=agent_tools)
 
     async def answer_with_context(
         self,

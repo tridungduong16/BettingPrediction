@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import logging
+from datetime import UTC, datetime
 
 import pytest
 
@@ -9,11 +10,14 @@ from app.agents import model_adapters
 from app.agents.market_prediction import FutboliaMarketPredictionAgent
 from app.agents.model_adapters import normalize_bifrost_model_name
 from app.agents.prediction_chat import FutboliaPredictionAgent, PredictionAgentContext
+from app.agents.prompts import load_prediction_chat_prompt
+from app.agents.search_tools import build_latest_information_search_tool
 from app.models.market_prediction import (
     MarketPrediction,
     MarketPredictionAgentOutput,
     MarketPredictionCandidate,
 )
+from app.models.news import LatestInformationSearchResponse, NewsSearchResult
 
 
 def test_app_config_loads_backend_dotenv_before_reading_env(monkeypatch):
@@ -81,6 +85,81 @@ def test_prediction_agent_build_prompt_includes_context():
     assert "Mexico" in prompt
     assert "not_configured" in prompt
     assert "What changed?" in prompt
+
+
+class FakeLatestInformationSearchService:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.last_kwargs = None
+
+    async def search_latest_information(
+        self,
+        *,
+        query: str,
+        max_results: int | None = None,
+        force_refresh: bool = False,
+        recency=None,
+    ) -> LatestInformationSearchResponse:
+        self.calls += 1
+        self.last_kwargs = {
+            "query": query,
+            "max_results": max_results,
+            "force_refresh": force_refresh,
+            "recency": recency,
+        }
+        return LatestInformationSearchResponse(
+            provider_status="ready",
+            query=query,
+            generated_at=datetime.now(UTC),
+            results=[
+                NewsSearchResult(
+                    title="Brazil vs France latest team news",
+                    url="https://example.com/brazil-france-team-news",
+                    snippet="Latest team news for Brazil vs France.",
+                    date="2026-06-20",
+                )
+            ],
+            source_id="search-tool-1",
+        )
+
+
+@pytest.mark.asyncio
+async def test_latest_information_search_tool_returns_json_ready_results():
+    service = FakeLatestInformationSearchService()
+    tool = build_latest_information_search_tool(service)
+
+    result = await tool(
+        query="  Brazil France latest team news  ",
+        recency="day",
+        max_results=2,
+    )
+
+    assert result["provider_status"] == "ready"
+    assert result["query"] == "Brazil France latest team news"
+    assert result["source_id"] == "search-tool-1"
+    assert result["results"][0]["url"] == "https://example.com/brazil-france-team-news"
+    assert service.last_kwargs == {
+        "query": "Brazil France latest team news",
+        "max_results": 2,
+        "force_refresh": False,
+        "recency": "day",
+    }
+
+
+def test_prediction_agent_registers_latest_information_search_tool_when_service_provided():
+    agent = FutboliaPredictionAgent(
+        news_search_service=FakeLatestInformationSearchService(),
+    )
+
+    assert [tool.__name__ for tool in agent.init_tools] == ["search_latest_information"]
+
+
+def test_prediction_chat_prompt_allows_search_only_for_match_scope():
+    prompt = load_prediction_chat_prompt()
+
+    assert "search_latest_information" in prompt
+    assert "chỉ trả lời" in prompt.lower()
+    assert "trận đấu giữa" in prompt.lower()
 
 
 @pytest.mark.asyncio

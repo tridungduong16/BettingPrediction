@@ -30,3 +30,13 @@ class MatchNewsSearchResponse(BaseModel):
     source_id: str | None = None
     server_time: str | None = None
 
+
+class LatestInformationSearchResponse(BaseModel):
+    provider: Literal["perplexity"] = "perplexity"
+    provider_status: NewsProviderStatus
+    query: str
+    generated_at: datetime
+    results: list[NewsSearchResult] = Field(default_factory=list)
+    error: str | None = None
+    source_id: str | None = None
+    server_time: str | None = None

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
   ArrowRight,
+  ListChecks,
   Radio,
   ShieldAlert,
 } from 'lucide-react'
@@ -37,6 +38,8 @@ import { isMatchMinuteTime } from './timeline'
 
 const showFullMatchAnalysis = false
 const showProbabilityMovement = false
+const insightTabIds = ['markets', 'live'] as const
+type InsightTabId = typeof insightTabIds[number]
 
 export default function Home() {
   const { copy, language } = useI18n()
@@ -44,6 +47,7 @@ export default function Home() {
   const dispatch = useAppDispatch()
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
+  const [activeInsightTab, setActiveInsightTab] = useState<InsightTabId>('markets')
   const activeMatchId = useAppSelector(selectDashboardActiveMatchId)
   const dashboardData = useAppSelector(selectDashboardData)
   const dashboardStatus = useAppSelector(selectDashboardStatus)
@@ -148,6 +152,32 @@ export default function Home() {
       (isPendingStatus(insightPredictionStatus) || isPendingStatus(marketPredictionStatus))
     )
   const shouldShowLoadingOverlay = showLoadingOverlay || isAnalysisLoading
+  const handleInsightTabsKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+      return
+    }
+
+    event.preventDefault()
+
+    const currentIndex = insightTabIds.indexOf(activeInsightTab)
+    const nextTab = (() => {
+      if (event.key === 'Home') {
+        return insightTabIds[0]
+      }
+
+      if (event.key === 'End') {
+        return insightTabIds[insightTabIds.length - 1]
+      }
+
+      const offset = event.key === 'ArrowRight' ? 1 : -1
+      return insightTabIds[(currentIndex + offset + insightTabIds.length) % insightTabIds.length]
+    })()
+
+    setActiveInsightTab(nextTab)
+    window.requestAnimationFrame(() => {
+      document.getElementById(`${nextTab}-insight-tab`)?.focus()
+    })
+  }
 
   useEffect(() => {
     if (!isAnalysisLoading) {
@@ -290,15 +320,6 @@ export default function Home() {
         <div className={styles.dashboardLayout}>
           <MatchStage match={data.match} overviewLabel={copy.home.matchOverviewLabel} />
 
-          <LiveRail
-            copy={copy.home}
-            items={timelineItems}
-            liveScore={liveScore}
-            liveStatus={liveStatus}
-            match={data.match}
-            subtitle={liveRailSubtitle}
-          />
-
           <div className={styles.mainStack}>
             {showFullMatchAnalysis ? (
               <FullMatchAnalysis
@@ -309,22 +330,83 @@ export default function Home() {
               />
             ) : null}
 
-            <MarketPicksSection
-              copy={copy.home}
-              picks={topPicks}
-            />
+            <section className={styles.insightTabs} aria-label={copy.home.marketsLabel}>
+              <div
+                className={styles.tabList}
+                onKeyDown={handleInsightTabsKeyDown}
+                role="tablist"
+                aria-label={`${copy.home.marketsTitle} / ${copy.home.liveRailLabel}`}
+              >
+                <button
+                  aria-controls="markets-insight-panel"
+                  aria-selected={activeInsightTab === 'markets'}
+                  id="markets-insight-tab"
+                  onClick={() => setActiveInsightTab('markets')}
+                  role="tab"
+                  tabIndex={activeInsightTab === 'markets' ? 0 : -1}
+                  type="button"
+                >
+                  <ListChecks size={16} aria-hidden="true" />
+                  <span>{copy.home.marketsTitle}</span>
+                </button>
+                <button
+                  aria-controls="live-insight-panel"
+                  aria-selected={activeInsightTab === 'live'}
+                  id="live-insight-tab"
+                  onClick={() => setActiveInsightTab('live')}
+                  role="tab"
+                  tabIndex={activeInsightTab === 'live' ? 0 : -1}
+                  type="button"
+                >
+                  <Radio size={16} aria-hidden="true" />
+                  <span>{copy.home.liveRailLabel}</span>
+                </button>
+              </div>
 
+              <div
+                aria-labelledby="markets-insight-tab"
+                className={styles.tabPanel}
+                hidden={activeInsightTab !== 'markets'}
+                id="markets-insight-panel"
+                role="tabpanel"
+              >
+                <MarketPicksSection
+                  copy={copy.home}
+                  picks={topPicks}
+                />
+              </div>
+
+              <div
+                aria-labelledby="live-insight-tab"
+                className={styles.tabPanel}
+                hidden={activeInsightTab !== 'live'}
+                id="live-insight-panel"
+                role="tabpanel"
+              >
+                <LiveRail
+                  copy={copy.home}
+                  items={timelineItems}
+                  liveScore={liveScore}
+                  liveStatus={liveStatus}
+                  match={data.match}
+                  subtitle={liveRailSubtitle}
+                />
+              </div>
+            </section>
+          </div>
+
+          <div className={styles.assistantRail}>
+            <FloatingAIAssistant
+              disabled={shouldShowLoadingOverlay || dashboardStatus === 'error'}
+              initialMessages={data.chat}
+              language={language}
+              matchId={matchId}
+              prompts={data.prompts}
+              variant="embedded"
+            />
           </div>
         </div>
       </div>
-
-      <FloatingAIAssistant
-        disabled={shouldShowLoadingOverlay || dashboardStatus === 'error'}
-        initialMessages={data.chat}
-        language={language}
-        matchId={matchId}
-        prompts={data.prompts}
-      />
 
       {loadingOverlay}
     </div>
