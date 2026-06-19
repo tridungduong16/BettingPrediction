@@ -1,6 +1,6 @@
 .marketsSection {
   display: grid;
-  gap: $space-4;
+  gap: $space-3;
   scroll-margin-top: 82px;
 }
 
@@ -8,12 +8,12 @@
   display: grid;
   gap: $space-2;
   max-width: 860px;
-  margin: $space-5 0 $space-1;
+  margin: $space-4 0 0;
 
   h2 {
     margin: 0;
     color: $color-text-primary;
-    font-size: 26px;
+    font-size: 23px;
     font-weight: 950;
     line-height: 1.15;
     text-wrap: balance;
@@ -22,8 +22,8 @@
   p {
     margin: 0;
     color: $color-text-secondary;
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 13px;
+    line-height: 1.5;
     text-wrap: pretty;
   }
 }
@@ -38,14 +38,14 @@
 
 .opportunitiesTable {
   width: 100%;
-  min-width: 980px;
+  min-width: 900px;
   border-collapse: collapse;
   table-layout: fixed;
 
   th,
   td {
     min-width: 0;
-    padding: $space-4;
+    padding: $space-3;
     text-align: left;
     vertical-align: top;
     overflow-wrap: anywhere;
@@ -55,7 +55,7 @@
     border-bottom: 1px solid rgba(153, 183, 230, 0.18);
     background: rgba(12, 26, 47, 0.96);
     color: $color-text-muted;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 900;
     line-height: 1.25;
   }
@@ -100,7 +100,7 @@
 .marketCell {
   display: flex;
   align-items: flex-start;
-  gap: $space-3;
+  gap: $space-2;
 }
 
 .marketIdentity {
@@ -110,7 +110,7 @@
 
   strong {
     color: $color-text-primary;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 950;
     line-height: 1.25;
   }
@@ -118,8 +118,8 @@
 
 .pickIconBadge {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   flex: 0 0 auto;
   place-items: center;
   overflow: hidden;
@@ -150,24 +150,24 @@
 
 .pickLabel {
   width: fit-content;
-  min-height: 22px;
+  min-height: 20px;
   padding: 3px $space-2;
   border: 1px solid rgba($color-success, 0.2);
   border-radius: 999px;
   background: rgba($color-success, 0.08);
   color: $color-success;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 950;
   line-height: 1.15;
 }
 
 .descriptionCell {
   display: grid;
-  gap: $space-2;
+  gap: 6px;
 
   > span {
     color: $color-text-primary;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 850;
     line-height: 1.35;
   }
@@ -176,18 +176,18 @@
 .pickMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: $space-2;
+  gap: 6px;
 
   span {
     display: inline-flex;
     align-items: center;
-    min-height: 24px;
-    padding: 3px $space-2;
+    min-height: 21px;
+    padding: 2px $space-2;
     border: 1px solid rgba(153, 183, 230, 0.16);
     border-radius: 999px;
     background: rgba(153, 183, 230, 0.08);
     color: $color-text-secondary;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
     line-height: 1.2;
   }
@@ -196,14 +196,14 @@
 .confidenceCell {
   display: grid;
   align-content: center;
-  gap: $space-2;
-  min-height: 70px;
+  gap: 6px;
+  min-height: 62px;
 }
 
 .confidenceMeter {
   display: block;
   width: min(100%, 112px);
-  height: 9px;
+  height: 8px;
   overflow: hidden;
   border: 1px solid rgba(153, 183, 230, 0.18);
   border-radius: 999px;
@@ -228,14 +228,14 @@
 
   strong {
     color: $color-text-primary;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 950;
     line-height: 1;
   }
 
   span {
     color: $color-text-secondary;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 850;
     line-height: 1.25;
   }
@@ -244,7 +244,7 @@
 .decision {
   display: block;
   color: $color-text-primary;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 950;
   line-height: 1.35;
 }
@@ -253,17 +253,17 @@
   max-width: 72ch;
   margin: 0;
   color: $color-text-secondary;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.5;
   text-wrap: pretty;
 }
 
 .confidenceNote {
   display: block;
   max-width: 72ch;
-  margin-top: $space-2;
+  margin-top: 6px;
   color: rgba(245, 248, 255, 0.78);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 750;
   line-height: 1.45;
   text-wrap: pretty;
@@ -287,7 +287,7 @@
 
 @media (max-width: 780px) {
   .sectionIntro h2 {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .tableShell {
@@ -305,7 +305,7 @@
 
     tbody {
       display: grid;
-      gap: $space-2;
+      gap: 6px;
     }
 
     tr,
@@ -315,7 +315,7 @@
     }
 
     tbody tr {
-      padding: $space-4;
+      padding: 10px;
       border: 1px solid rgba(153, 183, 230, 0.18);
       border-radius: $radius-sm;
       background: rgba(9, 21, 38, 0.78);
@@ -327,9 +327,9 @@
 
     td {
       display: grid;
-      grid-template-columns: 96px minmax(0, 1fr);
-      gap: $space-3;
-      padding: $space-3 0;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 6px;
+      padding: 6px 0;
       border-top: 1px solid rgba(153, 183, 230, 0.12);
     }
 
@@ -360,7 +360,7 @@
   }
 
   .confidenceCell {
-    min-height: 48px;
+    min-height: 44px;
   }
 
   .confidenceMeter {
@@ -386,8 +386,21 @@
 @media (max-width: 480px) {
   .opportunitiesTable {
     td {
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    td::before {
+      margin-bottom: 0;
+      font-size: 11px;
+    }
+  }
+}
+
+@media (max-width: 340px) {
+  .opportunitiesTable {
+    td {
       grid-template-columns: 1fr;
-      gap: $space-2;
     }
 
     td::before {

@@ -5,7 +5,7 @@
 
 .page {
   display: grid;
-  gap: $space-5;
+  gap: $space-4;
   width: 100%;
   color: $color-text-primary;
   transition:
@@ -125,7 +125,7 @@
 
 .breadcrumbRow {
   display: flex;
-  min-height: 32px;
+  min-height: 30px;
   align-items: center;
   justify-content: space-between;
   gap: $space-4;
@@ -137,7 +137,7 @@
   align-items: center;
   gap: $space-2;
   color: $color-text-secondary;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .breadcrumbs svg {
@@ -148,7 +148,7 @@
   display: inline-flex;
   align-items: center;
   gap: $space-1;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 $space-2;
   border: 1px solid rgba(153, 183, 230, 0.16);
   border-radius: $radius-sm;
@@ -184,13 +184,13 @@
   display: flex;
   align-items: center;
   gap: $space-2;
-  min-height: 42px;
-  padding: $space-3 $space-4;
+  min-height: 38px;
+  padding: 10px $space-3;
   border: 1px solid rgba(153, 183, 230, 0.2);
   border-radius: $radius-md;
   background: rgba(15, 30, 52, 0.64);
   color: $color-text-secondary;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 750;
 
   svg {
@@ -238,8 +238,8 @@
 
 .dashboardLayout {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
-  gap: $space-4;
+  grid-template-columns: minmax(0, 3fr) minmax(260px, 0.92fr);
+  gap: $space-3;
   align-items: start;
 }
 
@@ -247,7 +247,7 @@
   grid-column: 1;
   display: grid;
   min-width: 0;
-  gap: $space-5;
+  gap: $space-4;
 }
 
 .winnerPanel,

@@ -2,7 +2,7 @@ import { env } from '@/config/env'
 
 type QueryValue = boolean | number | string | null | undefined
 
-interface RequestOptions extends Omit<RequestInit, 'body'> {
+interface RequestOptions extends RequestInit {
   query?: Record<string, QueryValue>
 }
 

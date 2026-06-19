@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-18T11:46:27Z",
+  "title": "Design System: Worldian Frontend",
+  "extensions": {
+    "colorMeta": {
+      "bg-primary": {
+        "role": "neutral",
+        "displayName": "Deep Match Navy",
+        "canonical": "#030816",
+        "tonalRamp": ["#02040b", "#030816", "#061022", "#0a172f", "#111f3d", "#263a5d", "#627694", "#d7e1f1"]
+      },
+      "bg-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Surface Navy",
+        "canonical": "#08111f",
+        "tonalRamp": ["#03060c", "#08111f", "#0b1a2e", "#10233d", "#1b3354", "#385171", "#7488a3", "#dce5f2"]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Panel Navy",
+        "canonical": "#0a1526",
+        "tonalRamp": ["#03070d", "#0a1526", "#0e1f36", "#142b48", "#213b5f", "#405977", "#8192aa", "#e0e7f3"]
+      },
+      "card-hover": {
+        "role": "neutral",
+        "displayName": "Hover Navy",
+        "canonical": "#0f2138",
+        "tonalRamp": ["#050a11", "#0f2138", "#173151", "#224367", "#345a7e", "#587693", "#98a9bc", "#e5ecf5"]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Cool Border",
+        "canonical": "#20324c",
+        "tonalRamp": ["#080d15", "#142036", "#20324c", "#334b6a", "#52708f", "#7792ad", "#aebed1", "#ecf1f7"]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Primary Ink",
+        "canonical": "#f5f8ff",
+        "tonalRamp": ["#1a2433", "#334155", "#536278", "#7a8799", "#a6b0bf", "#cbd3df", "#e6ebf4", "#f5f8ff"]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "canonical": "#aebbd0",
+        "tonalRamp": ["#111827", "#263348", "#41516a", "#63728a", "#8795aa", "#aebbd0", "#d2dae6", "#eef3f9"]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#718096",
+        "tonalRamp": ["#0f1724", "#243044", "#3b4a60", "#56677f", "#718096", "#9aa8ba", "#c4cedb", "#edf2f7"]
+      },
+      "success": {
+        "role": "primary",
+        "displayName": "Live Green",
+        "canonical": "#20e66b",
+        "tonalRamp": ["#062413", "#0b3d20", "#126436", "#1a9851", "#20e66b", "#63f094", "#a2f7bf", "#e4ffec"]
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "Market Orange",
+        "canonical": "#ff8a1f",
+        "tonalRamp": ["#2a1203", "#4c2408", "#7a3d10", "#ba6118", "#ff8a1f", "#ffb15f", "#ffd2a0", "#fff0df"]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Risk Red",
+        "canonical": "#ff554a",
+        "tonalRamp": ["#2b0808", "#541211", "#84211d", "#bd352e", "#ff554a", "#ff8d86", "#ffc0bd", "#ffe8e7"]
+      },
+      "info": {
+        "role": "primary",
+        "displayName": "Signal Blue",
+        "canonical": "#3483ff",
+        "tonalRamp": ["#06172e", "#0b2a56", "#124388", "#1d63c4", "#3483ff", "#73a9ff", "#aecbff", "#e7f0ff"]
+      },
+      "ai-accent": {
+        "role": "tertiary",
+        "displayName": "AI Violet",
+        "canonical": "#9a5cff",
+        "tonalRamp": ["#180b2e", "#2d1656", "#48258a", "#6a39c5", "#9a5cff", "#bd93ff", "#dbc5ff", "#f3ebff"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines and major match-list copy only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Winner statements, score centers, and prediction declarations."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section intros and dashboard section headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reasoning, market descriptions, chat messages, metadata, and insight summaries."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase labels, status chips, nav labels, table headers, and compact metadata."
+      },
+      "metric": {
+        "displayName": "Metric",
+        "purpose": "Probabilities, confidence values, edge values, scores, and numeric outcomes."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel-rest",
+        "value": "0 8px 8px rgba(0, 0, 0, 0.12)",
+        "purpose": "Dashboard panels, live rail, and match stage containers."
+      },
+      {
+        "name": "hero-lift",
+        "value": "0 18px 45px rgba(0, 0, 0, 0.18)",
+        "purpose": "Large match-list hero surfaces."
+      },
+      {
+        "name": "loading-modal-lift",
+        "value": "0 18px 44px rgba(0, 0, 0, 0.34)",
+        "purpose": "Blocking loading card only."
+      },
+      {
+        "name": "flag-lift",
+        "value": "0 18px 40px rgba(0, 0, 0, 0.22)",
+        "purpose": "Flag frames and important media in match hero surfaces."
+      },
+      {
+        "name": "google-control-lift",
+        "value": "0 10px 24px rgba(0, 0, 0, 0.18)",
+        "purpose": "Third-party auth button in the sticky header."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "160ms ease",
+        "purpose": "Hover, focus, border, and background state changes."
+      },
+      {
+        "name": "shell-shift",
+        "value": "180ms ease",
+        "purpose": "App shell column changes, overlay blur, and page loading transitions."
+      },
+      {
+        "name": "loading-pop",
+        "value": "220ms ease-out",
+        "purpose": "Blocking loading card entrance."
+      },
+      {
+        "name": "spin",
+        "value": "900ms linear infinite",
+        "purpose": "Status spinner and loading logo ring only."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-small",
+        "value": "460px"
+      },
+      {
+        "name": "mobile",
+        "value": "640px"
+      },
+      {
+        "name": "table-card",
+        "value": "780px"
+      },
+      {
+        "name": "header-mobile",
+        "value": "860px"
+      },
+      {
+        "name": "shell-single-column",
+        "value": "920px"
+      },
+      {
+        "name": "match-stage-collapse",
+        "value": "980px"
+      },
+      {
+        "name": "live-rail-unstick",
+        "value": "1180px"
+      },
+      {
+        "name": "desktop",
+        "value": "1200px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary AI Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Square-ended product action for AI send and high-intent dashboard actions.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Ask AI</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; background: var(--color-ai-accent, #9a5cff); color: var(--color-text-primary, #f5f8ff); font: 950 12px/1.2 Inter, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease; } .ds-btn-primary:hover { background: #7c3aed; color: #fff; } .ds-btn-primary:focus-visible { outline: 2px solid rgba(52, 131, 255, 0.5); outline-offset: 2px; } .ds-btn-primary:disabled { cursor: not-allowed; opacity: 0.58; transform: none; }"
+    },
+    {
+      "name": "Google Auth Button",
+      "kind": "button",
+      "refersTo": "button-google",
+      "description": "Third-party sign-in control in the sticky header.",
+      "html": "<button class=\"ds-google-button\" type=\"button\"><span class=\"ds-google-mark\">G</span><span>Continue with Google</span></button>",
+      "css": ".ds-google-button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border: 1px solid rgba(139,154,176,0.22); border-radius: 999px; background: rgba(245,248,255,0.96); color: #1f2937; font: 900 13px/1 Inter, system-ui, sans-serif; white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,0.18); transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease; } .ds-google-button:hover { border-color: rgba(111,166,255,0.5); background: #fff; transform: translateY(-1px); } .ds-google-button:focus-visible { outline: 2px solid rgba(52,131,255,0.5); outline-offset: 2px; } .ds-google-mark { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid rgba(139,154,176,0.22); border-radius: 50%; background: #fff; color: #4285f4; font-weight: 950; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Toolbar search input for match discovery.",
+      "html": "<label class=\"ds-search\"><span class=\"ds-search-icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\"><path d=\"M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.5-2 4 4\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg></span><input type=\"search\" placeholder=\"Search matches\" /></label>",
+      "css": ".ds-search { display: flex; min-width: 0; min-height: 44px; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid rgba(153,183,230,0.18); border-radius: 10px; background: rgba(8,17,31,0.82); color: var(--color-text-muted, #718096); } .ds-search:focus-within { outline: 2px solid rgba(52,131,255,0.5); outline-offset: 2px; } .ds-search input { width: 100%; min-width: 0; min-height: 44px; border: 0; outline: 0; background: transparent; color: var(--color-text-primary, #f5f8ff); font: 750 14px/1.5 Inter, system-ui, sans-serif; } .ds-search input::placeholder { color: var(--color-text-muted, #718096); }"
+    },
+    {
+      "name": "Dashboard Panel",
+      "kind": "card",
+      "refersTo": "panel-card",
+      "description": "Default analytical panel for winner, probability, reasoning, movement, and live rail surfaces.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-header\"><h2>AI prediction</h2><span>Live</span></div><p>Brazil has the strongest current win probability because attacking metrics moved up in the last update.</p></section>",
+      "css": ".ds-panel { display: grid; gap: 16px; padding: 20px; border: 1px solid var(--color-border, #20324c); border-radius: 16px; background: linear-gradient(180deg, rgba(28,49,78,0.64), rgba(8,17,31,0.94)), var(--color-card, #0a1526); color: var(--color-text-primary, #f5f8ff); box-shadow: 0 8px 8px rgba(0,0,0,0.12); } .ds-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .ds-panel h2 { margin: 0; color: var(--color-text-primary, #f5f8ff); font: 950 15px/1.25 Inter, system-ui, sans-serif; text-transform: uppercase; } .ds-panel span { min-height: 27px; padding: 6px 12px; border: 1px solid rgba(32,230,107,0.24); border-radius: 999px; background: rgba(32,230,107,0.08); color: var(--color-success, #20e66b); font: 950 11px/1.2 Inter, system-ui, sans-serif; text-transform: uppercase; } .ds-panel p { margin: 0; color: var(--color-text-secondary, #aebbd0); font: 400 14px/1.65 Inter, system-ui, sans-serif; }"
+    },
+    {
+      "name": "Market Card",
+      "kind": "card",
+      "refersTo": "market-card",
+      "description": "Clickable market opportunity card with risk, probability, and signal summary.",
+      "html": "<button class=\"ds-market-card\" type=\"button\"><div><strong>Asian Handicap</strong><span class=\"ds-risk\" data-risk=\"low\">Low</span></div><p>Brazil -0.5 has the cleanest model edge.</p><b>64%</b></button>",
+      "css": ".ds-market-card { display: grid; gap: 12px; min-height: 172px; width: 100%; padding: 16px; border: 1px solid var(--color-border, #20324c); border-radius: 10px; background: var(--color-bg-secondary, #08111f); color: inherit; cursor: pointer; text-align: left; transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease; } .ds-market-card:hover { border-color: var(--color-border-strong, #3a5276); background: var(--color-card-hover, #0f2138); } .ds-market-card:focus-visible { outline: 2px solid rgba(52,131,255,0.5); outline-offset: 2px; } .ds-market-card > div { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; } .ds-market-card strong { color: var(--color-text-primary, #f5f8ff); font: 700 15px/1.3 Inter, system-ui, sans-serif; } .ds-market-card p { margin: 0; color: var(--color-text-secondary, #aebbd0); font: 400 14px/1.4 Inter, system-ui, sans-serif; } .ds-market-card b { color: var(--color-text-primary, #f5f8ff); font: 800 28px/1 Inter, system-ui, sans-serif; } .ds-risk { padding: 4px 8px; border-radius: 999px; background: rgba(32,230,107,0.12); color: var(--color-success, #20e66b); font: 800 11px/1 Inter, system-ui, sans-serif; text-transform: uppercase; }"
+    },
+    {
+      "name": "Live Badge",
+      "kind": "chip",
+      "refersTo": "live-badge",
+      "description": "Compact status badge for provider state and real-time model updates.",
+      "html": "<span class=\"ds-live-badge\" data-status=\"live\">Live model</span>",
+      "css": ".ds-live-badge { display: inline-flex; align-items: center; gap: 4px; min-height: 27px; padding: 0 12px; border: 1px solid rgba(32,230,107,0.24); border-radius: 999px; background: rgba(32,230,107,0.08); color: var(--color-success, #20e66b); font: 950 11px/1.2 Inter, system-ui, sans-serif; text-transform: uppercase; } .ds-live-badge[data-status='provider_error'] { border-color: rgba(255,138,31,0.28); background: rgba(255,138,31,0.1); color: #ffd98d; } .ds-live-badge[data-status='unmapped'] { border-color: rgba(52,131,255,0.28); background: rgba(52,131,255,0.1); color: #c8dcff; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Left-panel navigation row with icon cell, active state, and 44px-plus touch target.",
+      "html": "<a class=\"ds-nav-item ds-active\" href=\"#\"><span class=\"ds-nav-icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\"><path d=\"M4 5h16M4 12h10M4 19h16\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg></span><span>Predictions</span></a>",
+      "css": ".ds-nav-item { display: grid; grid-template-columns: 34px minmax(0,1fr); align-items: center; gap: 8px; min-height: 46px; padding: 4px 8px 4px 4px; border: 1px solid transparent; border-radius: 8px; color: var(--color-text-secondary, #aebbd0); font: 850 14px/1.2 Inter, system-ui, sans-serif; text-decoration: none; transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease; } .ds-nav-item:hover { background: rgba(153,183,230,0.08); color: var(--color-text-primary, #f5f8ff); } .ds-nav-item:focus-visible { outline: 2px solid rgba(52,131,255,0.5); outline-offset: 2px; } .ds-nav-item.ds-active { border-color: rgba(52,131,255,0.34); background: rgba(52,131,255,0.13); color: var(--color-text-primary, #f5f8ff); } .ds-nav-icon { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 8px; background: rgba(153,183,230,0.08); color: currentColor; }"
+    },
+    {
+      "name": "Probability Row",
+      "kind": "custom",
+      "refersTo": "prediction-probability",
+      "description": "Outcome label, progress track, and heavy percentage value.",
+      "html": "<div class=\"ds-prob-row\" style=\"--bar-value: 58%\"><span>Brazil win</span><i><b></b></i><strong>58%</strong></div>",
+      "css": ".ds-prob-row { display: grid; grid-template-columns: minmax(0,0.9fr) minmax(72px,1fr) minmax(42px,auto); align-items: center; gap: 12px; } .ds-prob-row span { min-width: 0; color: var(--color-text-primary, #f5f8ff); font: 650 16px/1.2 Inter, system-ui, sans-serif; overflow-wrap: anywhere; } .ds-prob-row i { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: rgba(139,154,176,0.22); } .ds-prob-row b { display: block; width: var(--bar-value); height: 100%; border-radius: inherit; background: var(--color-success, #20e66b); } .ds-prob-row strong { color: var(--color-text-primary, #f5f8ff); font: 950 20px/1 Inter, system-ui, sans-serif; text-align: right; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Match Intelligence Desk",
+    "overview": "Worldian is a dark, premium sports intelligence product for time-sensitive football prediction decisions. The interface should feel like an AI reasoning desk: immediate winner signal first, then confidence, model rationale, probability movement, and market opportunities. It is not a sportsbook, not a trading terminal, and not a generic analytics dashboard.",
+    "keyCharacteristics": [
+      "Dark navy analytical canvas with restrained accent usage.",
+      "Prediction first, reasoning second, market detail third.",
+      "Compact panels with 8-16px radii and subtle tonal gradients.",
+      "Semantic state colors that never carry meaning alone.",
+      "44px minimum touch targets on buttons, nav items, inputs, and mobile controls.",
+      "Responsive structure: side navigation collapses, data tables become stacked cards, and live rails stop being sticky on narrow viewports."
+    ],
+    "rules": [
+      {
+        "name": "The Desk-First Rule",
+        "body": "Every screen must make the current AI opinion legible before exposing secondary analytics. If a user cannot identify the likely outcome and confidence within five seconds, the hierarchy is wrong.",
+        "section": "overview"
+      },
+      {
+        "name": "The Accent Means State Rule",
+        "body": "Do not use green, orange, red, blue, or violet as decoration. Each accent must describe state, source, prediction direction, risk, or AI reasoning.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark Canvas Rule",
+        "body": "Keep the primary interface on `colors.bg-primary` and `colors.card`. Light surfaces are allowed only for third-party branded controls such as the Google sign-in button.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "Do not introduce display, serif, mono, or decorative fonts. Product familiarity matters more than typographic novelty.",
+        "section": "typography"
+      },
+      {
+        "name": "The Number Weight Rule",
+        "body": "Probability, confidence, score, and edge values must be heavier than surrounding copy. A weak number is a weak prediction.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "A normal card gets a border and tonal fill before it gets a shadow. If every card floats, the dashboard becomes noisy.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Sticky Layer Rule",
+        "body": "Sticky header, left panel, and live rail may use blur or fixed top offsets, but they must retain solid borders and readable contrast while content scrolls beneath them.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the \"Prediction first\" hierarchy: match context, likely outcome, confidence, reasoning, markets, movement, live feed, and chat.",
+      "Do use the existing token values from `frontend/src/styles/abstracts/_variables.scss` and the CSS variables in `frontend/src/styles/base/_global.scss`.",
+      "Do keep primary working surfaces on dark navy with `colors.card`, `colors.bg-secondary`, and `colors.border`.",
+      "Do use `colors.ai-accent` specifically for AI reasoning, selected market state, chat send, confidence rings, and model-labeled UI.",
+      "Do keep all interactive targets at least 44px high on touch surfaces.",
+      "Do keep transitions between 160ms and 220ms, and respect reduced motion.",
+      "Do use skeletons, status panels, or progress cards for loading. The current loading overlay is acceptable for blocking analysis states.",
+      "Do make probability changes legible with direction, magnitude, cause, and market impact.",
+      "Do include text labels alongside color-coded state. Green, orange, red, blue, and violet are never the only carrier of meaning.",
+      "Do use real football assets, flags, and brand imagery when a hero or match stage needs emotional context."
+    ],
+    "donts": [
+      "Don't make the product feel like sportsbook clutter.",
+      "Don't make the product feel like Bloomberg-terminal density.",
+      "Don't make the product feel like traditional betting dashboards.",
+      "Don't make the product feel like complex quant interfaces.",
+      "Don't use decorative SaaS marketing layouts on task screens.",
+      "Don't use AI-generated dashboard tropes such as generic identical card grids, weak hierarchy, or ornamental effects that do not support decision-making.",
+      "Don't introduce gradient text, thick side-stripe borders, glassmorphism as default, or oversized rounded cards.",
+      "Don't add new top-level accent colors without a state role. The palette already has AI, info, success, warning, and danger.",
+      "Don't use full-saturation color on inactive surfaces.",
+      "Don't hide table meaning on mobile. If a table collapses, every cell still needs a visible label.",
+      "Don't use chart vocabulary from betting odds or candlestick trading. Worldian shows probability movement, not trading price action.",
+      "Don't place chat, AI feed, or secondary analytics above the winner signal on the main dashboard."
+    ]
+  }
+}

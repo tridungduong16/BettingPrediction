@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 import pytest
 
+from app.agents.base import StreamEvent
 from app.models.live_events import (
     LiveMatchClock,
     LiveMatchEvent,
@@ -321,6 +322,50 @@ class FakeInsightAgent:
         )
 
 
+class FakeChatAgent:
+    model_name = "fake-chat-model"
+
+    def __init__(self) -> None:
+        self.answer_calls = 0
+        self.stream_calls = 0
+
+    async def answer_with_context(
+        self,
+        message,
+        *,
+        match,
+        live_snapshot,
+        prediction_context=None,
+        thread_id=None,
+    ):
+        self.answer_calls += 1
+        self.last_message = message
+        self.last_match = match
+        self.last_live_snapshot = live_snapshot
+        self.last_prediction_context = prediction_context
+        self.last_thread_id = thread_id
+        return f"Fake answer for {match['home_team']} vs {match['away_team']}: {message}"
+
+    async def stream_answer_with_context(
+        self,
+        message,
+        *,
+        match,
+        live_snapshot,
+        prediction_context=None,
+        thread_id=None,
+    ):
+        self.stream_calls += 1
+        self.last_message = message
+        self.last_match = match
+        self.last_live_snapshot = live_snapshot
+        self.last_prediction_context = prediction_context
+        self.last_thread_id = thread_id
+        yield StreamEvent(type="text_delta", content="Brazil")
+        yield StreamEvent(type="text_delta", content=" nhỉnh hơn")
+        yield StreamEvent(type="done", content="Brazil nhỉnh hơn")
+
+
 def test_default_market_candidates_cover_vietnam_priority_markets():
     markets = default_market_candidates(make_match())
 
@@ -633,3 +678,72 @@ def test_live_prediction_context_includes_score_events_and_statistics():
     assert context["teams"]["home"]["live_statistics"]["possession_pct"] == 56.0
     assert context["teams"]["away"]["live_statistics"]["shots_on_goal"] == 1
     assert context["user_context"]["odds_note"] == "market line sampled before kickoff"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_answers_match_chat_with_context():
+    match = make_match()
+    chat_agent = FakeChatAgent()
+    news_service = FakeNewsSearchService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        news_search_service=news_service,
+        agent=FakeMarketAgent(),
+        chat_agent=chat_agent,
+    )
+
+    response = await service.answer_match_chat(
+        match_id=match.id,
+        message="Explain the edge",
+        language="en",
+        news_max_results=2,
+        thread_id="thread-1",
+        prediction_context={"risk_appetite": "low"},
+    )
+
+    assert response.match_id == match.id
+    assert response.model_name == "fake-chat-model"
+    assert response.thread_id == "thread-1"
+    assert response.answer == "Fake answer for Brazil vs France: Explain the edge"
+    assert chat_agent.answer_calls == 1
+    assert chat_agent.last_message == "Explain the edge"
+    assert chat_agent.last_thread_id == "thread-1"
+    assert chat_agent.last_match["home_team"] == "Brazil"
+    assert chat_agent.last_match["away_team"] == "France"
+    assert chat_agent.last_match["status_for_prediction"] == "scheduled"
+    assert chat_agent.last_live_snapshot is None
+    assert chat_agent.last_prediction_context["language"] == "en"
+    assert chat_agent.last_prediction_context["news"]["source_id"] == "search-123"
+    assert chat_agent.last_prediction_context["user_context"] == {"risk_appetite": "low"}
+    assert response.prediction_context["news"]["query"] == "thông tin trận Brazil và France"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_streams_match_chat_events():
+    match = make_match()
+    chat_agent = FakeChatAgent()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        agent=FakeMarketAgent(),
+        chat_agent=chat_agent,
+    )
+
+    stream = await service.stream_match_chat_events(
+        match_id=match.id,
+        message="Có nên chọn Brazil?",
+        thread_id="thread-stream",
+    )
+    events = [event async for event in stream]
+
+    assert [event.type for event in events] == ["metadata", "text_delta", "text_delta", "done"]
+    assert events[0].content["match_id"] == match.id
+    assert events[0].content["model_name"] == "fake-chat-model"
+    assert events[0].content["thread_id"] == "thread-stream"
+    assert "".join(event.content for event in events if event.type == "text_delta") == (
+        "Brazil nhỉnh hơn"
+    )
+    assert events[-1].content == "Brazil nhỉnh hơn"
+    assert chat_agent.stream_calls == 1
+    assert chat_agent.last_thread_id == "thread-stream"

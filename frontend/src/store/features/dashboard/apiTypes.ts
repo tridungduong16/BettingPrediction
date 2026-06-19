@@ -237,3 +237,29 @@ export interface MatchInsightResponse {
   prediction_context?: Record<string, unknown> | null
   insight: MatchInsight
 }
+
+export interface PredictionChatRequest {
+  message: string
+  prediction_context?: Record<string, unknown> | null
+  thread_id?: string | null
+}
+
+export interface PredictionChatResponse {
+  answer: string
+  generated_at: string
+  language: ResponseLanguage
+  live_snapshot?: LiveMatchSnapshot | null
+  match: WorldCupMatch
+  match_id: string
+  message: string
+  model_name?: string | null
+  prediction_context?: Record<string, unknown> | null
+  prediction_mode: PredictionMode
+  thread_id?: string | null
+}
+
+export interface PredictionChatStreamEvent {
+  content: unknown
+  metadata?: Record<string, unknown> | null
+  type: 'done' | 'error' | 'metadata' | 'text_delta' | 'text_full' | string
+}

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 
+import { FloatingAIAssistant } from '@/components/FloatingAIAssistant'
 import { env } from '@/config/env'
 import { ROUTES } from '@/constants/routes'
 import { getDashboardPlaceholder } from '@/data/placeholder'
@@ -150,16 +151,23 @@ export default function Home() {
 
   useEffect(() => {
     if (!isAnalysisLoading) {
-      setLoadingProgress(100)
+      const progressTimeoutId = window.setTimeout(() => {
+        setLoadingProgress(100)
+      }, 0)
       const timeoutId = window.setTimeout(() => {
         setShowLoadingOverlay(false)
       }, 260)
 
-      return () => window.clearTimeout(timeoutId)
+      return () => {
+        window.clearTimeout(progressTimeoutId)
+        window.clearTimeout(timeoutId)
+      }
     }
 
-    setShowLoadingOverlay(true)
-    setLoadingProgress(0)
+    const startTimeoutId = window.setTimeout(() => {
+      setShowLoadingOverlay(true)
+      setLoadingProgress(0)
+    }, 0)
     const intervalId = window.setInterval(() => {
       setLoadingProgress((current) => {
         if (current >= 95) {
@@ -171,7 +179,10 @@ export default function Home() {
       })
     }, 180)
 
-    return () => window.clearInterval(intervalId)
+    return () => {
+      window.clearTimeout(startTimeoutId)
+      window.clearInterval(intervalId)
+    }
   }, [isAnalysisLoading, matchId])
 
   useEffect(() => {
@@ -306,6 +317,14 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <FloatingAIAssistant
+        disabled={shouldShowLoadingOverlay || dashboardStatus === 'error'}
+        initialMessages={data.chat}
+        language={language}
+        matchId={matchId}
+        prompts={data.prompts}
+      />
 
       {loadingOverlay}
     </div>

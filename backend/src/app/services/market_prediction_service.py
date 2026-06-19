@@ -3,12 +3,16 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any
 
+from app.agents.base import StreamEvent
 from app.agents.market_prediction import FutboliaMarketPredictionAgent
 from app.agents.match_insight import FutboliaMatchInsightAgent
+from app.agents.prediction_chat import FutboliaPredictionAgent
 from app.core.app_config import WorldCupSourceName
+from app.models.chat import PredictionChatResponse
 from app.models.live_events import LiveMatchSnapshot
 from app.models.market_prediction import (
     MarketPredictionAgentOutput,
@@ -50,6 +54,7 @@ class MarketPredictionService:
         prediction_cache_version: str = "v1",
         agent: Any | None = None,
         insight_agent: Any | None = None,
+        chat_agent: Any | None = None,
     ) -> None:
         self._worldcup_service = worldcup_service
         self._live_event_service = live_event_service
@@ -60,6 +65,7 @@ class MarketPredictionService:
         self._prediction_cache_version = prediction_cache_version
         self._market_agent = agent or FutboliaMarketPredictionAgent()
         self._insight_agent = insight_agent or FutboliaMatchInsightAgent()
+        self._chat_agent = chat_agent or FutboliaPredictionAgent()
 
     async def predict_match_markets(
         self,
@@ -250,6 +256,127 @@ class MarketPredictionService:
             await self._write_cached_response(cache_key, response)
         return response
 
+    async def answer_match_chat(
+        self,
+        *,
+        match_id: str,
+        message: str,
+        year: int | None = None,
+        source: WorldCupSourceName = "auto",
+        provider_fixture_id: str | None = None,
+        force_refresh: bool = False,
+        include_live: bool = True,
+        include_news: bool = True,
+        language: ResponseLanguage = "vi",
+        news_max_results: int | None = None,
+        prediction_mode: PredictionMode = "pre_match",
+        thread_id: str | None = None,
+        prediction_context: dict[str, Any] | None = None,
+    ) -> PredictionChatResponse:
+        match, live_snapshot, llm_context, agent_prediction_context = (
+            await self._build_chat_agent_context(
+                match_id=match_id,
+                year=year,
+                source=source,
+                provider_fixture_id=provider_fixture_id,
+                force_refresh=force_refresh,
+                include_live=include_live,
+                include_news=include_news,
+                language=language,
+                news_max_results=news_max_results,
+                prediction_mode=prediction_mode,
+                prediction_context=prediction_context,
+            )
+        )
+
+        try:
+            answer = await self._chat_agent.answer_with_context(
+                message,
+                match=llm_context["match"],
+                live_snapshot=llm_context["live"],
+                prediction_context=agent_prediction_context,
+                thread_id=thread_id,
+            )
+        except Exception as exc:
+            raise MarketPredictionUnavailableError(str(exc)) from exc
+
+        return PredictionChatResponse(
+            match_id=match.id,
+            generated_at=datetime.now(UTC),
+            language=language,
+            model_name=getattr(self._chat_agent, "model_name", None),
+            prediction_mode=prediction_mode,
+            thread_id=thread_id,
+            message=message,
+            answer=answer,
+            match=match,
+            live_snapshot=live_snapshot,
+            prediction_context=llm_context,
+        )
+
+    async def stream_match_chat_events(
+        self,
+        *,
+        match_id: str,
+        message: str,
+        year: int | None = None,
+        source: WorldCupSourceName = "auto",
+        provider_fixture_id: str | None = None,
+        force_refresh: bool = False,
+        include_live: bool = True,
+        include_news: bool = True,
+        language: ResponseLanguage = "vi",
+        news_max_results: int | None = None,
+        prediction_mode: PredictionMode = "pre_match",
+        thread_id: str | None = None,
+        prediction_context: dict[str, Any] | None = None,
+    ) -> AsyncIterator[StreamEvent]:
+        match, live_snapshot, llm_context, agent_prediction_context = (
+            await self._build_chat_agent_context(
+                match_id=match_id,
+                year=year,
+                source=source,
+                provider_fixture_id=provider_fixture_id,
+                force_refresh=force_refresh,
+                include_live=include_live,
+                include_news=include_news,
+                language=language,
+                news_max_results=news_max_results,
+                prediction_mode=prediction_mode,
+                prediction_context=prediction_context,
+            )
+        )
+
+        async def events() -> AsyncIterator[StreamEvent]:
+            yield StreamEvent(
+                type="metadata",
+                content={
+                    "generated_at": datetime.now(UTC).isoformat(),
+                    "language": language,
+                    "live_provider_status": (
+                        live_snapshot.provider_status if live_snapshot else None
+                    ),
+                    "match_id": match.id,
+                    "model_name": getattr(self._chat_agent, "model_name", None),
+                    "prediction_mode": prediction_mode,
+                    "thread_id": thread_id,
+                },
+            )
+
+            try:
+                async for event in self._chat_agent.stream_answer_with_context(
+                    message,
+                    match=llm_context["match"],
+                    live_snapshot=llm_context["live"],
+                    prediction_context=agent_prediction_context,
+                    thread_id=thread_id,
+                ):
+                    yield event
+            except Exception as exc:
+                yield StreamEvent(type="error", content=str(exc))
+
+        return events()
+
     def _can_cache_prediction(self, prediction_mode: PredictionMode) -> bool:
         return (
             self._prediction_cache is not None
@@ -366,6 +493,55 @@ class MarketPredictionService:
             force_refresh=force_refresh,
         )
         return response.model_dump(mode="json", exclude_none=True)
+
+    async def _build_chat_agent_context(
+        self,
+        *,
+        match_id: str,
+        year: int | None,
+        source: WorldCupSourceName,
+        provider_fixture_id: str | None,
+        force_refresh: bool,
+        include_live: bool,
+        include_news: bool,
+        language: ResponseLanguage,
+        news_max_results: int | None,
+        prediction_mode: PredictionMode,
+        prediction_context: dict[str, Any] | None,
+    ) -> tuple[WorldCupMatch, LiveMatchSnapshot | None, dict[str, Any], dict[str, Any]]:
+        match = await self._worldcup_service.get_match(
+            match_id=match_id,
+            year=year,
+            source=source,
+            force_refresh=force_refresh,
+        )
+        if match is None:
+            raise MarketPredictionMatchNotFoundError(f"Match not found: {match_id}")
+
+        live_snapshot = await self._get_live_snapshot(
+            match_id=match_id,
+            provider_fixture_id=provider_fixture_id,
+            force_refresh=force_refresh,
+            include_live=include_live,
+        )
+        news_context = await self._get_news_context(
+            match=match,
+            include_news=include_news,
+            force_refresh=force_refresh,
+            max_results=news_max_results,
+        )
+        llm_context = self._match_context_service.build_market_prediction_context(
+            match=match,
+            live_snapshot=live_snapshot,
+            prediction_mode=prediction_mode,
+            language=language,
+            news_context=news_context,
+            user_context=prediction_context,
+        )
+        agent_prediction_context = {
+            key: value for key, value in llm_context.items() if key not in {"match", "live"}
+        }
+        return match, live_snapshot, llm_context, agent_prediction_context
 
     @staticmethod
     def _validate_agent_output(

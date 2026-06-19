@@ -14,7 +14,7 @@
 
 .matchStage {
   position: relative;
-  min-height: 330px;
+  min-height: 300px;
   overflow: hidden;
   isolation: isolate;
   background:
@@ -51,10 +51,10 @@
 .sideName {
   position: absolute;
   z-index: 1;
-  top: 38px;
+  top: 34px;
   bottom: 18px;
   color: rgba(255, 255, 255, 0.08);
-  font-size: 92px;
+  font-size: 82px;
   font-weight: 950;
   line-height: 0.82;
   text-transform: uppercase;
@@ -74,13 +74,13 @@
 .playerImage {
   position: absolute;
   z-index: 2;
-  inset-block-end: -72px;
-  width: 42%;
+  inset-block-end: -64px;
+  width: 39%;
   pointer-events: none;
 
   img {
     width: auto;
-    height: 372px;
+    height: 335px;
     max-width: none;
     object-fit: contain;
     filter: drop-shadow(0 28px 26px rgba(0, 0, 0, 0.34));
@@ -105,19 +105,19 @@
   display: grid;
   justify-items: center;
   gap: $space-1;
-  padding: 22px $space-5 0;
+  padding: 18px $space-4 0;
   text-align: center;
 
   strong {
     color: #ffffff;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 950;
     text-transform: uppercase;
   }
 
   span {
     color: $color-text-secondary;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   em {
@@ -125,8 +125,8 @@
     align-items: center;
     justify-content: center;
     min-height: 35px;
-    margin-top: $space-2;
-    padding: 0 $space-5;
+    margin-top: 6px;
+    padding: 0 $space-4;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     background: rgba(3, 9, 20, 0.48);
@@ -140,11 +140,11 @@
   position: relative;
   z-index: 4;
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(128px, 178px) minmax(180px, 1fr);
-  gap: clamp(12px, 3vw, 34px);
+  grid-template-columns: minmax(170px, 1fr) minmax(116px, 160px) minmax(170px, 1fr);
+  gap: clamp(10px, 2.6vw, 30px);
   align-items: center;
-  min-height: 238px;
-  padding: 0 clamp(22px, 4vw, 48px) 22px;
+  min-height: 214px;
+  padding: 0 clamp(18px, 3.4vw, 40px) 18px;
 }
 
 .teamBlock {
@@ -154,8 +154,8 @@
   text-align: center;
 
   img {
-    width: 64px;
-    height: 64px;
+    width: 58px;
+    height: 58px;
     object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.72);
     border-radius: $radius-lg;
@@ -165,7 +165,7 @@
   h2 {
     margin: 0;
     color: #ffffff;
-    font-size: 44px;
+    font-size: 40px;
     font-weight: 950;
     line-height: 0.98;
     text-transform: uppercase;
@@ -176,7 +176,7 @@
 
   span {
     color: rgba(223, 231, 245, 0.78);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 750;
   }
 }
@@ -193,7 +193,7 @@
   display: grid;
   justify-items: center;
   gap: $space-2;
-  min-height: 112px;
+  min-height: 100px;
   align-content: center;
   color: $color-text-secondary;
   text-align: center;
@@ -207,7 +207,7 @@
 
   strong {
     color: #ffffff;
-    font-size: 34px;
+    font-size: 30px;
     font-weight: 950;
     line-height: 1;
   }
@@ -233,14 +233,14 @@
 @media (max-width: 980px) {
   .teamDeck {
     grid-template-columns: 1fr;
-    gap: $space-5;
-    padding-top: $space-6;
+    gap: $space-4;
+    padding-top: $space-5;
   }
 
   .teamBlock {
     h1,
     h2 {
-      font-size: 40px;
+      font-size: 36px;
     }
   }
 
@@ -251,7 +251,7 @@
 
   .matchCenter {
     order: 2;
-    min-height: 94px;
+    min-height: 86px;
   }
 
   .teamAway {
@@ -265,7 +265,7 @@
 
 @media (max-width: 720px) {
   .matchStage {
-    min-height: 720px;
+    min-height: 650px;
   }
 
   .stageHeader {
@@ -273,12 +273,12 @@
   }
 
   .playerImage {
-    inset-block-end: -48px;
-    width: 56%;
+    inset-block-end: -42px;
+    width: 52%;
     opacity: 0.36;
 
     img {
-      height: 330px;
+      height: 300px;
     }
   }
 
@@ -297,7 +297,7 @@
 
 @media (max-width: 520px) {
   .matchStage {
-    min-height: 760px;
+    min-height: 680px;
   }
 
   .teamDeck {
@@ -307,7 +307,7 @@
   .teamBlock {
     h1,
     h2 {
-      font-size: 34px;
+      font-size: 31px;
     }
   }
 }
