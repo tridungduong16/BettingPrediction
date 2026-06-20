@@ -258,6 +258,18 @@ export interface PredictionChatResponse {
   thread_id?: string | null
 }
 
+export interface PredictionChatRecommendedQuestionsResponse {
+  generated_at: string
+  language: ResponseLanguage
+  live_snapshot?: LiveMatchSnapshot | null
+  match: WorldCupMatch
+  match_id: string
+  model_name?: string | null
+  prediction_context?: Record<string, unknown> | null
+  prediction_mode: PredictionMode
+  questions: string[]
+}
+
 export interface PredictionChatStreamEvent {
   content: unknown
   metadata?: Record<string, unknown> | null

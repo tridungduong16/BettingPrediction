@@ -1,0 +1,199 @@
+- generic [ref=e25]:
+  - banner [ref=e26]:
+    - generic [ref=e27]:
+      - link "Trang chủ Worldian" [ref=e29] [cursor=pointer]:
+        - /url: /
+        - img [ref=e31]
+        - generic [ref=e32]: WORLDIAN
+      - generic [ref=e33]:
+        - button "Đăng nhập với Google" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35]: G
+          - generic [ref=e36]: Đăng nhập với Google
+        - generic [ref=e37]:
+          - img [ref=e38]
+          - text: Trực tiếp
+        - generic "Ngôn ngữ" [ref=e44]:
+          - button "VI" [pressed] [ref=e45] [cursor=pointer]
+          - button "EN" [ref=e46] [cursor=pointer]
+        - button "Thông báo" [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+        - button "Mở hồ sơ" [ref=e52] [cursor=pointer]: M
+  - main [ref=e54]:
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic "Đường dẫn" [ref=e58]:
+          - link "Trận đấu" [ref=e59] [cursor=pointer]:
+            - /url: /
+            - img [ref=e60]
+            - text: Trận đấu
+          - img [ref=e62]
+          - generic [ref=e64]: Hà Lan vs Thụy Điển
+        - generic [ref=e65]:
+          - text: "Cập nhật: 16:04"
+          - img [ref=e66]
+      - generic [ref=e72]:
+        - region "Tổng quan trận đấu" [ref=e73]:
+          - generic [ref=e74]:
+            - generic: Hà Lan
+            - generic: Thụy Điển
+            - generic:
+              - img
+            - generic:
+              - img
+            - generic [ref=e75]:
+              - strong [ref=e76]: Matchday 10
+              - generic [ref=e77]: Houston, Houston
+              - emphasis [ref=e78]: 03:00 21 thg 6
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - img "Cờ Hà Lan" [ref=e81]
+                - heading "Hà Lan" [level=1] [ref=e82]
+                - generic [ref=e83]: NET
+              - generic [ref=e84]:
+                - generic [ref=e85]: World Cup 2026
+                - strong [ref=e86]: VS
+                - emphasis [ref=e87]: Matchday 10
+              - generic [ref=e88]:
+                - img "Cờ Thụy Điển" [ref=e89]
+                - heading "Thụy Điển" [level=2] [ref=e90]
+                - generic [ref=e91]: SWE
+        - region "Các kèo được đề xuất" [ref=e93]:
+          - tablist "Góc nhìn theo từng kèo / Live trận đấu" [ref=e94]:
+            - tab "Góc nhìn theo từng kèo" [selected] [ref=e95] [cursor=pointer]:
+              - img [ref=e96]
+              - generic [ref=e99]: Góc nhìn theo từng kèo
+            - tab "Live trận đấu" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - generic [ref=e107]: Live trận đấu
+          - tabpanel "Góc nhìn theo từng kèo" [ref=e108]:
+            - region "Các kèo được đề xuất" [ref=e109]:
+              - table [ref=e111]:
+                - rowgroup [ref=e112]:
+                  - row "Thị trường Miêu tả Độ tin cậy Quyết định Reasoning" [ref=e113]:
+                    - columnheader "Thị trường" [ref=e114]
+                    - columnheader "Miêu tả" [ref=e115]
+                    - columnheader "Độ tin cậy" [ref=e116]
+                    - columnheader "Quyết định" [ref=e117]
+                    - columnheader "Reasoning" [ref=e118]
+                - rowgroup [ref=e119]:
+                  - 'row "#1 Kèo Châu Á Gợi ý Netherlands -1.0 Rủi ro vừa Độ tin cậy: 41%, Tin cậy thấp Sweden +1.0 thắng kèo Mốc -1.0 đòi hỏi Netherlands thắng cách biệt từ 2 bàn để ăn trọn, trong khi dữ liệu hiện có không đủ để củng cố kịch bản đó. Các nguồn chỉ cho thấy Netherlands được cửa trên nhẹ ở thị trường ML, còn Swedish vẫn có vị trí nhóm đầu và không bị đánh giá quá yếu. Vì thiếu tín hiệu về lực lượng, phong độ và xu hướng bàn thắng, phương án Sweden +1.0 có biên an toàn tốt hơn so với việc phải tin vào chiến thắng đậm của Netherlands. Độ tin cậy: Context cho thấy Netherlands được đánh giá nhỉnh hơn, nhưng thiếu lineups, form gần đây và biến động kèo nên mức chắc của lựa chọn này chỉ ở mức thấp." [ref=e120]':
+                    - cell "#1 Kèo Châu Á Gợi ý" [ref=e121]:
+                      - generic [ref=e122]:
+                        - img [ref=e124]
+                        - generic [ref=e125]:
+                          - generic [ref=e126]: "#1"
+                          - strong [ref=e127]: Kèo Châu Á
+                          - generic [ref=e128]: Gợi ý
+                    - cell "Netherlands -1.0 Rủi ro vừa" [ref=e129]:
+                      - generic [ref=e130]:
+                        - generic [ref=e131]: Netherlands -1.0
+                        - generic [ref=e133]: Rủi ro vừa
+                    - 'cell "Độ tin cậy: 41%, Tin cậy thấp" [ref=e134]':
+                      - 'generic "Độ tin cậy: 41%, Tin cậy thấp" [ref=e135]':
+                        - generic [ref=e138]:
+                          - strong [ref=e139]: 41%
+                          - generic [ref=e140]: Tin cậy thấp
+                    - cell "Sweden +1.0 thắng kèo" [ref=e141]:
+                      - strong [ref=e142]: Sweden +1.0 thắng kèo
+                    - 'cell "Mốc -1.0 đòi hỏi Netherlands thắng cách biệt từ 2 bàn để ăn trọn, trong khi dữ liệu hiện có không đủ để củng cố kịch bản đó. Các nguồn chỉ cho thấy Netherlands được cửa trên nhẹ ở thị trường ML, còn Swedish vẫn có vị trí nhóm đầu và không bị đánh giá quá yếu. Vì thiếu tín hiệu về lực lượng, phong độ và xu hướng bàn thắng, phương án Sweden +1.0 có biên an toàn tốt hơn so với việc phải tin vào chiến thắng đậm của Netherlands. Độ tin cậy: Context cho thấy Netherlands được đánh giá nhỉnh hơn, nhưng thiếu lineups, form gần đây và biến động kèo nên mức chắc của lựa chọn này chỉ ở mức thấp." [ref=e143]':
+                      - paragraph [ref=e144]: Mốc -1.0 đòi hỏi Netherlands thắng cách biệt từ 2 bàn để ăn trọn, trong khi dữ liệu hiện có không đủ để củng cố kịch bản đó. Các nguồn chỉ cho thấy Netherlands được cửa trên nhẹ ở thị trường ML, còn Swedish vẫn có vị trí nhóm đầu và không bị đánh giá quá yếu. Vì thiếu tín hiệu về lực lượng, phong độ và xu hướng bàn thắng, phương án Sweden +1.0 có biên an toàn tốt hơn so với việc phải tin vào chiến thắng đậm của Netherlands.
+                      - generic [ref=e145]: "Độ tin cậy: Context cho thấy Netherlands được đánh giá nhỉnh hơn, nhưng thiếu lineups, form gần đây và biến động kèo nên mức chắc của lựa chọn này chỉ ở mức thấp."
+                  - 'row "#2 Tài/Xỉu Gợi ý Over 2.5 bàn Rủi ro vừa Độ tin cậy: 43%, Tin cậy thấp Over 2.5 bàn Mốc 2.5 là ngưỡng khá cân bằng và context có tín hiệu market không quá thiên về xỉu, thậm chí odds tham chiếu cho over 2.5 xuất hiện khá rõ. Tuy vậy, không có dữ liệu về đội hình, phong độ gần đây hay live stats để xác nhận nhịp độ tấn công thực sự của hai đội. Trong bối cảnh đó, Over 2.5 vẫn nhỉnh hơn Under 2.5 vì được hậu thuẫn bởi định giá thị trường và khả năng trận đấu có bàn từ cả hai phía. Độ tin cậy: Có một số tín hiệu nghiêng về trận mở hơn như mức total được niêm yết quanh 2.5 và các nguồn mô tả trận đấu có khả năng bàn thắng, nhưng dữ liệu vẫn thiếu nhiều nên độ chắc chỉ thấp." [ref=e146]':
+                    - cell "#2 Tài/Xỉu Gợi ý" [ref=e147]:
+                      - generic [ref=e148]:
+                        - img [ref=e150]
+                        - generic [ref=e151]:
+                          - generic [ref=e152]: "#2"
+                          - strong [ref=e153]: Tài/Xỉu
+                          - generic [ref=e154]: Gợi ý
+                    - cell "Over 2.5 bàn Rủi ro vừa" [ref=e155]:
+                      - generic [ref=e156]:
+                        - generic [ref=e157]: Over 2.5 bàn
+                        - generic [ref=e159]: Rủi ro vừa
+                    - 'cell "Độ tin cậy: 43%, Tin cậy thấp" [ref=e160]':
+                      - 'generic "Độ tin cậy: 43%, Tin cậy thấp" [ref=e161]':
+                        - generic [ref=e164]:
+                          - strong [ref=e165]: 43%
+                          - generic [ref=e166]: Tin cậy thấp
+                    - cell "Over 2.5 bàn" [ref=e167]:
+                      - strong [ref=e168]: Over 2.5 bàn
+                    - 'cell "Mốc 2.5 là ngưỡng khá cân bằng và context có tín hiệu market không quá thiên về xỉu, thậm chí odds tham chiếu cho over 2.5 xuất hiện khá rõ. Tuy vậy, không có dữ liệu về đội hình, phong độ gần đây hay live stats để xác nhận nhịp độ tấn công thực sự của hai đội. Trong bối cảnh đó, Over 2.5 vẫn nhỉnh hơn Under 2.5 vì được hậu thuẫn bởi định giá thị trường và khả năng trận đấu có bàn từ cả hai phía. Độ tin cậy: Có một số tín hiệu nghiêng về trận mở hơn như mức total được niêm yết quanh 2.5 và các nguồn mô tả trận đấu có khả năng bàn thắng, nhưng dữ liệu vẫn thiếu nhiều nên độ chắc chỉ thấp." [ref=e169]':
+                      - paragraph [ref=e170]: Mốc 2.5 là ngưỡng khá cân bằng và context có tín hiệu market không quá thiên về xỉu, thậm chí odds tham chiếu cho over 2.5 xuất hiện khá rõ. Tuy vậy, không có dữ liệu về đội hình, phong độ gần đây hay live stats để xác nhận nhịp độ tấn công thực sự của hai đội. Trong bối cảnh đó, Over 2.5 vẫn nhỉnh hơn Under 2.5 vì được hậu thuẫn bởi định giá thị trường và khả năng trận đấu có bàn từ cả hai phía.
+                      - generic [ref=e171]: "Độ tin cậy: Có một số tín hiệu nghiêng về trận mở hơn như mức total được niêm yết quanh 2.5 và các nguồn mô tả trận đấu có khả năng bàn thắng, nhưng dữ liệu vẫn thiếu nhiều nên độ chắc chỉ thấp."
+                  - 'row "#3 1X2 Gợi ý Kết quả trận đấu Rủi ro cao Độ tin cậy: 42%, Tin cậy thấp Netherlands thắng Trong các nguồn tham chiếu, Netherlands được định giá cửa trên nhẹ ở ML, đây là tín hiệu tốt nhất ủng hộ phương án thắng của chủ nhà. Tuy nhiên, Sweden đứng cao hơn trên bảng nhóm trong context và không có dữ liệu lực lượng hay phong độ gần đây để xác nhận Netherlands vượt trội rõ rệt. Vì vậy, Netherlands thắng là lựa chọn tốt hơn hòa hoặc Sweden thắng, nhưng xác suất không thể đẩy quá cao. Độ tin cậy: Netherlands có lợi thế sân nhà và được các nguồn market đặt ở cửa trên nhẹ, nhưng Sweden cũng đang có vị trí nhóm đầu nên độ chắc cho cửa thắng chủ nhà chưa cao." [ref=e172]':
+                    - cell "#3 1X2 Gợi ý" [ref=e173]:
+                      - generic [ref=e174]:
+                        - img [ref=e176]
+                        - generic [ref=e177]:
+                          - generic [ref=e178]: "#3"
+                          - strong [ref=e179]: 1X2
+                          - generic [ref=e180]: Gợi ý
+                    - cell "Kết quả trận đấu Rủi ro cao" [ref=e181]:
+                      - generic [ref=e182]:
+                        - generic [ref=e183]: Kết quả trận đấu
+                        - generic [ref=e185]: Rủi ro cao
+                    - 'cell "Độ tin cậy: 42%, Tin cậy thấp" [ref=e186]':
+                      - 'generic "Độ tin cậy: 42%, Tin cậy thấp" [ref=e187]':
+                        - generic [ref=e190]:
+                          - strong [ref=e191]: 42%
+                          - generic [ref=e192]: Tin cậy thấp
+                    - cell "Netherlands thắng" [ref=e193]:
+                      - strong [ref=e194]: Netherlands thắng
+                    - 'cell "Trong các nguồn tham chiếu, Netherlands được định giá cửa trên nhẹ ở ML, đây là tín hiệu tốt nhất ủng hộ phương án thắng của chủ nhà. Tuy nhiên, Sweden đứng cao hơn trên bảng nhóm trong context và không có dữ liệu lực lượng hay phong độ gần đây để xác nhận Netherlands vượt trội rõ rệt. Vì vậy, Netherlands thắng là lựa chọn tốt hơn hòa hoặc Sweden thắng, nhưng xác suất không thể đẩy quá cao. Độ tin cậy: Netherlands có lợi thế sân nhà và được các nguồn market đặt ở cửa trên nhẹ, nhưng Sweden cũng đang có vị trí nhóm đầu nên độ chắc cho cửa thắng chủ nhà chưa cao." [ref=e195]':
+                      - paragraph [ref=e196]: Trong các nguồn tham chiếu, Netherlands được định giá cửa trên nhẹ ở ML, đây là tín hiệu tốt nhất ủng hộ phương án thắng của chủ nhà. Tuy nhiên, Sweden đứng cao hơn trên bảng nhóm trong context và không có dữ liệu lực lượng hay phong độ gần đây để xác nhận Netherlands vượt trội rõ rệt. Vì vậy, Netherlands thắng là lựa chọn tốt hơn hòa hoặc Sweden thắng, nhưng xác suất không thể đẩy quá cao.
+                      - generic [ref=e197]: "Độ tin cậy: Netherlands có lợi thế sân nhà và được các nguồn market đặt ở cửa trên nhẹ, nhưng Sweden cũng đang có vị trí nhóm đầu nên độ chắc cho cửa thắng chủ nhà chưa cao."
+                  - 'row "#4 Thẻ phạt Gợi ý Over 4.5 thẻ Rủi ro vừa Độ tin cậy: 40%, Tin cậy thấp Over 4.5 thẻ Mốc 4.5 thẻ là mức thường chỉ cần một trận đấu có nhịp độ tranh chấp khá cao là có thể vượt. Đây là trận World Cup nhóm đấu, nơi áp lực điểm số và sự thận trọng chiến thuật thường làm tăng khả năng phạm lỗi chiến thuật. Dù vậy, vì không có referee profile hay dữ liệu thẻ của hai đội, Over 4.5 chỉ nhỉnh hơn Under 4.5 ở mức vừa phải. Độ tin cậy: Không có dữ liệu trọng tài, tính chất va chạm hay thống kê thẻ gần đây, nên lựa chọn chỉ dựa trên tính chất cạnh tranh của trận đấu và phải giữ confidence thấp." [ref=e198]':
+                    - cell "#4 Thẻ phạt Gợi ý" [ref=e199]:
+                      - generic [ref=e200]:
+                        - img [ref=e202]
+                        - generic [ref=e203]:
+                          - generic [ref=e204]: "#4"
+                          - strong [ref=e205]: Thẻ phạt
+                          - generic [ref=e206]: Gợi ý
+                    - cell "Over 4.5 thẻ Rủi ro vừa" [ref=e207]:
+                      - generic [ref=e208]:
+                        - generic [ref=e209]: Over 4.5 thẻ
+                        - generic [ref=e211]: Rủi ro vừa
+                    - 'cell "Độ tin cậy: 40%, Tin cậy thấp" [ref=e212]':
+                      - 'generic "Độ tin cậy: 40%, Tin cậy thấp" [ref=e213]':
+                        - generic [ref=e216]:
+                          - strong [ref=e217]: 40%
+                          - generic [ref=e218]: Tin cậy thấp
+                    - cell "Over 4.5 thẻ" [ref=e219]:
+                      - strong [ref=e220]: Over 4.5 thẻ
+                    - 'cell "Mốc 4.5 thẻ là mức thường chỉ cần một trận đấu có nhịp độ tranh chấp khá cao là có thể vượt. Đây là trận World Cup nhóm đấu, nơi áp lực điểm số và sự thận trọng chiến thuật thường làm tăng khả năng phạm lỗi chiến thuật. Dù vậy, vì không có referee profile hay dữ liệu thẻ của hai đội, Over 4.5 chỉ nhỉnh hơn Under 4.5 ở mức vừa phải. Độ tin cậy: Không có dữ liệu trọng tài, tính chất va chạm hay thống kê thẻ gần đây, nên lựa chọn chỉ dựa trên tính chất cạnh tranh của trận đấu và phải giữ confidence thấp." [ref=e221]':
+                      - paragraph [ref=e222]: Mốc 4.5 thẻ là mức thường chỉ cần một trận đấu có nhịp độ tranh chấp khá cao là có thể vượt. Đây là trận World Cup nhóm đấu, nơi áp lực điểm số và sự thận trọng chiến thuật thường làm tăng khả năng phạm lỗi chiến thuật. Dù vậy, vì không có referee profile hay dữ liệu thẻ của hai đội, Over 4.5 chỉ nhỉnh hơn Under 4.5 ở mức vừa phải.
+                      - generic [ref=e223]: "Độ tin cậy: Không có dữ liệu trọng tài, tính chất va chạm hay thống kê thẻ gần đây, nên lựa chọn chỉ dựa trên tính chất cạnh tranh của trận đấu và phải giữ confidence thấp."
+                  - 'row "#5 Corner Gợi ý Over 9.5 góc Rủi ro vừa Độ tin cậy: 41%, Tin cậy thấp Over 9.5 góc Với một trận cân bằng ở mức cửa trên nhẹ cho Netherlands, kịch bản tấn công biên và ép sân từng giai đoạn có thể đẩy tổng phạt góc lên quanh hoặc vượt 10. Tuy nhiên, hoàn toàn thiếu dữ liệu về số góc gần đây, cách triển khai tấn công, hay trạng thái đội hình để xác nhận chắc chắn. Over 9.5 vẫn được ưu tiên hơn Under 9.5 vì đây là mốc không quá sâu và có thể được đạt tới ngay cả khi trận không quá bùng nổ bàn thắng. Độ tin cậy: Context không có live statistics hay phong cách tạo góc của hai đội, nhưng mốc 9.5 không quá cao nên lựa chọn over vẫn có chút ưu thế dù độ tin cậy thấp." [ref=e224]':
+                    - cell "#5 Corner Gợi ý" [ref=e225]:
+                      - generic [ref=e226]:
+                        - img [ref=e228]
+                        - generic [ref=e229]:
+                          - generic [ref=e230]: "#5"
+                          - strong [ref=e231]: Corner
+                          - generic [ref=e232]: Gợi ý
+                    - cell "Over 9.5 góc Rủi ro vừa" [ref=e233]:
+                      - generic [ref=e234]:
+                        - generic [ref=e235]: Over 9.5 góc
+                        - generic [ref=e237]: Rủi ro vừa
+                    - 'cell "Độ tin cậy: 41%, Tin cậy thấp" [ref=e238]':
+                      - 'generic "Độ tin cậy: 41%, Tin cậy thấp" [ref=e239]':
+                        - generic [ref=e242]:
+                          - strong [ref=e243]: 41%
+                          - generic [ref=e244]: Tin cậy thấp
+                    - cell "Over 9.5 góc" [ref=e245]:
+                      - strong [ref=e246]: Over 9.5 góc
+                    - 'cell "Với một trận cân bằng ở mức cửa trên nhẹ cho Netherlands, kịch bản tấn công biên và ép sân từng giai đoạn có thể đẩy tổng phạt góc lên quanh hoặc vượt 10. Tuy nhiên, hoàn toàn thiếu dữ liệu về số góc gần đây, cách triển khai tấn công, hay trạng thái đội hình để xác nhận chắc chắn. Over 9.5 vẫn được ưu tiên hơn Under 9.5 vì đây là mốc không quá sâu và có thể được đạt tới ngay cả khi trận không quá bùng nổ bàn thắng. Độ tin cậy: Context không có live statistics hay phong cách tạo góc của hai đội, nhưng mốc 9.5 không quá cao nên lựa chọn over vẫn có chút ưu thế dù độ tin cậy thấp." [ref=e247]':
+                      - paragraph [ref=e248]: Với một trận cân bằng ở mức cửa trên nhẹ cho Netherlands, kịch bản tấn công biên và ép sân từng giai đoạn có thể đẩy tổng phạt góc lên quanh hoặc vượt 10. Tuy nhiên, hoàn toàn thiếu dữ liệu về số góc gần đây, cách triển khai tấn công, hay trạng thái đội hình để xác nhận chắc chắn. Over 9.5 vẫn được ưu tiên hơn Under 9.5 vì đây là mốc không quá sâu và có thể được đạt tới ngay cả khi trận không quá bùng nổ bàn thắng.
+                      - generic [ref=e249]: "Độ tin cậy: Context không có live statistics hay phong cách tạo góc của hai đội, nhưng mốc 9.5 không quá cao nên lựa chọn over vẫn có chút ưu thế dù độ tin cậy thấp."
+        - complementary "Okasian" [ref=e251]:
+          - generic [ref=e253]:
+            - heading "Bạn muốn phân tích gì?" [level=2] [ref=e255]
+            - generic [ref=e256]:
+              - textbox "Nhập câu hỏi cho Okasian" [ref=e257]
+              - button "Gửi" [disabled] [ref=e258]:
+                - img [ref=e259]
+            - generic "Mở Okasian" [ref=e262]:
+              - button "Giải thích lợi thế của Hà Lan" [ref=e263] [cursor=pointer]
+              - button "Điều gì thay đổi trong giờ qua?" [ref=e264] [cursor=pointer]
+              - button "Kèo nào có rủi ro thấp nhất?" [ref=e265] [cursor=pointer]

@@ -12,7 +12,7 @@ from app.agents.market_prediction import FutboliaMarketPredictionAgent
 from app.agents.match_insight import FutboliaMatchInsightAgent
 from app.agents.prediction_chat import FutboliaPredictionAgent
 from app.core.app_config import WorldCupSourceName
-from app.models.chat import PredictionChatResponse
+from app.models.chat import PredictionChatRecommendedQuestionsResponse, PredictionChatResponse
 from app.models.live_events import LiveMatchSnapshot
 from app.models.market_prediction import (
     MarketPredictionAgentOutput,
@@ -379,6 +379,67 @@ class MarketPredictionService:
 
         return events()
 
+    async def recommend_match_chat_questions(
+        self,
+        *,
+        match_id: str,
+        year: int | None = None,
+        source: WorldCupSourceName = "auto",
+        provider_fixture_id: str | None = None,
+        force_refresh: bool = False,
+        include_live: bool = True,
+        include_news: bool = True,
+        language: ResponseLanguage = "vi",
+        news_max_results: int | None = None,
+        prediction_mode: PredictionMode = "pre_match",
+        prediction_context: dict[str, Any] | None = None,
+    ) -> PredictionChatRecommendedQuestionsResponse:
+        match, live_snapshot, llm_context, agent_prediction_context = (
+            await self._build_chat_agent_context(
+                match_id=match_id,
+                year=year,
+                source=source,
+                provider_fixture_id=provider_fixture_id,
+                force_refresh=force_refresh,
+                include_live=include_live,
+                include_news=include_news,
+                language=language,
+                news_max_results=news_max_results,
+                prediction_mode=prediction_mode,
+                prediction_context=prediction_context,
+            )
+        )
+        fallback_questions = self._fallback_chat_questions(match=match, language=language)
+
+        try:
+            generated_questions = await self._chat_agent.recommend_questions_with_context(
+                match=llm_context["match"],
+                live_snapshot=llm_context["live"],
+                prediction_context=agent_prediction_context,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Chat recommended questions generation failed for %s: %s",
+                match_id,
+                exc,
+            )
+            generated_questions = []
+
+        return PredictionChatRecommendedQuestionsResponse(
+            match_id=match.id,
+            generated_at=datetime.now(UTC),
+            language=language,
+            model_name=getattr(self._chat_agent, "model_name", None),
+            prediction_mode=prediction_mode,
+            match=match,
+            live_snapshot=live_snapshot,
+            prediction_context=llm_context,
+            questions=self._normalize_chat_questions(
+                generated_questions,
+                fallback_questions=fallback_questions,
+            ),
+        )
+
     def _can_cache_prediction(self, prediction_mode: PredictionMode) -> bool:
         return (
             self._prediction_cache is not None
@@ -420,6 +481,48 @@ class MarketPredictionService:
         encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str)
         digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
         return f"prediction:{kind}:{match_id}:{language}:{prediction_mode}:{digest}"
+
+    @staticmethod
+    def _fallback_chat_questions(
+        *,
+        match: WorldCupMatch,
+        language: ResponseLanguage,
+    ) -> list[str]:
+        home = match.team1
+        away = match.team2
+        if language == "en":
+            return [
+                f"Why does the context favor {home} vs {away}?",
+                f"Which market looks strongest for {home} vs {away}?",
+                "What live or news signal could change the read?",
+            ]
+
+        return [
+            f"Vì sao dữ liệu trận {home} vs {away} đang nghiêng theo hướng này?",
+            f"Kèo nào có tín hiệu rõ nhất ở trận {home} vs {away}?",
+            "Tín hiệu live hoặc tin tức nào có thể đổi chiều dự đoán?",
+        ]
+
+    @staticmethod
+    def _normalize_chat_questions(
+        questions: list[str],
+        *,
+        fallback_questions: list[str],
+    ) -> list[str]:
+        normalized: list[str] = []
+        seen: set[str] = set()
+
+        for question in [*questions, *fallback_questions]:
+            stripped = question.strip()
+            key = stripped.casefold()
+            if not stripped or key in seen:
+                continue
+            normalized.append(stripped)
+            seen.add(key)
+            if len(normalized) == 3:
+                return normalized
+
+        return normalized[:3]
 
     async def _read_cached_response(
         self,

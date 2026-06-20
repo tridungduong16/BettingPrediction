@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --host 0.0.0.0",
-    "test:assistant-markdown": "node scripts/run-assistant-markdown-test.mjs"
+    "test:assistant-markdown": "node scripts/run-assistant-markdown-test.mjs",
+    "test:dashboard-mapper": "node scripts/run-dashboard-mapper-test.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",

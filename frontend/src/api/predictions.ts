@@ -3,6 +3,7 @@ import type { LanguageCode } from '@/i18n/languages'
 import type {
   MarketPredictionResponse,
   MatchInsightResponse,
+  PredictionChatRecommendedQuestionsResponse,
   PredictionChatRequest,
   PredictionChatResponse,
   PredictionChatStreamEvent,
@@ -105,6 +106,18 @@ export function chatAboutMatch(
         'Content-Type': 'application/json',
       },
       method: 'POST',
+      query: predictionQuery(query),
+    },
+  )
+}
+
+export function getRecommendedChatQuestions(
+  matchId: string,
+  query: MarketPredictionQuery = {},
+) {
+  return request<PredictionChatRecommendedQuestionsResponse>(
+    `/api/predictions/matches/${encodeURIComponent(matchId)}/chat/recommended-questions`,
+    {
       query: predictionQuery(query),
     },
   )

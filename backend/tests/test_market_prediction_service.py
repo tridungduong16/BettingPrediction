@@ -327,6 +327,7 @@ class FakeChatAgent:
 
     def __init__(self) -> None:
         self.answer_calls = 0
+        self.recommend_calls = 0
         self.stream_calls = 0
 
     async def answer_with_context(
@@ -364,6 +365,23 @@ class FakeChatAgent:
         yield StreamEvent(type="text_delta", content="Brazil")
         yield StreamEvent(type="text_delta", content=" nhỉnh hơn")
         yield StreamEvent(type="done", content="Brazil nhỉnh hơn")
+
+    async def recommend_questions_with_context(
+        self,
+        *,
+        match,
+        live_snapshot,
+        prediction_context=None,
+    ):
+        self.recommend_calls += 1
+        self.last_match = match
+        self.last_live_snapshot = live_snapshot
+        self.last_prediction_context = prediction_context
+        return [
+            f"Why is {match['home_team']} favored against {match['away_team']}?",
+            "Which market has the clearest edge from the current context?",
+            "What live or news signals could change this prediction?",
+        ]
 
 
 def test_default_market_candidates_cover_vietnam_priority_markets():
@@ -747,3 +765,50 @@ async def test_market_prediction_service_streams_match_chat_events():
     assert events[-1].content == "Brazil nhỉnh hơn"
     assert chat_agent.stream_calls == 1
     assert chat_agent.last_thread_id == "thread-stream"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_recommends_three_chat_questions_from_context():
+    match = make_match()
+    chat_agent = FakeChatAgent()
+    news_service = FakeNewsSearchService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        news_search_service=news_service,
+        agent=FakeMarketAgent(),
+        chat_agent=chat_agent,
+    )
+
+    response = await service.recommend_match_chat_questions(
+        match_id=match.id,
+        language="en",
+        news_max_results=2,
+        prediction_context={"risk_appetite": "low"},
+    )
+
+    assert response.match_id == match.id
+    assert response.model_name == "fake-chat-model"
+    assert response.questions == [
+        "Why is Brazil favored against France?",
+        "Which market has the clearest edge from the current context?",
+        "What live or news signals could change this prediction?",
+    ]
+    assert chat_agent.recommend_calls == 1
+    assert chat_agent.last_match["home_team"] == "Brazil"
+    assert chat_agent.last_match["away_team"] == "France"
+    assert chat_agent.last_match["status_for_prediction"] == "scheduled"
+    assert chat_agent.last_live_snapshot is None
+    assert chat_agent.last_prediction_context["language"] == "en"
+    assert chat_agent.last_prediction_context["news"]["source_id"] == "search-123"
+    assert chat_agent.last_prediction_context["user_context"] == {"risk_appetite": "low"}
+
+
+def test_vietnamese_fallback_chat_questions_avoid_context_wording():
+    questions = MarketPredictionService._fallback_chat_questions(
+        match=make_match(),
+        language="vi",
+    )
+
+    assert questions[0] == "Vì sao dữ liệu trận Brazil vs France đang nghiêng theo hướng này?"
+    assert all("context" not in question.lower() for question in questions)

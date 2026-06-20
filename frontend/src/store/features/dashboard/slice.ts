@@ -7,6 +7,7 @@ import type {
   LiveProviderStatus,
   MarketPredictionResponse,
   MatchInsightResponse,
+  PredictionChatRecommendedQuestionsResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
 import {
@@ -126,6 +127,22 @@ const dashboardSlice = createSlice({
       state.insightPredictionStatus = 'error'
       state.insightPredictionError = action.payload
       state.matchInsight = undefined
+    },
+    loadRecommendedChatQuestionsRequested(state, action: PayloadAction<DashboardMatchRequest>) {
+      void state
+      void action.payload.matchId
+    },
+    loadRecommendedChatQuestionsSucceeded(
+      state,
+      action: PayloadAction<PredictionChatRecommendedQuestionsResponse>,
+    ) {
+      if (action.payload.questions.length) {
+        state.data.prompts = action.payload.questions.slice(0, 3)
+      }
+    },
+    loadRecommendedChatQuestionsFailed(state, action: PayloadAction<string>) {
+      void state
+      void action.payload
     },
     startLivePolling(state, action: PayloadAction<DashboardMatchRequest>) {
       void state

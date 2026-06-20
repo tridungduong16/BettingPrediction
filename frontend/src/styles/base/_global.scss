@@ -1,6 +1,8 @@
 @use '../abstracts/variables' as *;
 
 :root {
+  --app-zoom: 0.67;
+  --app-zoom-inverse: 1.4925373134;
   --color-bg-primary: #030816;
   --color-bg-secondary: #08111f;
   --color-card: #0a1526;
@@ -22,6 +24,7 @@
 body {
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 18% 0, rgba($color-success, 0.08), transparent 28%),
     radial-gradient(circle at 86% 12%, rgba($color-info, 0.11), transparent 28%),
@@ -36,8 +39,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html.match-dashboard-scroll-lock,
+body.match-dashboard-scroll-lock {
+  overflow: hidden;
+}
+
 #root {
   min-height: 100vh;
+  zoom: var(--app-zoom);
+}
+
+@supports not (zoom: 1) {
+  #root {
+    transform: scale(var(--app-zoom));
+    transform-origin: top left;
+  }
 }
 
 ::selection {

@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field, field_validator
 
 WorldCupSourceName = Literal["auto", "upbound", "openfootball"]
 CookieSameSite = Literal["lax", "strict", "none"]
+DEFAULT_MODEL_NAME = "openainexira/gpt-5.4-mini"
+DEFAULT_CHAT_MODEL_NAME = "openainexira/gpt-5.4-mini-high-reasoning"
 
 
 def _backend_dir() -> Path:
@@ -75,8 +77,9 @@ class AppConfig(BaseModel):
     bifrost_endpoint_url: str | None = "https://bifrost.azaps.net/v1"
     bifrost_api_key: str | None = None
     openai_api_key: str | None = None
-    openai_model: str = "openainexira/gpt-5.4-mini"
-    model_name: str = "openainexira/gpt-5.4-mini"
+    openai_model: str = DEFAULT_MODEL_NAME
+    model_name: str = DEFAULT_MODEL_NAME
+    chat_model_name: str = DEFAULT_CHAT_MODEL_NAME
     dashscope_api_key: str | None = None
     dashscope_base_url: str | None = None
     dashscope_embedding_base_url: str | None = None
@@ -87,6 +90,14 @@ class AppConfig(BaseModel):
     perplexity_search_max_results: int = 8
     perplexity_search_country: str | None = "VN"
     perplexity_search_language_filter: list[str] = Field(default_factory=lambda: ["vi", "en"])
+    odds_api_base_url: str = "https://api.the-odds-api.com"
+    odds_api_key: str | None = None
+    odds_api_sport_key: str = "soccer_fifa_world_cup"
+    odds_api_regions: list[str] = Field(default_factory=lambda: ["eu", "uk", "us", "au"])
+    odds_api_markets: list[str] = Field(default_factory=lambda: ["h2h", "spreads", "totals"])
+    odds_api_odds_format: str = "decimal"
+    odds_api_http_timeout_seconds: float = 10.0
+    odds_api_cache_ttl_seconds: int = 60
     prediction_cache_ttl_seconds: int = 21600
     prediction_cache_key_prefix: str = "futbolia"
     prediction_cache_version: str = "v1"
@@ -130,6 +141,10 @@ class AppConfig(BaseModel):
     @property
     def MODEL_NAME(self) -> str:
         return self.model_name
+
+    @property
+    def CHAT_MODEL_NAME(self) -> str:
+        return self.chat_model_name
 
     @property
     def DASHSCOPE_API_KEY(self) -> str | None:
@@ -214,8 +229,9 @@ def get_app_config() -> AppConfig:
         ),
         bifrost_api_key=os.getenv("BIFROST_API_KEY") or None,
         openai_api_key=os.getenv("OPENAI_API_KEY") or os.getenv("BIFROST_API_KEY") or None,
-        openai_model=os.getenv("OPENAI_MODEL", "openainexira/gpt-5.4-mini"),
-        model_name=os.getenv("MODEL_NAME", os.getenv("OPENAI_MODEL", "openainexira/gpt-5.4-mini")),
+        openai_model=os.getenv("OPENAI_MODEL", DEFAULT_MODEL_NAME),
+        model_name=os.getenv("MODEL_NAME", os.getenv("OPENAI_MODEL", DEFAULT_MODEL_NAME)),
+        chat_model_name=os.getenv("CHAT_MODEL_NAME", DEFAULT_CHAT_MODEL_NAME),
         dashscope_api_key=os.getenv("DASHSCOPE_API_KEY") or None,
         dashscope_base_url=os.getenv("DASHSCOPE_BASE_URL") or None,
         dashscope_embedding_base_url=os.getenv("DASHSCOPE_EMBEDDING_BASE_URL") or None,
@@ -236,6 +252,20 @@ def get_app_config() -> AppConfig:
             os.getenv("PERPLEXITY_SEARCH_LANGUAGE_FILTER"),
             ["vi", "en"],
         ),
+        odds_api_base_url=os.getenv(
+            "ODDS_API_BASE_URL",
+            AppConfig.model_fields["odds_api_base_url"].default,
+        ),
+        odds_api_key=os.getenv("ODD_API") or os.getenv("ODDS_API_KEY") or None,
+        odds_api_sport_key=os.getenv(
+            "ODDS_API_SPORT_KEY",
+            AppConfig.model_fields["odds_api_sport_key"].default,
+        ),
+        odds_api_regions=_split_csv(os.getenv("ODDS_API_REGIONS"), ["eu", "uk", "us", "au"]),
+        odds_api_markets=_split_csv(os.getenv("ODDS_API_MARKETS"), ["h2h", "spreads", "totals"]),
+        odds_api_odds_format=os.getenv("ODDS_API_ODDS_FORMAT", "decimal"),
+        odds_api_http_timeout_seconds=float(os.getenv("ODDS_API_HTTP_TIMEOUT_SECONDS", "10")),
+        odds_api_cache_ttl_seconds=int(os.getenv("ODDS_API_CACHE_TTL_SECONDS", "60")),
         prediction_cache_ttl_seconds=int(os.getenv("PREDICTION_CACHE_TTL_SECONDS", "21600")),
         prediction_cache_key_prefix=os.getenv("PREDICTION_CACHE_KEY_PREFIX", "futbolia"),
         prediction_cache_version=os.getenv("PREDICTION_CACHE_VERSION", "v1"),

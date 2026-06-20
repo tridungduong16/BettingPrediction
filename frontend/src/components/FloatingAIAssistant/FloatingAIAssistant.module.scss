@@ -81,7 +81,7 @@
 
 .assistant:not(.embedded) .panel {
   height: min(720px, calc(100vh - 112px));
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
 }
 
 .panelEmbedded {
@@ -89,7 +89,7 @@
   height: 100%;
   min-height: 0;
   max-height: none;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
   border-color: $color-border;
   border-radius: $radius-xl;
   background:
@@ -97,6 +97,12 @@
     $color-card;
   box-shadow: 0 8px 8px rgba(0, 0, 0, 0.12);
   animation: none;
+}
+
+.panelInitial,
+.assistant:not(.embedded) .panelInitial,
+.panelEmbedded.panelInitial {
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .header {
@@ -115,19 +121,11 @@
   align-items: center;
   gap: $space-4;
 
-  p,
   h2 {
     margin: 0;
   }
 
-  p {
-    color: $color-success;
-    font-size: 14px;
-    font-weight: 900;
-  }
-
   h2 {
-    margin-top: 2px;
     color: $color-text-primary;
     font-size: 19px;
     font-weight: 900;
@@ -138,7 +136,9 @@
 .iconShell,
 .triggerLogo,
 .iconButton,
-.form button {
+.form button,
+.initialCloseButton,
+.initialForm button {
   display: grid;
   place-items: center;
 }
@@ -174,6 +174,94 @@
   user-select: none;
 }
 
+.initialComposer {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: min(620px, calc(100vh - 128px));
+  overflow: hidden;
+  padding: $space-8 $space-5;
+  isolation: isolate;
+  background: #07101f;
+}
+
+.initialComposer::before,
+.initialComposer::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.initialComposer::before {
+  background: url("/images/assistant-football-bg.png") right bottom / cover no-repeat;
+  filter: brightness(0.94) saturate(0.92);
+  opacity: 0.96;
+  transform: scale(1.02);
+}
+
+.initialComposer::after {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(5, 12, 24, 0.42), rgba(5, 12, 24, 0.2) 48%, rgba(5, 12, 24, 0.5) 100%),
+    linear-gradient(180deg, rgba(5, 12, 24, 0.08), rgba(5, 12, 24, 0.5));
+}
+
+.initialComposer > * {
+  position: relative;
+  z-index: 1;
+}
+
+.panelEmbedded .initialComposer {
+  min-height: 420px;
+}
+
+.initialCloseButton {
+  position: absolute;
+  top: $space-4;
+  right: $space-4;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(153, 183, 230, 0.18);
+  border-radius: $radius-sm;
+  background: rgba(153, 183, 230, 0.08);
+  color: $color-text-secondary;
+
+  &:hover {
+    background: rgba(153, 183, 230, 0.14);
+    color: $color-text-primary;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.initialLogoShell {
+  display: grid;
+  width: 70px;
+  height: 70px;
+  place-items: center;
+  padding: 5px;
+  border: 1px solid rgba($color-info, 0.34);
+  border-radius: $radius-sm;
+  background:
+    linear-gradient(180deg, rgba($color-info, 0.18), rgba($color-success, 0.1)),
+    rgba($color-bg-secondary, 0.9);
+}
+
+.initialComposer h2 {
+  max-width: 14ch;
+  margin: $space-5 0 $space-4;
+  color: $color-text-primary;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.18;
+  text-align: center;
+  text-wrap: balance;
+}
+
 .iconButton {
   flex: 0 0 auto;
   width: 42px;
@@ -190,6 +278,43 @@
 
   &:focus-visible {
     @include focus-ring;
+  }
+}
+
+.initialPrompts {
+  display: grid;
+  width: min(100%, 390px);
+  gap: $space-2;
+  margin-top: $space-3;
+
+  button {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    padding: $space-3 $space-4;
+    border: 1px solid rgba(153, 183, 230, 0.18);
+    border-radius: $radius-sm;
+    background: rgba(153, 183, 230, 0.07);
+    color: $color-text-secondary;
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.25;
+    text-align: left;
+
+    &:hover:not(:disabled) {
+      border-color: rgba($color-info, 0.42);
+      background: rgba($color-info, 0.12);
+      color: $color-text-primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
   }
 }
 
@@ -237,6 +362,7 @@
   max-height: 360px;
   overflow-y: auto;
   padding: $space-5;
+  @include contained-scrollbar;
 }
 
 .panelEmbedded .messages {
@@ -276,6 +402,42 @@
 
   p {
     color: $color-text-primary;
+  }
+}
+
+.followUps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  padding: 0 $space-5 $space-3;
+
+  button {
+    min-height: 38px;
+    max-width: 100%;
+    padding: $space-2 $space-3;
+    border: 1px solid rgba($color-info, 0.26);
+    border-radius: $radius-sm;
+    background: rgba($color-info, 0.08);
+    color: $color-text-secondary;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.25;
+    text-align: left;
+
+    &:hover:not(:disabled) {
+      border-color: rgba($color-info, 0.46);
+      background: rgba($color-info, 0.13);
+      color: $color-text-primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
   }
 }
 
@@ -377,11 +539,11 @@
   }
 }
 
-.form {
+.form,
+.initialForm {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 50px;
   gap: $space-2;
-  padding: 0 $space-5 $space-5;
 
   input,
   button {
@@ -428,6 +590,14 @@
       opacity: 0.58;
     }
   }
+}
+
+.form {
+  padding: 0 $space-5 $space-5;
+}
+
+.initialForm {
+  width: min(100%, 390px);
 }
 
 .error {

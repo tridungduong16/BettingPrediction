@@ -2,13 +2,18 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, delay, put, race, take, takeLatest } from 'redux-saga/effects'
 
 import { getLiveMatchSnapshot } from '@/api/liveEvents'
-import { getMarketPredictions, getMatchInsight } from '@/api/predictions'
+import {
+  getMarketPredictions,
+  getMatchInsight,
+  getRecommendedChatQuestions,
+} from '@/api/predictions'
 import { getWorldCupMatch } from '@/api/worldcup'
 import { env } from '@/config/env'
 import type {
   LiveMatchSnapshot,
   MarketPredictionResponse,
   MatchInsightResponse,
+  PredictionChatRecommendedQuestionsResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
 import { dashboardActions, type DashboardMatchRequest } from '@/store/features/dashboard/slice'
@@ -28,6 +33,7 @@ function* loadMatch(action: PayloadAction<DashboardMatchRequest>) {
     yield put(dashboardActions.loadMatchSucceeded({ language, match }))
     yield put(dashboardActions.loadMatchInsightRequested({ language, matchId }))
     yield put(dashboardActions.loadMarketPredictionsRequested({ language, matchId }))
+    yield put(dashboardActions.loadRecommendedChatQuestionsRequested({ language, matchId }))
   } catch (error) {
     yield put(dashboardActions.loadMatchFailed(errorMessage(error)))
   }
@@ -50,6 +56,20 @@ function* loadMatchInsight(action: PayloadAction<DashboardMatchRequest>) {
     yield put(dashboardActions.loadMatchInsightSucceeded(insight))
   } catch (error) {
     yield put(dashboardActions.loadMatchInsightFailed(errorMessage(error)))
+  }
+}
+
+function* loadRecommendedChatQuestions(action: PayloadAction<DashboardMatchRequest>) {
+  try {
+    const { language, matchId } = action.payload
+    const questions: PredictionChatRecommendedQuestionsResponse = yield call(
+      getRecommendedChatQuestions,
+      matchId,
+      { language },
+    )
+    yield put(dashboardActions.loadRecommendedChatQuestionsSucceeded(questions))
+  } catch (error) {
+    yield put(dashboardActions.loadRecommendedChatQuestionsFailed(errorMessage(error)))
   }
 }
 
@@ -93,6 +113,10 @@ export function* dashboardSaga() {
     takeLatest(dashboardActions.loadMatchRequested.type, loadMatch),
     takeLatest(dashboardActions.loadMatchInsightRequested.type, loadMatchInsight),
     takeLatest(dashboardActions.loadMarketPredictionsRequested.type, loadMarketPredictions),
+    takeLatest(
+      dashboardActions.loadRecommendedChatQuestionsRequested.type,
+      loadRecommendedChatQuestions,
+    ),
     takeLatest(dashboardActions.startLivePolling.type, pollLiveSnapshots),
   ])
 }

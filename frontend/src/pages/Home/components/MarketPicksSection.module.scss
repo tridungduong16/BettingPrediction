@@ -1,39 +1,20 @@
 .marketsSection {
   display: grid;
-  gap: $space-3;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
   scroll-margin-top: 82px;
 }
 
-.sectionIntro {
-  display: grid;
-  gap: $space-2;
-  max-width: 860px;
-  margin: 0;
-
-  h2 {
-    margin: 0;
-    color: $color-text-primary;
-    font-size: 23px;
-    font-weight: 950;
-    line-height: 1.15;
-    text-wrap: balance;
-  }
-
-  p {
-    margin: 0;
-    color: $color-text-secondary;
-    font-size: 13px;
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-}
-
 .tableShell {
-  overflow-x: auto;
-  overflow-y: hidden;
+  height: 100%;
+  max-height: max(280px, min(520px, calc((100vh * var(--app-zoom-inverse, 1)) - 585px)));
+  min-height: 0;
+  overflow: auto;
   border: 1px solid rgba(153, 183, 230, 0.18);
   border-radius: $radius-md;
   background: rgba(7, 17, 32, 0.82);
+  @include contained-scrollbar;
 }
 
 .opportunitiesTable {
@@ -52,6 +33,9 @@
   }
 
   th {
+    position: sticky;
+    z-index: 1;
+    top: 0;
     border-bottom: 1px solid rgba(153, 183, 230, 0.18);
     background: rgba(12, 26, 47, 0.96);
     color: $color-text-muted;
@@ -286,12 +270,9 @@
 }
 
 @media (max-width: 780px) {
-  .sectionIntro h2 {
-    font-size: 20px;
-  }
-
   .tableShell {
-    overflow: visible;
+    max-height: min(580px, calc((100vh * var(--app-zoom-inverse, 1)) - 260px));
+    overflow: auto;
     border: 0;
     background: transparent;
   }

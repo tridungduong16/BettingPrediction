@@ -64,6 +64,18 @@ export default function Home() {
   const predictedWinner = data.prediction.winner
 
   useEffect(() => {
+    const scrollLockClassName = 'match-dashboard-scroll-lock'
+
+    document.documentElement.classList.add(scrollLockClassName)
+    document.body.classList.add(scrollLockClassName)
+
+    return () => {
+      document.documentElement.classList.remove(scrollLockClassName)
+      document.body.classList.remove(scrollLockClassName)
+    }
+  }, [])
+
+  useEffect(() => {
     dispatch(dashboardActions.loadMatchRequested({ language, matchId }))
 
     return () => {

@@ -1,0 +1,18 @@
+- main "Choose your language" [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e6]
+      - generic [ref=e7]: WORLDIAN
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - img [ref=e10]
+        - text: Language / Ngôn ngữ
+      - heading "Choose your language" [level=1] [ref=e14]
+      - paragraph [ref=e15]: Chọn English hoặc Tiếng Việt để toàn bộ trang, prompt và phản hồi Worldian dùng đúng ngôn ngữ.
+    - list "Language options" [ref=e16]:
+      - button "Tiếng Việt" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: Tiếng Việt
+        - img [ref=e19]
+      - button "English" [ref=e21] [cursor=pointer]:
+        - generic [ref=e22]: English
+        - img [ref=e23]

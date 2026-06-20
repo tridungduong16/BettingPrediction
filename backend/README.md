@@ -27,6 +27,9 @@ uv run python scripts/scrape_worldcup.py --year 2026 --force
 - `GET /api/live/provider-fixtures/search?date=2026-06-11&team=Mexico`
 - `WS /api/live/matches/{match_id}/events/ws`
 - `GET /api/news/match?home_team=Pháp&away_team=Senegal`
+- `GET /api/odds/sports`
+- `GET /api/odds/sports/{sport}/odds`
+- `GET /api/odds/matches/{match_id}`
 - `GET /api/predictions/matches/{match_id}/insight`
 - `GET /api/predictions/matches/{match_id}/markets`
 
@@ -76,6 +79,7 @@ Set these before calling model-backed agent methods:
 export BIFROST_ENDPOINT_URL=https://bifrost.azaps.net/v1
 export BIFROST_API_KEY=...
 export MODEL_NAME=openainexira/gpt-5.4-mini
+export CHAT_MODEL_NAME=openainexira/gpt-5.4-mini-high-reasoning
 ```
 
 The agent package can be imported without keys; keys are only required when running model calls.
@@ -101,6 +105,25 @@ Example:
 
 ```bash
 curl 'http://127.0.0.1:8000/api/news/match?home_team=Pháp&away_team=Senegal&max_results=5'
+```
+
+## Odds
+
+Odds are implemented behind The Odds API adapter. Without `ODD_API` or `ODDS_API_KEY`,
+odds routes return `provider_status=not_configured` instead of failing.
+
+After getting a key:
+
+```bash
+export ODD_API=...
+```
+
+Examples:
+
+```bash
+curl 'http://127.0.0.1:8000/api/odds/sports'
+curl 'http://127.0.0.1:8000/api/odds/sports/soccer_fifa_world_cup/odds?regions=eu,uk&markets=h2h,totals'
+curl 'http://127.0.0.1:8000/api/odds/matches/2026-001-mexico-vs-south-africa?regions=eu,uk&markets=h2h'
 ```
 
 ### Market predictions

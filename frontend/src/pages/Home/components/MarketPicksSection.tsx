@@ -36,11 +36,6 @@ export function MarketPicksSection({
 }: MarketPicksSectionProps) {
   return (
     <section className={styles.marketsSection} id="markets" aria-label={copy.marketsLabel}>
-      <div className={styles.sectionIntro}>
-        <h2>{copy.marketsTitle}</h2>
-        <p>{copy.marketsIntro}</p>
-      </div>
-
       <div className={styles.tableShell}>
         <table className={styles.opportunitiesTable}>
           <thead>

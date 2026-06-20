@@ -1,0 +1,6 @@
+[     949ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4181/node_modules/.vite/deps/react-dom_client.js?v=552769e4:20102
+[  145410ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:4181/@vite/client:864
+[  149971ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:4181/api/live/matches/2026-033-netherlands-vs-sweden/snapshot?force_refresh=true:0
+[  159975ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:4181/api/live/matches/2026-033-netherlands-vs-sweden/snapshot?force_refresh=true:0
+[  169978ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:4181/api/live/matches/2026-033-netherlands-vs-sweden/snapshot?force_refresh=true:0
+[  179981ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:4181/api/live/matches/2026-033-netherlands-vs-sweden/snapshot?force_refresh=true:0

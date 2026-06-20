@@ -7,9 +7,14 @@ from datetime import UTC, datetime
 import pytest
 
 from app.agents import model_adapters
+from app.agents import prediction_chat as prediction_chat_module
 from app.agents.market_prediction import FutboliaMarketPredictionAgent
 from app.agents.model_adapters import normalize_bifrost_model_name
-from app.agents.prediction_chat import FutboliaPredictionAgent, PredictionAgentContext
+from app.agents.prediction_chat import (
+    FutboliaPredictionAgent,
+    FutboliaRecommendedQuestionsAgent,
+    PredictionAgentContext,
+)
 from app.agents.prompts import load_prediction_chat_prompt
 from app.agents.search_tools import build_latest_information_search_tool
 from app.models.market_prediction import (
@@ -51,6 +56,23 @@ def test_app_config_loads_backend_dotenv_before_reading_env(monkeypatch):
     assert config.MODEL_NAME == "byteplus/deepseek-v4-pro-260425"
 
 
+def test_app_config_defaults_chat_model_to_high_reasoning(monkeypatch):
+    app_config_module = importlib.import_module("app.core.app_config")
+    app_config_module.get_app_config.cache_clear()
+    monkeypatch.delenv("OPENAI_MODEL", raising=False)
+    monkeypatch.delenv("MODEL_NAME", raising=False)
+    monkeypatch.delenv("CHAT_MODEL_NAME", raising=False)
+    monkeypatch.setattr(app_config_module, "load_dotenv", lambda *args, **kwargs: False)
+
+    try:
+        config = app_config_module.get_app_config()
+    finally:
+        app_config_module.get_app_config.cache_clear()
+
+    assert config.MODEL_NAME == "openainexira/gpt-5.4-mini"
+    assert config.CHAT_MODEL_NAME == "openainexira/gpt-5.4-mini-high-reasoning"
+
+
 def test_bifrost_provider_uses_bifrost_api_key_not_openai_fallback(monkeypatch):
     class DummyConfig:
         BIFROST_ENDPOINT_URL = "https://bifrost.example/v1"
@@ -71,7 +93,34 @@ def test_normalize_bifrost_model_name_adds_default_provider():
     assert normalize_bifrost_model_name("openai:gpt-5.4-mini") == "openainexira/gpt-5.4-mini"
 
 
-def test_prediction_agent_build_prompt_includes_context():
+def test_prediction_chat_uses_chat_model_name_default(monkeypatch):
+    class DummyConfig:
+        CHAT_MODEL_NAME = "openainexira/gpt-5.4-mini-high-reasoning"
+
+    resolved_model_names: list[str] = []
+
+    def fake_resolve_pydantic_model(model_name: str):
+        resolved_model_names.append(model_name)
+        return "openai:gpt-5.4-mini"
+
+    monkeypatch.setattr(prediction_chat_module, "app_config", DummyConfig())
+    monkeypatch.setattr(
+        prediction_chat_module,
+        "resolve_pydantic_model",
+        fake_resolve_pydantic_model,
+    )
+
+    agent = prediction_chat_module.FutboliaPredictionAgent()
+
+    assert agent.model_name == DummyConfig.CHAT_MODEL_NAME
+    assert agent._recommended_questions_agent.model_name == DummyConfig.CHAT_MODEL_NAME
+    assert resolved_model_names == [
+        DummyConfig.CHAT_MODEL_NAME,
+        DummyConfig.CHAT_MODEL_NAME,
+    ]
+
+
+def test_prediction_agent_build_prompt_uses_natural_vietnamese_data_label():
     prompt = FutboliaPredictionAgent._build_prompt(
         question="What changed?",
         context=PredictionAgentContext(
@@ -81,10 +130,23 @@ def test_prediction_agent_build_prompt_includes_context():
         ),
     )
 
-    assert "Context trận đấu" in prompt
+    assert "Dữ liệu trận đấu" in prompt
+    assert "Context trận đấu" not in prompt
     assert "Mexico" in prompt
     assert "not_configured" in prompt
     assert "What changed?" in prompt
+
+
+def test_recommended_questions_prompt_uses_natural_vietnamese_data_wording():
+    prompt = FutboliaRecommendedQuestionsAgent._build_prompt(
+        PredictionAgentContext(
+            match={"team1": "Mexico", "team2": "South Africa"},
+            prediction_context={"language": "vi"},
+        )
+    )
+
+    assert "dữ liệu trận đấu" in prompt.lower()
+    assert "context trận đấu" not in prompt.lower()
 
 
 class FakeLatestInformationSearchService:
@@ -160,6 +222,14 @@ def test_prediction_chat_prompt_allows_search_only_for_match_scope():
     assert "search_latest_information" in prompt
     assert "chỉ trả lời" in prompt.lower()
     assert "trận đấu giữa" in prompt.lower()
+
+
+def test_prediction_chat_prompt_steers_vietnamese_away_from_context_repetition():
+    prompt = load_prediction_chat_prompt()
+
+    assert "không lặp đi lặp lại từ `context`" in prompt.lower()
+    assert "gần giờ bóng lăn" in prompt.lower()
+    assert "dữ liệu còn sớm" in prompt.lower()
 
 
 @pytest.mark.asyncio

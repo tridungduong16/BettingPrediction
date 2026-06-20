@@ -11,7 +11,6 @@ import type {
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
 import type {
-  ChatMessage,
   DashboardData,
   EdgeSignal,
   FeedItem,
@@ -617,26 +616,6 @@ function buildFeed(match: WorldCupMatch, homeTeam: Team, awayTeam: Team, winner:
   ]
 }
 
-function buildChat(homeTeam: Team, awayTeam: Team, winner: string, language: LanguageCode): ChatMessage[] {
-  if (language === 'en') {
-    return [
-      {
-        id: 'chat-1',
-        sender: 'ai',
-        message: `${winner} is the temporary lean in ${homeTeam.name} vs ${awayTeam.name}. The match read will refresh when live events, lineups and market data become available.`,
-      },
-    ]
-  }
-
-  return [
-    {
-      id: 'chat-1',
-      sender: 'ai',
-      message: `${winner} đang là lựa chọn nghiêng tạm thời trong trận ${homeTeam.name} vs ${awayTeam.name}. Các luận điểm sẽ cập nhật lại khi có thêm live events, đội hình và thị trường.`,
-    },
-  ]
-}
-
 function buildPrompts(winner: string, language: LanguageCode) {
   const copy = mapperCopy[language]
 
@@ -693,7 +672,7 @@ export function mapWorldCupMatchToDashboardData(
     netEdge: '+2.9%',
     markets: buildMarkets(homeTeam, awayTeam, winner, language),
     feed: buildFeed(match, homeTeam, awayTeam, winner, language),
-    chat: buildChat(homeTeam, awayTeam, winner, language),
+    chat: [],
     prompts: buildPrompts(winner, language),
   }
 }
