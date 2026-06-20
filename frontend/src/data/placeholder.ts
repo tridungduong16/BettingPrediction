@@ -242,9 +242,9 @@ export const dashboardPlaceholder: DashboardData = {
     },
   ],
   prompts: [
-    'Giải thích lợi thế của đội được chọn',
-    'Điều gì thay đổi trong giờ qua?',
-    'Kèo nào có rủi ro thấp nhất?',
+    'Tìm thông tin mới nhất về trận đấu giữa đội nhà và đội khách',
+    'Phân tích tổng quan trận đấu',
+    'Tìm kèo có xác suất thắng cao',
   ],
 }
 
@@ -476,9 +476,9 @@ export function getDashboardPlaceholder(language: LanguageCode = 'vi'): Dashboar
         },
       ],
       prompts: [
-        'Explain the selected side edge',
-        'What changed in the last hour?',
-        'Which market has the lowest risk?',
+        'Find the latest information on the home team vs the away team',
+        'Analyze the match overview',
+        'Find the market with the highest win probability',
       ],
     }
   }

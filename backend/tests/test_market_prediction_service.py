@@ -768,7 +768,57 @@ async def test_market_prediction_service_streams_match_chat_events():
 
 
 @pytest.mark.asyncio
-async def test_market_prediction_service_recommends_three_chat_questions_from_context():
+async def test_market_prediction_service_streams_news_search_activity_before_chat_answer():
+    match = make_match()
+    chat_agent = FakeChatAgent()
+    news_service = FakeNewsSearchService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeLiveEventService(),
+        news_search_service=news_service,
+        agent=FakeMarketAgent(),
+        chat_agent=chat_agent,
+    )
+
+    stream = await service.stream_match_chat_events(
+        match_id=match.id,
+        message="Tìm thông tin mới nhất về trận đấu",
+        language="vi",
+        thread_id="thread-stream",
+    )
+    events = [event async for event in stream]
+
+    assert [event.type for event in events] == [
+        "metadata",
+        "tool_call",
+        "tool_result",
+        "text_delta",
+        "text_delta",
+        "done",
+    ]
+    assert events[1].content == {
+        "name": "search_match_news",
+        "args": {
+            "away_team": "France",
+            "home_team": "Brazil",
+            "max_results": None,
+            "query": "Brazil vs France latest match news",
+        },
+    }
+    assert events[2].content == {
+        "name": "search_match_news",
+        "result": {
+            "provider_status": "ready",
+            "query": "thông tin trận Brazil và France",
+            "result_count": 1,
+            "source_id": "search-123",
+        },
+    }
+    assert chat_agent.last_prediction_context["news"]["source_id"] == "search-123"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_returns_fixed_chat_questions():
     match = make_match()
     chat_agent = FakeChatAgent()
     news_service = FakeNewsSearchService()
@@ -790,18 +840,14 @@ async def test_market_prediction_service_recommends_three_chat_questions_from_co
     assert response.match_id == match.id
     assert response.model_name == "fake-chat-model"
     assert response.questions == [
-        "Why is Brazil favored against France?",
-        "Which market has the clearest edge from the current context?",
-        "What live or news signals could change this prediction?",
+        "Find the latest information on Brazil vs France",
+        "Analyze the match overview",
+        "Find the market with the highest win probability",
     ]
-    assert chat_agent.recommend_calls == 1
-    assert chat_agent.last_match["home_team"] == "Brazil"
-    assert chat_agent.last_match["away_team"] == "France"
-    assert chat_agent.last_match["status_for_prediction"] == "scheduled"
-    assert chat_agent.last_live_snapshot is None
-    assert chat_agent.last_prediction_context["language"] == "en"
-    assert chat_agent.last_prediction_context["news"]["source_id"] == "search-123"
-    assert chat_agent.last_prediction_context["user_context"] == {"risk_appetite": "low"}
+    assert chat_agent.recommend_calls == 0
+    assert response.prediction_context["language"] == "en"
+    assert response.prediction_context["news"]["source_id"] == "search-123"
+    assert response.prediction_context["user_context"] == {"risk_appetite": "low"}
 
 
 def test_vietnamese_fallback_chat_questions_avoid_context_wording():
@@ -810,5 +856,9 @@ def test_vietnamese_fallback_chat_questions_avoid_context_wording():
         language="vi",
     )
 
-    assert questions[0] == "Vì sao dữ liệu trận Brazil vs France đang nghiêng theo hướng này?"
+    assert questions == [
+        "Tìm thông tin mới nhất về trận đấu giữa Brazil và France",
+        "Phân tích tổng quan trận đấu",
+        "Tìm kèo có xác suất thắng cao",
+    ]
     assert all("context" not in question.lower() for question in questions)

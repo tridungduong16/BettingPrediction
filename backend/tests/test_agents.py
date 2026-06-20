@@ -8,14 +8,19 @@ import pytest
 
 from app.agents import model_adapters
 from app.agents import prediction_chat as prediction_chat_module
-from app.agents.market_prediction import FutboliaMarketPredictionAgent
+from app.agents.market_prediction import FutboliaMarketPredictionAgent, MarketPredictionAgentContext
+from app.agents.match_insight import FutboliaMatchInsightAgent, MatchInsightAgentContext
 from app.agents.model_adapters import normalize_bifrost_model_name
 from app.agents.prediction_chat import (
     FutboliaPredictionAgent,
     FutboliaRecommendedQuestionsAgent,
     PredictionAgentContext,
 )
-from app.agents.prompts import load_prediction_chat_prompt
+from app.agents.prompts import (
+    load_market_prediction_prompt,
+    load_match_insight_prompt,
+    load_prediction_chat_prompt,
+)
 from app.agents.search_tools import build_latest_information_search_tool
 from app.models.market_prediction import (
     MarketPrediction,
@@ -147,6 +152,35 @@ def test_recommended_questions_prompt_uses_natural_vietnamese_data_wording():
 
     assert "dữ liệu trận đấu" in prompt.lower()
     assert "context trận đấu" not in prompt.lower()
+
+
+def test_market_and_insight_build_prompts_use_natural_vietnamese_data_wording():
+    market_prompt = FutboliaMarketPredictionAgent._build_prompt(
+        MarketPredictionAgentContext(
+            match={"team1": "Mexico", "team2": "South Africa"},
+            markets=[],
+            prediction_context={"language": "vi"},
+        )
+    )
+    insight_prompt = FutboliaMatchInsightAgent._build_prompt(
+        MatchInsightAgentContext(
+            match={"team1": "Mexico", "team2": "South Africa"},
+            prediction_context={"language": "vi"},
+        )
+    )
+
+    assert "dựa trên dữ liệu sau" in market_prompt.lower()
+    assert "dựa trên dữ liệu sau" in insight_prompt.lower()
+    assert "dựa trên context" not in market_prompt.lower()
+    assert "dựa trên context" not in insight_prompt.lower()
+
+
+def test_structured_prediction_prompts_avoid_vietnamese_context_wording():
+    prompt = "\n".join([load_market_prediction_prompt(), load_match_insight_prompt()])
+
+    assert "Chỉ dùng dữ liệu trận đấu" in prompt
+    assert "context trận đấu" not in prompt.lower()
+    assert "trong context" not in prompt.lower()
 
 
 class FakeLatestInformationSearchService:

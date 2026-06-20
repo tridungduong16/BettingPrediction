@@ -90,7 +90,7 @@ class FutboliaMarketPredictionAgent(BasePydanticAgent[None, MarketPredictionAgen
             )
 
         return (
-            "Hãy dự đoán các kèo bóng đá được cung cấp dựa trên context sau.\n"
+            "Hãy dự đoán các kèo bóng đá được cung cấp dựa trên dữ liệu sau.\n"
             "Trả về đúng một dự đoán cho mỗi item trong `markets`, giữ nguyên id, family, "
             "name và line. Mỗi prediction phải có probability, confidence, confidence_score, "
             "confidence_rationale, risk, reasoning chi tiết và 2-4 drivers dựa trên evidence.\n\n"

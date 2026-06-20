@@ -22,4 +22,8 @@ const match: WorldCupMatch = {
 const dashboardData = mapWorldCupMatchToDashboardData(match, 'vi')
 
 assert.deepEqual(dashboardData.chat, [])
-assert.equal(dashboardData.prompts.length, 3)
+assert.deepEqual(dashboardData.prompts, [
+  'Tìm thông tin mới nhất về trận đấu giữa Hà Lan và Thụy Điển',
+  'Phân tích tổng quan trận đấu',
+  'Tìm kèo có xác suất thắng cao',
+])

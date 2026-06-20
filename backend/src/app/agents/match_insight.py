@@ -86,7 +86,7 @@ class FutboliaMatchInsightAgent(BasePydanticAgent[None, MatchInsightAgentOutput]
             )
 
         return (
-            "Hãy tạo dự đoán tổng quan cho trận đấu dựa trên context sau.\n"
+            "Hãy tạo dự đoán tổng quan cho trận đấu dựa trên dữ liệu sau.\n"
             "Trả về đúng schema structured output: winner, confidence, confidence_level, "
             "confidence_rationale, status, summary, outcomes, reasoning, edge_signals và "
             "net_edge.\n\n"

@@ -333,39 +333,71 @@ class MarketPredictionService:
         thread_id: str | None = None,
         prediction_context: dict[str, Any] | None = None,
     ) -> AsyncIterator[StreamEvent]:
-        match, live_snapshot, llm_context, agent_prediction_context = (
-            await self._build_chat_agent_context(
-                match_id=match_id,
-                year=year,
-                source=source,
-                provider_fixture_id=provider_fixture_id,
-                force_refresh=force_refresh,
-                include_live=include_live,
-                include_news=include_news,
-                language=language,
-                news_max_results=news_max_results,
-                prediction_mode=prediction_mode,
-                prediction_context=prediction_context,
-            )
+        match = await self._worldcup_service.get_match(
+            match_id=match_id,
+            year=year,
+            source=source,
+            force_refresh=force_refresh,
         )
+        if match is None:
+            raise MarketPredictionMatchNotFoundError(f"Match not found: {match_id}")
 
         async def events() -> AsyncIterator[StreamEvent]:
-            yield StreamEvent(
-                type="metadata",
-                content={
-                    "generated_at": datetime.now(UTC).isoformat(),
-                    "language": language,
-                    "live_provider_status": (
-                        live_snapshot.provider_status if live_snapshot else None
-                    ),
-                    "match_id": match.id,
-                    "model_name": getattr(self._chat_agent, "model_name", None),
-                    "prediction_mode": prediction_mode,
-                    "thread_id": thread_id,
-                },
-            )
-
             try:
+                live_snapshot = await self._get_live_snapshot(
+                    match_id=match_id,
+                    provider_fixture_id=provider_fixture_id,
+                    force_refresh=force_refresh,
+                    include_live=include_live,
+                )
+
+                yield StreamEvent(
+                    type="metadata",
+                    content={
+                        "generated_at": datetime.now(UTC).isoformat(),
+                        "language": language,
+                        "live_provider_status": (
+                            live_snapshot.provider_status if live_snapshot else None
+                        ),
+                        "match_id": match.id,
+                        "model_name": getattr(self._chat_agent, "model_name", None),
+                        "prediction_mode": prediction_mode,
+                        "thread_id": thread_id,
+                    },
+                )
+
+                news_context = None
+                if include_news and self._news_search_service is not None:
+                    yield StreamEvent(
+                        type="tool_call",
+                        content=self._news_search_tool_call_content(
+                            match=match,
+                            max_results=news_max_results,
+                        ),
+                    )
+                    news_context = await self._get_news_context(
+                        match=match,
+                        include_news=include_news,
+                        force_refresh=force_refresh,
+                        max_results=news_max_results,
+                    )
+                    yield StreamEvent(
+                        type="tool_result",
+                        content=self._news_search_tool_result_content(news_context),
+                    )
+
+                llm_context = self._match_context_service.build_market_prediction_context(
+                    match=match,
+                    live_snapshot=live_snapshot,
+                    prediction_mode=prediction_mode,
+                    language=language,
+                    news_context=news_context,
+                    user_context=prediction_context,
+                )
+                agent_prediction_context = {
+                    key: value for key, value in llm_context.items() if key not in {"match", "live"}
+                }
+
                 async for event in self._chat_agent.stream_answer_with_context(
                     message,
                     match=llm_context["match"],
@@ -378,6 +410,35 @@ class MarketPredictionService:
                 yield StreamEvent(type="error", content=str(exc))
 
         return events()
+
+    @staticmethod
+    def _news_search_tool_call_content(
+        *,
+        match: WorldCupMatch,
+        max_results: int | None,
+    ) -> dict[str, Any]:
+        return {
+            "name": "search_match_news",
+            "args": {
+                "away_team": match.team2,
+                "home_team": match.team1,
+                "max_results": max_results,
+                "query": f"{match.team1} vs {match.team2} latest match news",
+            },
+        }
+
+    @staticmethod
+    def _news_search_tool_result_content(news_context: dict[str, Any] | None) -> dict[str, Any]:
+        results = news_context.get("results", []) if news_context else []
+        return {
+            "name": "search_match_news",
+            "result": {
+                "provider_status": news_context.get("provider_status") if news_context else None,
+                "query": news_context.get("query") if news_context else None,
+                "result_count": len(results) if isinstance(results, list) else 0,
+                "source_id": news_context.get("source_id") if news_context else None,
+            },
+        }
 
     async def recommend_match_chat_questions(
         self,
@@ -394,7 +455,7 @@ class MarketPredictionService:
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> PredictionChatRecommendedQuestionsResponse:
-        match, live_snapshot, llm_context, agent_prediction_context = (
+        match, live_snapshot, llm_context, _agent_prediction_context = (
             await self._build_chat_agent_context(
                 match_id=match_id,
                 year=year,
@@ -409,21 +470,7 @@ class MarketPredictionService:
                 prediction_context=prediction_context,
             )
         )
-        fallback_questions = self._fallback_chat_questions(match=match, language=language)
-
-        try:
-            generated_questions = await self._chat_agent.recommend_questions_with_context(
-                match=llm_context["match"],
-                live_snapshot=llm_context["live"],
-                prediction_context=agent_prediction_context,
-            )
-        except Exception as exc:
-            logger.warning(
-                "Chat recommended questions generation failed for %s: %s",
-                match_id,
-                exc,
-            )
-            generated_questions = []
+        fixed_questions = self._fallback_chat_questions(match=match, language=language)
 
         return PredictionChatRecommendedQuestionsResponse(
             match_id=match.id,
@@ -434,10 +481,7 @@ class MarketPredictionService:
             match=match,
             live_snapshot=live_snapshot,
             prediction_context=llm_context,
-            questions=self._normalize_chat_questions(
-                generated_questions,
-                fallback_questions=fallback_questions,
-            ),
+            questions=fixed_questions,
         )
 
     def _can_cache_prediction(self, prediction_mode: PredictionMode) -> bool:
@@ -492,15 +536,15 @@ class MarketPredictionService:
         away = match.team2
         if language == "en":
             return [
-                f"Why does the context favor {home} vs {away}?",
-                f"Which market looks strongest for {home} vs {away}?",
-                "What live or news signal could change the read?",
+                f"Find the latest information on {home} vs {away}",
+                "Analyze the match overview",
+                "Find the market with the highest win probability",
             ]
 
         return [
-            f"Vì sao dữ liệu trận {home} vs {away} đang nghiêng theo hướng này?",
-            f"Kèo nào có tín hiệu rõ nhất ở trận {home} vs {away}?",
-            "Tín hiệu live hoặc tin tức nào có thể đổi chiều dự đoán?",
+            f"Tìm thông tin mới nhất về trận đấu giữa {home} và {away}",
+            "Phân tích tổng quan trận đấu",
+            "Tìm kèo có xác suất thắng cao",
         ]
 
     @staticmethod

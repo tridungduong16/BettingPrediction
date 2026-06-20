@@ -16,6 +16,7 @@ from app.models.live_events import (
     LiveEventProviderFixtureSearchResult,
     LiveEventsProvider,
     LiveMatchClock,
+    LiveMatchLineups,
     LiveMatchScore,
     LiveMatchSnapshot,
     ProviderFixtureMapping,
@@ -30,6 +31,12 @@ class LiveEventsUnavailableError(RuntimeError):
 class CachedLiveSnapshot:
     expires_at: datetime
     snapshot: LiveMatchSnapshot
+
+
+@dataclass(frozen=True)
+class CachedLiveLineups:
+    expires_at: datetime
+    lineups: LiveMatchLineups
 
 
 class FileLiveFixtureMapRepository:
@@ -67,6 +74,7 @@ class LiveEventService:
         self._api_football_connector = api_football_connector
         self._fixture_map = fixture_map
         self._cache: dict[str, CachedLiveSnapshot] = {}
+        self._lineups_cache: dict[str, CachedLiveLineups] = {}
 
     async def get_snapshot(
         self,
@@ -126,6 +134,64 @@ class LiveEventService:
         )
         return snapshot
 
+    async def get_lineups(
+        self,
+        *,
+        match_id: str,
+        provider_fixture_id: str | None = None,
+        force_refresh: bool = False,
+    ) -> LiveMatchLineups:
+        provider: LiveEventsProvider = "api_football"
+        resolved_fixture_id = provider_fixture_id or self._mapped_fixture_id(match_id, provider)
+
+        if not self._api_football_connector.configured:
+            return self._empty_lineups(
+                match_id=match_id,
+                provider_fixture_id=resolved_fixture_id,
+                provider_status="not_configured",
+                error="Set API_FOOTBALL_API_KEY to fetch match lineups.",
+            )
+
+        if not resolved_fixture_id:
+            return self._empty_lineups(
+                match_id=match_id,
+                provider_fixture_id=None,
+                provider_status="unmapped",
+                error="Trận này chưa được liên kết dữ liệu live từ nhà cung cấp.",
+            )
+
+        cache_key = f"{provider}:{match_id}:{resolved_fixture_id}:lineups"
+        cached = self._lineups_cache.get(cache_key)
+        if cached and not force_refresh and cached.expires_at > datetime.now(UTC):
+            return cached.lineups
+
+        try:
+            lineups = await self._api_football_connector.fetch_lineups(
+                match_id=match_id,
+                provider_fixture_id=resolved_fixture_id,
+            )
+        except LiveEventsNotConfiguredError as exc:
+            return self._empty_lineups(
+                match_id=match_id,
+                provider_fixture_id=resolved_fixture_id,
+                provider_status="not_configured",
+                error=str(exc),
+            )
+        except LiveEventsFetchError as exc:
+            return self._empty_lineups(
+                match_id=match_id,
+                provider_fixture_id=resolved_fixture_id,
+                provider_status="provider_error",
+                error=str(exc),
+            )
+
+        self._lineups_cache[cache_key] = CachedLiveLineups(
+            expires_at=datetime.now(UTC)
+            + timedelta(seconds=self._config.live_events_cache_ttl_seconds),
+            lineups=lineups,
+        )
+        return lineups
+
     async def list_events(
         self,
         *,
@@ -183,5 +249,23 @@ class LiveEventService:
             score=LiveMatchScore(),
             clock=LiveMatchClock(),
             events=[],
+            error=error,
+        )
+
+    @staticmethod
+    def _empty_lineups(
+        *,
+        match_id: str,
+        provider_fixture_id: str | None,
+        provider_status: str,
+        error: str | None,
+    ) -> LiveMatchLineups:
+        return LiveMatchLineups(
+            match_id=match_id,
+            provider="api_football",
+            provider_fixture_id=provider_fixture_id,
+            provider_status=provider_status,
+            observed_at=datetime.now(UTC),
+            lineups=[],
             error=error,
         )

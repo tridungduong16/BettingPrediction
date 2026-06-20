@@ -11,13 +11,17 @@ from app.core.app_config import AppConfig
 from app.models.live_events import (
     LiveEventProviderFixtureSearchResult,
     LiveEventType,
+    LiveLineupCoach,
+    LiveLineupPlayer,
     LiveMatchClock,
     LiveMatchEvent,
+    LiveMatchLineups,
     LiveMatchPhase,
     LiveMatchScore,
     LiveMatchSnapshot,
     LivePlayer,
     LiveTeam,
+    LiveTeamLineup,
     TeamSide,
 )
 
@@ -115,6 +119,36 @@ class APIFootballLiveEventsConnector:
             clock=clock,
             events=events,
             raw=raw,
+        )
+
+    async def fetch_lineups(self, *, match_id: str, provider_fixture_id: str) -> LiveMatchLineups:
+        if not self.configured:
+            raise LiveEventsNotConfiguredError("API-Football key is not configured")
+
+        observed_at = datetime.now(UTC)
+        async with self._client() as client:
+            lineups_payload = await self._get(
+                client,
+                "/fixtures/lineups",
+                params={"fixture": provider_fixture_id},
+            )
+
+        raw_lineups = self._response_list(lineups_payload)
+        lineups = [
+            self._normalize_lineup(raw_lineup)
+            for raw_lineup in raw_lineups
+            if isinstance(raw_lineup, dict)
+        ]
+
+        return LiveMatchLineups(
+            match_id=match_id,
+            provider="api_football",
+            provider_fixture_id=provider_fixture_id,
+            provider_status="ready",
+            observed_at=observed_at,
+            fetched_at=observed_at,
+            lineups=lineups,
+            raw={"lineups": raw_lineups},
         )
 
     async def search_fixtures(
@@ -244,6 +278,57 @@ class APIFootballLiveEventsConnector:
             occurred_at=None,
             observed_at=observed_at,
             raw=raw_event,
+        )
+
+    @classmethod
+    def _normalize_lineup(cls, raw_lineup: dict[str, Any]) -> LiveTeamLineup:
+        team_id = cls._nested_str(raw_lineup, "team", "id")
+        coach_id = cls._nested_str(raw_lineup, "coach", "id")
+        coach_name = cls._nested_str(raw_lineup, "coach", "name")
+        coach_photo = cls._nested_str(raw_lineup, "coach", "photo")
+
+        coach = None
+        if coach_id or coach_name or coach_photo:
+            coach = LiveLineupCoach(
+                id=coach_id,
+                name=coach_name,
+                photo=coach_photo,
+            )
+
+        return LiveTeamLineup(
+            team=LiveTeam(
+                id=team_id,
+                name=cls._nested_str(raw_lineup, "team", "name"),
+                side="unknown",
+            ),
+            formation=cls._nested_str(raw_lineup, "formation"),
+            coach=coach,
+            start_xi=cls._normalize_lineup_players(raw_lineup.get("startXI")),
+            substitutes=cls._normalize_lineup_players(raw_lineup.get("substitutes")),
+            raw=raw_lineup,
+        )
+
+    @classmethod
+    def _normalize_lineup_players(cls, raw_players: object) -> list[LiveLineupPlayer]:
+        if not isinstance(raw_players, list):
+            return []
+        return [
+            cls._normalize_lineup_player(raw_player)
+            for raw_player in raw_players
+            if isinstance(raw_player, dict)
+        ]
+
+    @classmethod
+    def _normalize_lineup_player(cls, raw_player_entry: dict[str, Any]) -> LiveLineupPlayer:
+        player = raw_player_entry.get("player")
+        player_payload = player if isinstance(player, dict) else raw_player_entry
+        return LiveLineupPlayer(
+            id=cls._nested_str(player_payload, "id"),
+            name=cls._nested_str(player_payload, "name"),
+            number=cls._nested_int(player_payload, "number"),
+            position=cls._nested_str(player_payload, "pos"),
+            grid=cls._nested_str(player_payload, "grid"),
+            raw=raw_player_entry,
         )
 
     @staticmethod

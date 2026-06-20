@@ -3,6 +3,7 @@ import { Loader2, Send, X } from 'lucide-react'
 
 import { getRecommendedChatQuestions, streamMatchChat } from '@/api/predictions'
 import type { LanguageCode } from '@/i18n/languages'
+import type { PredictionChatStreamEvent } from '@/store/features/dashboard/apiTypes'
 import type { ChatMessage } from '@/store/features/dashboard/types'
 
 import styles from './FloatingAIAssistant.module.scss'
@@ -12,6 +13,14 @@ type AssistantStatus = 'error' | 'idle' | 'streaming'
 
 const ASSISTANT_LOGO_SRC = '/brand/okasian-logo.svg'
 const ENABLE_RESPONSE_FOLLOW_UPS = false
+const ASSISTANT_CLIENT_SESSION_KEY = 'worldian-assistant-client-session-id'
+
+type AssistantThreadStorage = Pick<Storage, 'getItem' | 'setItem'>
+
+interface AssistantThreadIdOptions {
+  createId?: () => string
+  storage?: AssistantThreadStorage | null
+}
 
 interface FloatingAIAssistantProps {
   disabled?: boolean
@@ -22,7 +31,7 @@ interface FloatingAIAssistantProps {
   variant?: 'embedded' | 'floating'
 }
 
-function assistantCopy(language: LanguageCode) {
+export function assistantCopy(language: LanguageCode) {
   if (language === 'en') {
     return {
       close: 'Close assistant',
@@ -47,9 +56,72 @@ function assistantCopy(language: LanguageCode) {
     open: 'Mở Okasian',
     panelTitle: 'Okasian',
     send: 'Gửi',
-    status: 'Đang đọc context trận...',
+    status: 'Đang đọc dữ liệu trận...',
     typing: 'Okasian đang trả lời',
   }
+}
+
+function defaultAssistantSessionStorage() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    return window.sessionStorage
+  } catch {
+    return null
+  }
+}
+
+function createAssistantClientSessionId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+}
+
+export function assistantThreadId(matchId: string, options: AssistantThreadIdOptions = {}) {
+  const storage = options.storage === undefined ? defaultAssistantSessionStorage() : options.storage
+  const createId = options.createId ?? createAssistantClientSessionId
+  let clientSessionId = ''
+
+  if (storage) {
+    try {
+      clientSessionId = storage.getItem(ASSISTANT_CLIENT_SESSION_KEY)?.trim() ?? ''
+
+      if (!clientSessionId) {
+        clientSessionId = createId()
+        storage.setItem(ASSISTANT_CLIENT_SESSION_KEY, clientSessionId)
+      }
+    } catch {
+      clientSessionId = createId()
+    }
+  } else {
+    clientSessionId = createId()
+  }
+
+  return `${matchId.trim()}:${clientSessionId}`
+}
+
+export function assistantToolActivityMessage(
+  _event: PredictionChatStreamEvent,
+  _language: LanguageCode,
+) {
+  return undefined
+}
+
+export function assistantMessageFallback(
+  message: ChatMessage,
+  _messages: ChatMessage[],
+  status: AssistantStatus,
+  fallback: string,
+) {
+  if (status !== 'streaming' || message.sender !== 'ai' || message.message.trim()) {
+    return ''
+  }
+
+  return fallback
 }
 
 function messageId(prefix: string) {
@@ -106,6 +178,7 @@ export function FloatingAIAssistant({
   const recommendationRequestRef = useRef(0)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const streamAbortRef = useRef<AbortController | null>(null)
+  const threadIdRef = useRef<{ matchId: string; threadId: string } | null>(null)
   const [draft, setDraft] = useState('')
   const [followUpPrompts, setFollowUpPrompts] = useState<string[]>([])
   const [hasAskedQuestion, setHasAskedQuestion] = useState(false)
@@ -121,6 +194,7 @@ export function FloatingAIAssistant({
     setDraft('')
     setStatus('idle')
     streamAbortRef.current?.abort()
+    threadIdRef.current = null
   }, [initialMessages, matchId])
 
   useEffect(() => () => {
@@ -192,12 +266,18 @@ export function FloatingAIAssistant({
       },
     ])
 
+    const currentThread = threadIdRef.current
+    const threadId = currentThread?.matchId === matchId
+      ? currentThread.threadId
+      : assistantThreadId(matchId)
+    threadIdRef.current = { matchId, threadId }
+
     try {
       await streamMatchChat(
         matchId,
         {
           message: trimmedQuestion,
-          thread_id: matchId,
+          thread_id: threadId,
         },
         (event) => {
           if (event.type === 'text_delta' || event.type === 'text_full') {
@@ -388,7 +468,7 @@ export function FloatingAIAssistant({
                       <MarkdownMessage
                         className={styles.markdownMessage}
                         content={message.message}
-                        fallback={status === 'streaming' ? copy.status : ''}
+                        fallback={assistantMessageFallback(message, messages, status, copy.status)}
                       />
                     ) : (
                       <p>{message.message}</p>

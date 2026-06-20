@@ -1,6 +1,10 @@
 import { request } from '@/api/http'
 import { env } from '@/config/env'
-import type { LiveMatchEvent, LiveMatchSnapshot } from '@/store/features/dashboard/apiTypes'
+import type {
+  LiveMatchEvent,
+  LiveMatchLineups,
+  LiveMatchSnapshot,
+} from '@/store/features/dashboard/apiTypes'
 
 function liveMatchPath(matchId: string, suffix: string) {
   return `/api/live/matches/${encodeURIComponent(matchId)}/${suffix}`
@@ -15,6 +19,18 @@ export function getLiveMatchSnapshot(matchId: string, forceRefresh = false) {
 export function getLiveMatchEvents(matchId: string, forceRefresh = false) {
   return request<LiveMatchEvent[]>(liveMatchPath(matchId, 'events'), {
     query: { force_refresh: forceRefresh },
+  })
+}
+
+export function getLiveMatchLineups(
+  matchId: string,
+  options: { forceRefresh?: boolean; providerFixtureId?: string | null } = {},
+) {
+  return request<LiveMatchLineups>(liveMatchPath(matchId, 'lineups'), {
+    query: {
+      force_refresh: options.forceRefresh ?? false,
+      provider_fixture_id: options.providerFixtureId,
+    },
   })
 }
 

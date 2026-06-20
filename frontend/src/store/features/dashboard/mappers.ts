@@ -147,9 +147,9 @@ const mapperCopy = {
       'No live events from the provider yet, so the analysis still uses the schedule and available match data.',
     noPlayer: 'Player pending',
     probabilityStable: (team: string) => `${team} probability signal is stable`,
-    promptExplain: (winner: string) => `Explain ${winner}'s edge`,
-    promptMarket: 'Which market has the lowest risk?',
-    promptRecent: 'What changed in the last hour?',
+    promptLatest: (home: string, away: string) => `Find the latest information on ${home} vs ${away}`,
+    promptMarket: 'Find the market with the highest win probability',
+    promptOverview: 'Analyze the match overview',
     publicMarketNoise: 'Public betting flow needs verification',
     sourceSignalTitle: 'Match data signal',
     sourceStatus: 'Source status',
@@ -180,9 +180,9 @@ const mapperCopy = {
       'Chưa có sự kiện live từ nhà cung cấp, nên phần phân tích vẫn dựa trên lịch thi đấu và dữ liệu hiện có.',
     noPlayer: 'Chưa có cầu thủ',
     probabilityStable: (team: string) => `Tín hiệu xác suất của ${team} ổn định`,
-    promptExplain: (winner: string) => `Giải thích lợi thế của ${winner}`,
-    promptMarket: 'Kèo nào có rủi ro thấp nhất?',
-    promptRecent: 'Điều gì thay đổi trong giờ qua?',
+    promptLatest: (home: string, away: string) => `Tìm thông tin mới nhất về trận đấu giữa ${home} và ${away}`,
+    promptMarket: 'Tìm kèo có xác suất thắng cao',
+    promptOverview: 'Phân tích tổng quan trận đấu',
     publicMarketNoise: 'Dòng cược công chúng cần kiểm chứng',
     sourceSignalTitle: 'Tín hiệu từ dữ liệu trận',
     sourceStatus: 'Trạng thái nguồn',
@@ -616,12 +616,12 @@ function buildFeed(match: WorldCupMatch, homeTeam: Team, awayTeam: Team, winner:
   ]
 }
 
-function buildPrompts(winner: string, language: LanguageCode) {
+function buildPrompts(homeTeam: Team, awayTeam: Team, language: LanguageCode) {
   const copy = mapperCopy[language]
 
   return [
-    copy.promptExplain(winner),
-    copy.promptRecent,
+    copy.promptLatest(homeTeam.name, awayTeam.name),
+    copy.promptOverview,
     copy.promptMarket,
   ]
 }
@@ -673,7 +673,7 @@ export function mapWorldCupMatchToDashboardData(
     markets: buildMarkets(homeTeam, awayTeam, winner, language),
     feed: buildFeed(match, homeTeam, awayTeam, winner, language),
     chat: [],
-    prompts: buildPrompts(winner, language),
+    prompts: buildPrompts(homeTeam, awayTeam, language),
   }
 }
 

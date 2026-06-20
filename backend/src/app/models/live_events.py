@@ -49,6 +49,21 @@ class LivePlayer(BaseModel):
     name: str | None = None
 
 
+class LiveLineupCoach(BaseModel):
+    id: str | None = None
+    name: str | None = None
+    photo: str | None = None
+
+
+class LiveLineupPlayer(BaseModel):
+    id: str | None = None
+    name: str | None = None
+    number: int | None = None
+    position: str | None = None
+    grid: str | None = None
+    raw: dict[str, Any] = Field(default_factory=dict)
+
+
 class LiveMatchScore(BaseModel):
     home: int | None = None
     away: int | None = None
@@ -96,6 +111,27 @@ class LiveMatchSnapshot(BaseModel):
     raw: dict[str, Any] = Field(default_factory=dict)
 
 
+class LiveTeamLineup(BaseModel):
+    team: LiveTeam = Field(default_factory=LiveTeam)
+    formation: str | None = None
+    coach: LiveLineupCoach | None = None
+    start_xi: list[LiveLineupPlayer] = Field(default_factory=list)
+    substitutes: list[LiveLineupPlayer] = Field(default_factory=list)
+    raw: dict[str, Any] = Field(default_factory=dict)
+
+
+class LiveMatchLineups(BaseModel):
+    match_id: str
+    provider: LiveEventsProvider
+    provider_fixture_id: str | None = None
+    provider_status: LiveProviderStatus
+    observed_at: datetime
+    fetched_at: datetime | None = None
+    lineups: list[LiveTeamLineup] = Field(default_factory=list)
+    error: str | None = None
+    raw: dict[str, Any] = Field(default_factory=dict)
+
+
 class LiveEventProviderFixtureSearchResult(BaseModel):
     provider: LiveEventsProvider
     provider_fixture_id: str
@@ -105,4 +141,3 @@ class LiveEventProviderFixtureSearchResult(BaseModel):
     home_team: str | None = None
     away_team: str | None = None
     raw: dict[str, Any] = Field(default_factory=dict)
-

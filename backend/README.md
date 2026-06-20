@@ -23,6 +23,7 @@ uv run python scripts/scrape_worldcup.py --year 2026 --force
 - `GET /api/worldcup/matches/{match_id}?year=2026`
 - `POST /api/worldcup/refresh?year=2026`
 - `GET /api/live/matches/{match_id}/snapshot`
+- `GET /api/live/matches/{match_id}/lineups`
 - `GET /api/live/matches/{match_id}/events`
 - `GET /api/live/provider-fixtures/search?date=2026-06-11&team=Mexico`
 - `WS /api/live/matches/{match_id}/events/ws`
@@ -50,6 +51,7 @@ For quick testing, pass the provider fixture id directly:
 
 ```bash
 curl 'http://127.0.0.1:8000/api/live/matches/2026-001-mexico-vs-south-africa/snapshot?provider_fixture_id=123456'
+curl 'http://127.0.0.1:8000/api/live/matches/2026-001-mexico-vs-south-africa/lineups?provider_fixture_id=123456'
 ```
 
 For stable app usage, create `backend/data/live_fixture_map.json`:

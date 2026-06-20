@@ -9,6 +9,7 @@ from app.dependencies import get_live_event_service
 from app.models.live_events import (
     LiveEventProviderFixtureSearchResult,
     LiveMatchEvent,
+    LiveMatchLineups,
     LiveMatchSnapshot,
 )
 from app.services.live_event_service import LiveEventService, LiveEventsUnavailableError
@@ -24,6 +25,20 @@ async def get_live_match_snapshot(
     force_refresh: bool = False,
 ) -> LiveMatchSnapshot:
     return await service.get_snapshot(
+        match_id=match_id,
+        provider_fixture_id=provider_fixture_id,
+        force_refresh=force_refresh,
+    )
+
+
+@router.get("/matches/{match_id}/lineups", response_model=LiveMatchLineups)
+async def get_live_match_lineups(
+    match_id: str,
+    service: Annotated[LiveEventService, Depends(get_live_event_service)],
+    provider_fixture_id: str | None = None,
+    force_refresh: bool = False,
+) -> LiveMatchLineups:
+    return await service.get_lineups(
         match_id=match_id,
         provider_fixture_id=provider_fixture_id,
         force_refresh=force_refresh,

@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --host 0.0.0.0",
+    "test:assistant-copy": "node scripts/run-assistant-copy-test.mjs",
     "test:assistant-markdown": "node scripts/run-assistant-markdown-test.mjs",
     "test:dashboard-mapper": "node scripts/run-dashboard-mapper-test.mjs"
   },

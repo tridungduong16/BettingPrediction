@@ -557,7 +557,10 @@
     padding: 0 $space-4;
     background: $color-bg-secondary;
     color: $color-text-primary;
-    font-size: 15px;
+    font-family: $font-family-base;
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.25;
 
     &::placeholder {
       color: #9ca9bd;
@@ -597,7 +600,17 @@
 }
 
 .initialForm {
-  width: min(100%, 390px);
+  width: min(100%, 560px);
+  grid-template-columns: minmax(0, 1fr) 58px;
+
+  input,
+  button {
+    min-height: 58px;
+  }
+
+  input {
+    padding: 0 $space-5;
+  }
 }
 
 .error {

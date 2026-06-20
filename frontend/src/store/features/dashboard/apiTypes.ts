@@ -89,6 +89,30 @@ export interface LivePlayer {
   name?: string | null
 }
 
+export interface LiveLineupCoach {
+  id?: string | null
+  name?: string | null
+  photo?: string | null
+}
+
+export interface LiveLineupPlayer {
+  id?: string | null
+  name?: string | null
+  number?: number | null
+  position?: string | null
+  grid?: string | null
+  raw: Record<string, unknown>
+}
+
+export interface LiveTeamLineup {
+  team: LiveTeam
+  formation?: string | null
+  coach?: LiveLineupCoach | null
+  start_xi: LiveLineupPlayer[]
+  substitutes: LiveLineupPlayer[]
+  raw: Record<string, unknown>
+}
+
 export interface LiveMatchScore {
   home?: number | null
   away?: number | null
@@ -132,6 +156,18 @@ export interface LiveMatchSnapshot {
   score: LiveMatchScore
   clock: LiveMatchClock
   events: LiveMatchEvent[]
+  error?: string | null
+  raw: Record<string, unknown>
+}
+
+export interface LiveMatchLineups {
+  match_id: string
+  provider: 'api_football'
+  provider_fixture_id?: string | null
+  provider_status: LiveProviderStatus
+  observed_at: string
+  fetched_at?: string | null
+  lineups: LiveTeamLineup[]
   error?: string | null
   raw: Record<string, unknown>
 }
