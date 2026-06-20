@@ -12,7 +12,7 @@ import { MarkdownMessage } from './MarkdownMessage'
 type AssistantStatus = 'error' | 'idle' | 'streaming'
 
 const ASSISTANT_LOGO_SRC = '/brand/okasian-logo.svg'
-const ENABLE_RESPONSE_FOLLOW_UPS = false
+export const ENABLE_RESPONSE_FOLLOW_UPS = true
 const ASSISTANT_CLIENT_SESSION_KEY = 'worldian-assistant-client-session-id'
 
 type AssistantThreadStorage = Pick<Storage, 'getItem' | 'setItem'>
@@ -42,7 +42,7 @@ export function assistantCopy(language: LanguageCode) {
       open: 'Open Okasian',
       panelTitle: 'Okasian',
       send: 'Send',
-      status: 'Reading match context...',
+      status: 'Thinking...',
       typing: 'Okasian is writing',
     }
   }
@@ -56,7 +56,7 @@ export function assistantCopy(language: LanguageCode) {
     open: 'Mở Okasian',
     panelTitle: 'Okasian',
     send: 'Gửi',
-    status: 'Đang đọc dữ liệu trận...',
+    status: 'Đang suy nghĩ...',
     typing: 'Okasian đang trả lời',
   }
 }
@@ -105,10 +105,70 @@ export function assistantThreadId(matchId: string, options: AssistantThreadIdOpt
 }
 
 export function assistantToolActivityMessage(
-  _event: PredictionChatStreamEvent,
-  _language: LanguageCode,
+  event: PredictionChatStreamEvent,
+  language: LanguageCode,
 ) {
-  return undefined
+  if (event.type !== 'tool_call' || !isRecord(event.content)) {
+    return undefined
+  }
+
+  if (event.content.name !== 'search_latest_information') {
+    return undefined
+  }
+
+  const query = toolActivityQuery(event.content)
+
+  if (!query) {
+    return language === 'en'
+      ? 'Search latest information...'
+      : 'Đang tìm thông tin mới nhất...'
+  }
+
+  return language === 'en'
+    ? `Search latest information about ${query}`
+    : `Đang tìm thông tin mới nhất về ${query}`
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function toolActivityQuery(content: Record<string, unknown>) {
+  const args = content.args
+
+  if (!isRecord(args) || typeof args.query !== 'string') {
+    return ''
+  }
+
+  return args.query.trim()
+}
+
+function updateAssistantMessage(
+  currentMessages: ChatMessage[],
+  assistantMessageId: string,
+  update: (message: ChatMessage) => ChatMessage,
+) {
+  return currentMessages.map((message) => (
+    message.id === assistantMessageId ? update(message) : message
+  ))
+}
+
+export function assistantStreamAnswerMessage(
+  currentMessage: string,
+  event: PredictionChatStreamEvent,
+  hasAnswerText: boolean,
+) {
+  if (event.type !== 'text_delta' && event.type !== 'text_full' && event.type !== 'done') {
+    return undefined
+  }
+
+  const nextText = textContent(event.content)
+
+  if (event.type === 'text_delta') {
+    return hasAnswerText ? `${currentMessage}${nextText}` : nextText
+  }
+
+  return nextText || currentMessage
 }
 
 export function assistantMessageFallback(
@@ -140,7 +200,7 @@ function textContent(value: unknown) {
   return String(value)
 }
 
-function nextPrompts(questions: string[], excludedQuestion: string) {
+export function assistantNextPrompts(questions: string[], excludedQuestion: string) {
   const excluded = excludedQuestion.trim().toLowerCase()
   const seen = new Set<string>(excluded ? [excluded] : [])
   const prompts: string[] = []
@@ -218,6 +278,8 @@ export function FloatingAIAssistant({
   const loadFollowUpPrompts = async (answeredQuestion: string) => {
     const requestId = recommendationRequestRef.current + 1
     recommendationRequestRef.current = requestId
+    const fallbackPrompts = assistantNextPrompts(prompts, answeredQuestion)
+    setFollowUpPrompts(fallbackPrompts)
 
     try {
       const response = await getRecommendedChatQuestions(matchId, {
@@ -227,11 +289,11 @@ export function FloatingAIAssistant({
       })
 
       if (recommendationRequestRef.current === requestId) {
-        setFollowUpPrompts(nextPrompts(response.questions, answeredQuestion))
+        setFollowUpPrompts(assistantNextPrompts(response.questions, answeredQuestion))
       }
     } catch {
       if (recommendationRequestRef.current === requestId) {
-        setFollowUpPrompts(nextPrompts(prompts, answeredQuestion))
+        setFollowUpPrompts(fallbackPrompts)
       }
     }
   }
@@ -273,6 +335,8 @@ export function FloatingAIAssistant({
     threadIdRef.current = { matchId, threadId }
 
     try {
+      let hasAnswerText = false
+
       await streamMatchChat(
         matchId,
         {
@@ -280,30 +344,46 @@ export function FloatingAIAssistant({
           thread_id: threadId,
         },
         (event) => {
+          const toolActivityMessage = assistantToolActivityMessage(event, language)
+
+          if (toolActivityMessage && !hasAnswerText) {
+            setMessages((current) => updateAssistantMessage(
+              current,
+              assistantMessageId,
+              (message) => ({ ...message, message: toolActivityMessage }),
+            ))
+          }
+
           if (event.type === 'text_delta' || event.type === 'text_full') {
-            const nextText = textContent(event.content)
-
-            setMessages((current) => current.map((message) => {
-              if (message.id !== assistantMessageId) {
-                return message
-              }
-
-              return {
+            setMessages((current) => updateAssistantMessage(
+              current,
+              assistantMessageId,
+              (message) => ({
                 ...message,
-                message: event.type === 'text_delta' ? `${message.message}${nextText}` : nextText,
-              }
-            }))
+                message: assistantStreamAnswerMessage(
+                  message.message,
+                  event,
+                  hasAnswerText,
+                ) ?? message.message,
+              }),
+            ))
+            hasAnswerText = true
           }
 
           if (event.type === 'done') {
-            const finalText = textContent(event.content)
+            const finalText = assistantStreamAnswerMessage('', event, hasAnswerText)
 
             if (finalText) {
-              setMessages((current) => current.map((message) => (
-                message.id === assistantMessageId
-                  ? { ...message, message: finalText }
-                  : message
-              )))
+              setMessages((current) => updateAssistantMessage(
+                current,
+                assistantMessageId,
+                (message) => ({ ...message, message: finalText }),
+              ))
+              hasAnswerText = true
+            }
+
+            if (ENABLE_RESPONSE_FOLLOW_UPS) {
+              void loadFollowUpPrompts(trimmedQuestion)
             }
           }
 
@@ -319,20 +399,17 @@ export function FloatingAIAssistant({
         },
       )
       setStatus('idle')
-      if (ENABLE_RESPONSE_FOLLOW_UPS) {
-        await loadFollowUpPrompts(trimmedQuestion)
-      }
     } catch (error) {
       if (controller.signal.aborted) {
         return
       }
 
       setStatus('error')
-      setMessages((current) => current.map((message) => (
-        message.id === assistantMessageId
-          ? { ...message, message: error instanceof Error ? error.message : copy.error }
-          : message
-      )))
+      setMessages((current) => updateAssistantMessage(
+        current,
+        assistantMessageId,
+        (message) => ({ ...message, message: error instanceof Error ? error.message : copy.error }),
+      ))
     } finally {
       if (streamAbortRef.current === controller) {
         streamAbortRef.current = null

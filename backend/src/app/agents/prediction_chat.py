@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -14,6 +15,8 @@ from app.core.app_config import app_config
 from app.models.chat import PredictionChatRecommendedQuestionsOutput
 from app.models.live_events import LiveMatchSnapshot
 from app.models.worldcup import WorldCupMatch
+
+logger = logging.getLogger("uvicorn.error")
 
 
 class PredictionAgentContext(BaseModel):
@@ -113,7 +116,7 @@ class FutboliaPredictionAgent(BasePydanticAgent[None, str]):
             agent_tools.append(build_latest_information_search_tool(news_search_service))
         config = AgentConfig(
             model=resolve_pydantic_model(self.model_name),
-            system_prompt=system_prompt or load_prediction_chat_prompt(),
+            system_prompt=system_prompt,
         )
         super().__init__(config=config, tools=agent_tools)
         self._recommended_questions_agent = FutboliaRecommendedQuestionsAgent(
@@ -135,7 +138,32 @@ class FutboliaPredictionAgent(BasePydanticAgent[None, str]):
             prediction_context=prediction_context or {},
         )
         prompt = self._build_prompt(question=question, context=context)
-        return await self.run(prompt, thread_id_for_history=thread_id)
+        system_prompt = self._system_prompt_for_context(context)
+        self._log_system_prompt(system_prompt)
+        logger.info(
+            "Prediction chat LLM input:\n%s",
+            self._to_pretty_json(
+                {
+                    "model_name": getattr(self, "model_name", None),
+                    "thread_id": thread_id,
+                    "question": question,
+                    "context": context.model_dump(mode="json", exclude_none=True),
+                    "prompt": prompt,
+                    "system_prompt": system_prompt,
+                }
+            ),
+        )
+
+        output = await self.run(
+            prompt,
+            thread_id_for_history=thread_id,
+            **self._system_prompt_run_kwargs(system_prompt),
+        )
+        logger.info(
+            "Prediction chat LLM output:\n%s",
+            self._to_pretty_json({"thread_id": thread_id, "answer": output}),
+        )
+        return output
 
     async def stream_answer_with_context(
         self,
@@ -152,8 +180,54 @@ class FutboliaPredictionAgent(BasePydanticAgent[None, str]):
             prediction_context=prediction_context or {},
         )
         prompt = self._build_prompt(question=question, context=context)
-        async for event in self.stream_events(prompt, thread_id_for_history=thread_id):
+        system_prompt = self._system_prompt_for_context(context)
+        self._log_system_prompt(system_prompt)
+        logger.info(
+            "Prediction chat stream started:\n%s",
+            self._to_pretty_json(
+                {
+                    "model_name": getattr(self, "model_name", None),
+                    "thread_id": thread_id,
+                    "question": question,
+                    "context": context.model_dump(mode="json", exclude_none=True),
+                    "prompt": prompt,
+                    "system_prompt": system_prompt,
+                }
+            ),
+        )
+
+        text_delta_count = 0
+        text_full_count = 0
+        done_received = False
+        async for event in self.stream_events(
+            prompt,
+            thread_id_for_history=thread_id,
+            **self._system_prompt_run_kwargs(system_prompt),
+        ):
+            if event.type == "text_delta":
+                text_delta_count += 1
+            elif event.type == "text_full":
+                text_full_count += 1
+            elif event.type == "done":
+                done_received = True
+            else:
+                logger.info(
+                    "Prediction chat stream event:\n%s",
+                    self._to_pretty_json(event.model_dump(exclude_none=True)),
+                )
             yield event
+
+        logger.info(
+            "Prediction chat stream completed:\n%s",
+            self._to_pretty_json(
+                {
+                    "thread_id": thread_id,
+                    "done_received": done_received,
+                    "text_delta_count": text_delta_count,
+                    "text_full_count": text_full_count,
+                }
+            ),
+        )
 
     async def recommend_questions_with_context(
         self,
@@ -195,3 +269,24 @@ class FutboliaPredictionAgent(BasePydanticAgent[None, str]):
             "Câu hỏi của người dùng:\n"
             f"{question.strip()}"
         )
+
+    def _system_prompt_for_context(self, context: PredictionAgentContext) -> str:
+        if self.config.system_prompt:
+            return self.config.system_prompt
+        language = "en" if context.prediction_context.get("language") == "en" else "vi"
+        return load_prediction_chat_prompt(language)
+
+    def _system_prompt_run_kwargs(self, system_prompt: str) -> dict[str, str]:
+        if self.config.system_prompt:
+            return {}
+        return {"instructions": system_prompt}
+
+    def _log_system_prompt(self, system_prompt: str) -> None:
+        logger.info(
+            "Prediction chat LLM system prompt:\n%s",
+            system_prompt,
+        )
+
+    @staticmethod
+    def _to_pretty_json(value: Any) -> str:
+        return json.dumps(value, ensure_ascii=False, indent=2, default=str)

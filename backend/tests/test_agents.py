@@ -8,6 +8,7 @@ import pytest
 
 from app.agents import model_adapters
 from app.agents import prediction_chat as prediction_chat_module
+from app.agents.base import AgentConfig, StreamEvent
 from app.agents.market_prediction import FutboliaMarketPredictionAgent, MarketPredictionAgentContext
 from app.agents.match_insight import FutboliaMatchInsightAgent, MatchInsightAgentContext
 from app.agents.model_adapters import normalize_bifrost_model_name
@@ -250,20 +251,163 @@ def test_prediction_agent_registers_latest_information_search_tool_when_service_
     assert [tool.__name__ for tool in agent.init_tools] == ["search_latest_information"]
 
 
+def test_prediction_chat_prompt_loads_language_specific_files():
+    english_prompt = load_prediction_chat_prompt("en")
+    vietnamese_prompt = load_prediction_chat_prompt("vi")
+
+    assert english_prompt != vietnamese_prompt
+    assert "You are Futbolia's football prediction analysis specialist." in english_prompt
+    assert "Bạn là chuyên gia phân tích dự đoán bóng đá của Futbolia." not in english_prompt
+    assert "Bạn là chuyên gia phân tích dự đoán bóng đá của Futbolia." in vietnamese_prompt
+    assert "You are Futbolia's football prediction analysis specialist." not in vietnamese_prompt
+
+
 def test_prediction_chat_prompt_allows_search_only_for_match_scope():
-    prompt = load_prediction_chat_prompt()
+    prompt = load_prediction_chat_prompt("vi")
 
     assert "search_latest_information" in prompt
     assert "chỉ trả lời" in prompt.lower()
     assert "trận đấu giữa" in prompt.lower()
 
 
+def test_prediction_chat_prompt_documents_latest_information_tool_contract():
+    prompt = "\n".join(
+        [
+            load_prediction_chat_prompt("en"),
+            load_prediction_chat_prompt("vi"),
+        ]
+    )
+
+    assert "search_latest_information(query, recency=None, max_results=None)" in prompt
+    assert "provider_status" in prompt
+    assert "not_configured" in prompt
+    assert "provider_error" in prompt
+    assert "results[].url" in prompt
+
+
 def test_prediction_chat_prompt_steers_vietnamese_away_from_context_repetition():
-    prompt = load_prediction_chat_prompt()
+    prompt = load_prediction_chat_prompt("vi")
 
     assert "không lặp đi lặp lại từ `context`" in prompt.lower()
     assert "gần giờ bóng lăn" in prompt.lower()
     assert "dữ liệu còn sớm" in prompt.lower()
+
+
+def test_prediction_chat_prompt_includes_english_system_guidance():
+    prompt = load_prediction_chat_prompt("en")
+
+    assert "you are futbolia's football prediction analysis specialist" in prompt.lower()
+    assert "when answering in english:" in prompt.lower()
+    assert "do not fabricate lineups, injuries, odds, scores, or live events" in prompt.lower()
+
+
+@pytest.mark.asyncio
+async def test_prediction_chat_agent_selects_system_prompt_by_language():
+    agent = FutboliaPredictionAgent.__new__(FutboliaPredictionAgent)
+    agent.config = AgentConfig(system_prompt=None)
+    agent.model_name = "fake-chat-model"
+    captured_instructions: list[str] = []
+
+    async def fake_run(prompt, **kwargs):
+        captured_instructions.append(kwargs["instructions"])
+        return "ok"
+
+    agent.run = fake_run
+
+    await agent.answer_with_context(
+        "Explain the edge",
+        match={"home_team": "Brazil", "away_team": "France"},
+        prediction_context={"language": "en"},
+    )
+    await agent.answer_with_context(
+        "Giải thích lợi thế",
+        match={"home_team": "Brazil", "away_team": "France"},
+        prediction_context={"language": "vi"},
+    )
+
+    assert len(captured_instructions) == 2
+    english_identity = "You are Futbolia's football prediction analysis specialist."
+    vietnamese_identity = "Bạn là chuyên gia phân tích dự đoán bóng đá của Futbolia."
+    assert english_identity in captured_instructions[0]
+    assert vietnamese_identity not in captured_instructions[0]
+    assert vietnamese_identity in captured_instructions[1]
+    assert english_identity not in captured_instructions[1]
+
+
+@pytest.mark.asyncio
+async def test_prediction_chat_agent_logs_input_system_prompt_and_output(caplog):
+    agent = FutboliaPredictionAgent.__new__(FutboliaPredictionAgent)
+    agent.config = AgentConfig(system_prompt="Chat system prompt for football answers.")
+
+    async def fake_run(prompt, **kwargs):
+        assert "Explain the edge" in prompt
+        assert kwargs["thread_id_for_history"] == "thread-log"
+        return "Brazil have the cleaner edge."
+
+    agent.run = fake_run
+    caplog.set_level(logging.INFO, logger="uvicorn.error")
+
+    answer = await agent.answer_with_context(
+        "Explain the edge",
+        match={"home_team": "Brazil", "away_team": "France"},
+        live_snapshot={"provider_status": "not_configured", "events": []},
+        prediction_context={"language": "en", "prediction_mode": "pre_match"},
+        thread_id="thread-log",
+    )
+
+    assert answer == "Brazil have the cleaner edge."
+    assert "Prediction chat LLM system prompt" in caplog.text
+    assert "Chat system prompt for football answers." in caplog.text
+    assert "Prediction chat LLM input" in caplog.text
+    assert '"question": "Explain the edge"' in caplog.text
+    assert '"home_team": "Brazil"' in caplog.text
+    assert "Prediction chat LLM output" in caplog.text
+    assert "Brazil have the cleaner edge." in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_prediction_chat_agent_logs_stream_tool_events_without_response_text(caplog):
+    agent = FutboliaPredictionAgent.__new__(FutboliaPredictionAgent)
+    agent.config = AgentConfig(system_prompt="Streaming chat system prompt.")
+
+    async def fake_stream_events(prompt, **kwargs):
+        assert "Có nên chọn Brazil?" in prompt
+        assert kwargs["thread_id_for_history"] == "thread-stream-log"
+        yield StreamEvent(
+            type="tool_call",
+            content={
+                "name": "search_latest_information",
+                "args": {"query": "Brazil France team news"},
+            },
+        )
+        yield StreamEvent(type="text_delta", content="Brazil")
+        yield StreamEvent(type="text_delta", content=" nhỉnh hơn")
+        yield StreamEvent(type="done", content="Brazil nhỉnh hơn")
+
+    agent.stream_events = fake_stream_events
+    caplog.set_level(logging.INFO, logger="uvicorn.error")
+
+    events = [
+        event
+        async for event in agent.stream_answer_with_context(
+            "Có nên chọn Brazil?",
+            match={"home_team": "Brazil", "away_team": "France"},
+            live_snapshot=None,
+            prediction_context={"language": "vi", "prediction_mode": "pre_match"},
+            thread_id="thread-stream-log",
+        )
+    ]
+
+    assert [event.type for event in events] == ["tool_call", "text_delta", "text_delta", "done"]
+    assert "Prediction chat stream started" in caplog.text
+    assert "Streaming chat system prompt." in caplog.text
+    assert "Prediction chat stream event" in caplog.text
+    assert '"type": "tool_call"' in caplog.text
+    assert "search_latest_information" in caplog.text
+    assert '"type": "text_delta"' not in caplog.text
+    assert '"content": "Brazil"' not in caplog.text
+    assert "Prediction chat stream completed" in caplog.text
+    assert "Brazil nhỉnh hơn" not in caplog.text
 
 
 @pytest.mark.asyncio
