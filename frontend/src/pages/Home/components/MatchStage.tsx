@@ -38,11 +38,11 @@ export function MatchStage({ match, overviewLabel }: MatchStageProps) {
 
         <h1 className={styles.teamDeck} id="match-stage-title">
           <TeamHeadline team={match.homeTeam} className={styles.teamHome} />
-          <div className={styles.matchCenter}>
+          <span className={styles.matchCenter}>
             <span>{match.competition}</span>
             <strong>VS</strong>
             <em>{match.round}</em>
-          </div>
+          </span>
           <TeamHeadline team={match.awayTeam} className={styles.teamAway} />
         </h1>
       </div>
