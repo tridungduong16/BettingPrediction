@@ -6,6 +6,7 @@ COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 ROOT_ENV_FILE="${ROOT_ENV_FILE:-.env}"
 BACKEND_ENV_FILE="${BACKEND_ENV_FILE:-backend/.env}"
 BUILD_ARGS=(--build)
+RECREATE_ARGS=(--force-recreate)
 PULL_IMAGES=false
 SKIP_HEALTHCHECK=false
 
@@ -15,6 +16,7 @@ Usage: scripts/deploy.sh [options]
 
 Options:
   --no-build               Run containers without rebuilding images.
+  --no-recreate            Do not force container recreation after build.
   --pull                   Pull base/service images before deploying.
   --skip-healthcheck       Skip post-deploy HTTP health checks.
   --web-port PORT          Override FUTBOLIA_WEB_PORT for this deploy.
@@ -45,6 +47,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-build)
       BUILD_ARGS=()
+      shift
+      ;;
+    --no-recreate)
+      RECREATE_ARGS=()
       shift
       ;;
     --pull)
@@ -115,7 +121,7 @@ if [[ "$PULL_IMAGES" == true ]]; then
 fi
 
 log "Deploying containers"
-docker compose -f "$COMPOSE_FILE" up -d "${BUILD_ARGS[@]}"
+docker compose -f "$COMPOSE_FILE" up -d "${BUILD_ARGS[@]}" "${RECREATE_ARGS[@]}"
 
 log "Container status"
 docker compose -f "$COMPOSE_FILE" ps
