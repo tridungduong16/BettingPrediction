@@ -11,6 +11,8 @@ from app.api.routes import live_events
 from app.connectors.live_events.api_football import APIFootballLiveEventsConnector
 from app.core.app_config import AppConfig
 from app.dependencies import get_live_event_service
+from app.models.live_events import LiveEventProviderFixtureSearchResult, LiveMatchSnapshot
+from app.models.worldcup import WorldCupMatch
 from app.services.live_event_service import FileLiveFixtureMapRepository, LiveEventService
 
 
@@ -96,6 +98,106 @@ async def test_live_event_service_returns_product_message_without_fixture_mappin
     assert snapshot.provider_status == "unmapped"
     assert snapshot.provider_fixture_id is None
     assert snapshot.error == "Trận này chưa được liên kết dữ liệu live từ nhà cung cấp."
+
+
+@pytest.mark.asyncio
+async def test_live_event_service_auto_resolves_provider_fixture_from_match(tmp_path):
+    class FakeWorldCupService:
+        async def get_match(
+            self,
+            *,
+            match_id: str,
+            year: int | None = None,
+            source: str = "auto",
+            force_refresh: bool = False,
+        ) -> WorldCupMatch:
+            assert match_id == "2026-010-japan-vs-germany"
+            return WorldCupMatch(
+                id=match_id,
+                source_index=9,
+                competition="World Cup 2026",
+                round="Group stage",
+                date="2026-06-20",
+                time="22:00 UTC-6",
+                kickoff_utc=datetime(2026, 6, 21, 4, 0, tzinfo=UTC),
+                team1="Japan",
+                team2="Germany",
+                status="scheduled",
+            )
+
+    class FakeConnector:
+        configured = True
+        search_calls = 0
+        fetch_fixture_ids: list[str] = []
+
+        async def search_fixtures(
+            self,
+            *,
+            date: str,
+            team: str | None = None,
+            league: int | None = None,
+            season: int | None = None,
+        ) -> list[LiveEventProviderFixtureSearchResult]:
+            self.search_calls += 1
+            if date == "2026-06-20":
+                return []
+            assert date == "2026-06-21"
+            return [
+                LiveEventProviderFixtureSearchResult(
+                    provider="api_football",
+                    provider_fixture_id="wrong-fixture",
+                    home_team="Japan",
+                    away_team="Korea Republic",
+                ),
+                LiveEventProviderFixtureSearchResult(
+                    provider="api_football",
+                    provider_fixture_id="654321",
+                    home_team="Germany",
+                    away_team="Japan",
+                ),
+            ]
+
+        async def fetch_snapshot(
+            self,
+            *,
+            match_id: str,
+            provider_fixture_id: str,
+        ) -> LiveMatchSnapshot:
+            self.fetch_fixture_ids.append(provider_fixture_id)
+            return LiveMatchSnapshot(
+                match_id=match_id,
+                provider="api_football",
+                provider_fixture_id=provider_fixture_id,
+                provider_status="ready",
+                observed_at=datetime.now(UTC),
+            )
+
+    config = AppConfig(
+        api_football_api_key="test-key",
+        live_events_fixture_map_file=tmp_path / "live_fixture_map.json",
+    )
+    connector = FakeConnector()
+    service = LiveEventService(
+        config=config,
+        api_football_connector=connector,
+        fixture_map=FileLiveFixtureMapRepository(mapping_file=config.live_events_fixture_map_file),
+        worldcup_service=FakeWorldCupService(),
+    )
+
+    first_snapshot = await service.get_snapshot(
+        match_id="2026-010-japan-vs-germany",
+        force_refresh=True,
+    )
+    second_snapshot = await service.get_snapshot(
+        match_id="2026-010-japan-vs-germany",
+        force_refresh=True,
+    )
+
+    assert first_snapshot.provider_status == "ready"
+    assert first_snapshot.provider_fixture_id == "654321"
+    assert second_snapshot.provider_fixture_id == "654321"
+    assert connector.search_calls == 1
+    assert connector.fetch_fixture_ids == ["654321", "654321"]
 
 
 @pytest.mark.asyncio

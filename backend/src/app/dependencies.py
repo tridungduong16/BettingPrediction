@@ -30,6 +30,7 @@ def get_live_event_service() -> LiveEventService:
         config=config,
         api_football_connector=connector,
         fixture_map=fixture_map,
+        worldcup_service=get_worldcup_service(),
     )
 
 

@@ -10,6 +10,8 @@ export const selectDashboardError = (state: RootState) => state.dashboard.error
 
 export const selectDashboardLiveStatus = (state: RootState) => state.dashboard.liveStatus
 
+export const selectDashboardLiveSnapshot = (state: RootState) => state.dashboard.liveSnapshot
+
 export const selectLastLiveSnapshotAt = (state: RootState) => state.dashboard.lastLiveSnapshotAt
 
 export const selectMatchInsight = (state: RootState) => state.dashboard.matchInsight

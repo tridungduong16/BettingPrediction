@@ -25,7 +25,7 @@ from app.models.market_prediction import (
 )
 from app.models.worldcup import WorldCupMatch
 from app.services.live_event_service import LiveEventService
-from app.services.match_context_service import MatchContextService
+from app.services.match_context_service import LIVE_PREDICTION_PHASES, MatchContextService
 from app.services.news_search_service import NewsSearchService
 from app.services.prediction_cache import PredictionCacheBackend, PredictionCacheError
 from app.services.worldcup_service import WorldCupService
@@ -307,7 +307,7 @@ class MarketPredictionService:
             generated_at=datetime.now(UTC),
             language=language,
             model_name=getattr(self._chat_agent, "model_name", None),
-            prediction_mode=prediction_mode,
+            prediction_mode=llm_context["prediction_mode"],
             thread_id=thread_id,
             message=message,
             answer=answer,
@@ -350,18 +350,30 @@ class MarketPredictionService:
                     force_refresh=force_refresh,
                     include_live=include_live,
                 )
+                effective_prediction_mode = self._chat_prediction_mode(
+                    requested_prediction_mode=prediction_mode,
+                    live_snapshot=live_snapshot,
+                )
 
                 yield StreamEvent(
                     type="metadata",
                     content={
                         "generated_at": datetime.now(UTC).isoformat(),
                         "language": language,
+                        "live_clock_phase": (
+                            live_snapshot.clock.phase if live_snapshot else None
+                        ),
+                        "live_event_count": len(live_snapshot.events) if live_snapshot else 0,
+                        "live_provider_fixture_id": (
+                            live_snapshot.provider_fixture_id if live_snapshot else None
+                        ),
                         "live_provider_status": (
                             live_snapshot.provider_status if live_snapshot else None
                         ),
                         "match_id": match.id,
                         "model_name": getattr(self._chat_agent, "model_name", None),
-                        "prediction_mode": prediction_mode,
+                        "prediction_mode": effective_prediction_mode,
+                        "requested_prediction_mode": prediction_mode,
                         "thread_id": thread_id,
                     },
                 )
@@ -389,7 +401,7 @@ class MarketPredictionService:
                 llm_context = self._match_context_service.build_market_prediction_context(
                     match=match,
                     live_snapshot=live_snapshot,
-                    prediction_mode=prediction_mode,
+                    prediction_mode=effective_prediction_mode,
                     language=language,
                     news_context=news_context,
                     user_context=prediction_context,
@@ -477,7 +489,7 @@ class MarketPredictionService:
             generated_at=datetime.now(UTC),
             language=language,
             model_name=getattr(self._chat_agent, "model_name", None),
-            prediction_mode=prediction_mode,
+            prediction_mode=llm_context["prediction_mode"],
             match=match,
             live_snapshot=live_snapshot,
             prediction_context=llm_context,
@@ -679,10 +691,14 @@ class MarketPredictionService:
             force_refresh=force_refresh,
             max_results=news_max_results,
         )
+        effective_prediction_mode = self._chat_prediction_mode(
+            requested_prediction_mode=prediction_mode,
+            live_snapshot=live_snapshot,
+        )
         llm_context = self._match_context_service.build_market_prediction_context(
             match=match,
             live_snapshot=live_snapshot,
-            prediction_mode=prediction_mode,
+            prediction_mode=effective_prediction_mode,
             language=language,
             news_context=news_context,
             user_context=prediction_context,
@@ -691,6 +707,28 @@ class MarketPredictionService:
             key: value for key, value in llm_context.items() if key not in {"match", "live"}
         }
         return match, live_snapshot, llm_context, agent_prediction_context
+
+    @staticmethod
+    def _chat_prediction_mode(
+        *,
+        requested_prediction_mode: PredictionMode,
+        live_snapshot: LiveMatchSnapshot | None,
+    ) -> PredictionMode:
+        if requested_prediction_mode != "pre_match":
+            return requested_prediction_mode
+        if live_snapshot is None or live_snapshot.provider_status != "ready":
+            return requested_prediction_mode
+        if live_snapshot.clock.phase not in LIVE_PREDICTION_PHASES:
+            return requested_prediction_mode
+        logger.info(
+            "prediction chat context promoted to live match_id=%s provider_fixture_id=%s "
+            "phase=%s events=%s",
+            live_snapshot.match_id,
+            live_snapshot.provider_fixture_id,
+            live_snapshot.clock.phase,
+            len(live_snapshot.events),
+        )
+        return "live"
 
     @staticmethod
     def _validate_agent_output(

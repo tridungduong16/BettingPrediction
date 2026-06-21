@@ -41,7 +41,7 @@
 }
 
 .brandText {
-  font-size: 23px;
+  font-size: $font-size-title-md;
   font-weight: 950;
   letter-spacing: 0;
 }
@@ -82,7 +82,7 @@
   border-radius: 999px;
   background: rgba(245, 248, 255, 0.96);
   color: #1f2937;
-  font-size: 13px;
+  @include text-label;
   font-weight: 900;
   white-space: nowrap;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
@@ -117,7 +117,7 @@
   border-radius: 50%;
   background: #ffffff;
   color: #4285f4;
-  font-size: 14px;
+  font-size: $font-size-body-sm;
   font-weight: 950;
   line-height: 1;
 }
@@ -132,8 +132,9 @@
   border-radius: 999px;
   background: rgba($color-success, 0.11);
   color: $color-success;
-  font-size: 13px;
+  @include text-label;
   font-weight: 900;
+  letter-spacing: $letter-spacing-caps;
   text-transform: uppercase;
 }
 
@@ -156,7 +157,7 @@
   border-radius: 999px;
   background: transparent;
   color: $color-text-secondary;
-  font-size: 12px;
+  @include text-caption;
   font-weight: 900;
 
   &:hover {
@@ -218,7 +219,7 @@
   border-radius: 50%;
   background: linear-gradient(180deg, #1d68e6, #0d45ba);
   color: #ffffff;
-  font-size: 16px;
+  font-size: $font-size-body;
   font-weight: 900;
 
   img {
@@ -281,7 +282,7 @@
   }
 
   .brandText {
-    font-size: 21px;
+    font-size: $font-size-title-sm;
   }
 }
 
@@ -334,7 +335,7 @@
   }
 
   .brandText {
-    font-size: 18px;
+    font-size: $font-size-body-lg;
   }
 
   .avatarButton {

@@ -18,6 +18,22 @@ import type {
 } from '@/store/features/dashboard/apiTypes'
 import { dashboardActions, type DashboardMatchRequest } from '@/store/features/dashboard/slice'
 
+const defaultLivePollingIntervalMs = 5 * 60 * 1000
+const liveLogPrefix = '[live-feed]'
+
+function logLiveDebug(message: string, details?: Record<string, unknown>) {
+  if (!env.liveDebugLogs) {
+    return
+  }
+
+  if (details) {
+    console.info(liveLogPrefix, message, details)
+    return
+  }
+
+  console.info(liveLogPrefix, message)
+}
+
 function errorMessage(error: unknown) {
   if (error instanceof Error) {
     return error.message
@@ -41,8 +57,12 @@ function* loadMatch(action: PayloadAction<DashboardMatchRequest>) {
 
 function* loadMarketPredictions(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const { language, matchId } = action.payload
-    const predictions: MarketPredictionResponse = yield call(getMarketPredictions, matchId, { language })
+    const { language, matchId, predictionMode, providerFixtureId } = action.payload
+    const predictions: MarketPredictionResponse = yield call(getMarketPredictions, matchId, {
+      language,
+      predictionMode,
+      providerFixtureId: providerFixtureId ?? undefined,
+    })
     yield put(dashboardActions.loadMarketPredictionsSucceeded(predictions))
   } catch (error) {
     yield put(dashboardActions.loadMarketPredictionsFailed(errorMessage(error)))
@@ -51,8 +71,12 @@ function* loadMarketPredictions(action: PayloadAction<DashboardMatchRequest>) {
 
 function* loadMatchInsight(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const { language, matchId } = action.payload
-    const insight: MatchInsightResponse = yield call(getMatchInsight, matchId, { language })
+    const { language, matchId, predictionMode, providerFixtureId } = action.payload
+    const insight: MatchInsightResponse = yield call(getMatchInsight, matchId, {
+      language,
+      predictionMode,
+      providerFixtureId: providerFixtureId ?? undefined,
+    })
     yield put(dashboardActions.loadMatchInsightSucceeded(insight))
   } catch (error) {
     yield put(dashboardActions.loadMatchInsightFailed(errorMessage(error)))
@@ -61,11 +85,15 @@ function* loadMatchInsight(action: PayloadAction<DashboardMatchRequest>) {
 
 function* loadRecommendedChatQuestions(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const { language, matchId } = action.payload
+    const { language, matchId, predictionMode, providerFixtureId } = action.payload
     const questions: PredictionChatRecommendedQuestionsResponse = yield call(
       getRecommendedChatQuestions,
       matchId,
-      { language },
+      {
+        language,
+        predictionMode,
+        providerFixtureId: providerFixtureId ?? undefined,
+      },
     )
     yield put(dashboardActions.loadRecommendedChatQuestionsSucceeded(questions))
   } catch (error) {
@@ -75,17 +103,42 @@ function* loadRecommendedChatQuestions(action: PayloadAction<DashboardMatchReque
 
 function* fetchLiveSnapshot({ language, matchId }: DashboardMatchRequest) {
   try {
+    logLiveDebug('fetch snapshot started', {
+      forceRefresh: true,
+      language,
+      matchId,
+    })
     const snapshot: LiveMatchSnapshot = yield call(getLiveMatchSnapshot, matchId, true)
+    logLiveDebug('fetch snapshot received', {
+      clock: snapshot.clock,
+      error: snapshot.error,
+      events: snapshot.events.length,
+      fetchedAt: snapshot.fetched_at,
+      matchId: snapshot.match_id,
+      observedAt: snapshot.observed_at,
+      providerFixtureId: snapshot.provider_fixture_id,
+      providerStatus: snapshot.provider_status,
+      score: snapshot.score,
+    })
     yield put(dashboardActions.liveSnapshotReceived({ language, snapshot }))
   } catch (error) {
-    yield put(dashboardActions.liveSnapshotFailed(errorMessage(error)))
+    const message = errorMessage(error)
+    logLiveDebug('fetch snapshot failed', {
+      error: message,
+      matchId,
+    })
+    yield put(dashboardActions.liveSnapshotFailed(message))
   }
 }
 
 function* pollLiveSnapshots(action: PayloadAction<DashboardMatchRequest>) {
   const intervalMs = Number.isFinite(env.livePollingIntervalMs)
     ? Math.max(env.livePollingIntervalMs, 3000)
-    : 10000
+    : defaultLivePollingIntervalMs
+  logLiveDebug('polling started', {
+    intervalMs,
+    matchId: action.payload.matchId,
+  })
 
   while (true) {
     const { stoppedBeforeFetch }: { stoppedBeforeFetch?: unknown } = yield race({
@@ -94,6 +147,9 @@ function* pollLiveSnapshots(action: PayloadAction<DashboardMatchRequest>) {
     })
 
     if (stoppedBeforeFetch) {
+      logLiveDebug('polling stopped before fetch', {
+        matchId: action.payload.matchId,
+      })
       return
     }
 
@@ -103,6 +159,9 @@ function* pollLiveSnapshots(action: PayloadAction<DashboardMatchRequest>) {
     })
 
     if (stoppedDuringDelay) {
+      logLiveDebug('polling stopped during delay', {
+        matchId: action.payload.matchId,
+      })
       return
     }
   }

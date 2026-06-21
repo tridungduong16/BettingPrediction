@@ -12,15 +12,16 @@
 
   span {
     color: $color-ai-accent;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 800;
+    letter-spacing: $letter-spacing-caps;
     text-transform: uppercase;
   }
 
   h2 {
     margin: $space-1 0 0;
     color: $color-text-primary;
-    font-size: 18px;
+    @include text-title($font-size-body-lg);
     font-weight: 700;
   }
 }
@@ -46,7 +47,7 @@
 
 .axisText {
   fill: $color-text-muted;
-  font-size: 11px;
+  font-size: $font-size-caption;
   font-weight: 700;
 }
 

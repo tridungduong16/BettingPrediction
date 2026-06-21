@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
@@ -25,6 +26,8 @@ from app.models.live_events import (
     TeamSide,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class APIFootballLiveEventsConnector:
     provider_name = "api_football"
@@ -46,6 +49,11 @@ class APIFootballLiveEventsConnector:
         if not self.configured:
             raise LiveEventsNotConfiguredError("API-Football key is not configured")
 
+        logger.info(
+            "api-football snapshot fetch started match_id=%s provider_fixture_id=%s",
+            match_id,
+            provider_fixture_id,
+        )
         observed_at = datetime.now(UTC)
         async with self._client() as client:
             fixture_payload = await self._get(
@@ -72,6 +80,16 @@ class APIFootballLiveEventsConnector:
         fixture = self._first_response_item(fixture_payload)
         raw_events = self._response_list(events_payload)
         raw_statistics = self._response_list(statistics_payload or {})
+        logger.info(
+            "api-football snapshot payload match_id=%s provider_fixture_id=%s "
+            "fixtures=%s events=%s statistics=%s statistics_error=%s",
+            match_id,
+            provider_fixture_id,
+            len(self._response_list(fixture_payload)),
+            len(raw_events),
+            len(raw_statistics),
+            statistics_error,
+        )
 
         home_team_id = self._nested_str(fixture, "teams", "home", "id")
         away_team_id = self._nested_str(fixture, "teams", "away", "id")
@@ -169,6 +187,7 @@ class APIFootballLiveEventsConnector:
             params["season"] = season
 
         async with self._client() as client:
+            logger.info("api-football fixture search request params=%s", params)
             payload = await self._get(client, "/fixtures", params=params)
 
         results: list[LiveEventProviderFixtureSearchResult] = []

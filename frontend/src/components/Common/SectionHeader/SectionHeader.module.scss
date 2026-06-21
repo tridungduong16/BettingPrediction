@@ -12,9 +12,8 @@
   h2 {
     margin: $space-1 0 0;
     color: $color-text-primary;
-    font-size: 18px;
+    @include text-title($font-size-body-lg);
     font-weight: 650;
-    line-height: 1.25;
   }
 
   p {
@@ -27,8 +26,9 @@
 .eyebrow {
   display: inline-flex;
   color: $color-ai-accent;
-  font-size: 12px;
+  @include text-caption;
   font-weight: 700;
+  letter-spacing: $letter-spacing-caps;
   text-transform: uppercase;
 }
 

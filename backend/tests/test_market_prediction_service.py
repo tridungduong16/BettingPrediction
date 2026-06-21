@@ -150,6 +150,20 @@ class FakeLiveEventService:
         )
 
 
+class FakeReadyLiveEventService:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    async def get_snapshot(self, **kwargs) -> LiveMatchSnapshot:
+        self.calls += 1
+        self.last_kwargs = kwargs
+        snapshot = make_live_snapshot(kwargs["match_id"])
+        provider_fixture_id = kwargs.get("provider_fixture_id")
+        if provider_fixture_id:
+            snapshot = snapshot.model_copy(update={"provider_fixture_id": provider_fixture_id})
+        return snapshot
+
+
 class FakeMarketAgent:
     model_name = "fake-market-model"
 
@@ -738,6 +752,36 @@ async def test_market_prediction_service_answers_match_chat_with_context():
 
 
 @pytest.mark.asyncio
+async def test_market_prediction_service_sends_ready_live_snapshot_to_chat_agent():
+    match = make_match()
+    chat_agent = FakeChatAgent()
+    live_service = FakeReadyLiveEventService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=live_service,
+        agent=FakeMarketAgent(),
+        chat_agent=chat_agent,
+    )
+
+    response = await service.answer_match_chat(
+        match_id=match.id,
+        message="What changed live?",
+        provider_fixture_id="fixture-live-1",
+        language="en",
+    )
+
+    assert live_service.last_kwargs["provider_fixture_id"] == "fixture-live-1"
+    assert response.prediction_mode == "live"
+    assert response.prediction_context["prediction_mode"] == "live"
+    assert response.prediction_context["live"]["provider_fixture_id"] == "fixture-live-1"
+    assert response.prediction_context["live"]["events"][0]["type"] == "goal"
+    assert chat_agent.last_match["status_for_prediction"] == "live"
+    assert chat_agent.last_live_snapshot["provider_fixture_id"] == "fixture-live-1"
+    assert chat_agent.last_live_snapshot["events"][0]["type"] == "goal"
+    assert chat_agent.last_prediction_context["prediction_mode"] == "live"
+
+
+@pytest.mark.asyncio
 async def test_market_prediction_service_streams_match_chat_events():
     match = make_match()
     chat_agent = FakeChatAgent()
@@ -765,6 +809,35 @@ async def test_market_prediction_service_streams_match_chat_events():
     assert events[-1].content == "Brazil nhỉnh hơn"
     assert chat_agent.stream_calls == 1
     assert chat_agent.last_thread_id == "thread-stream"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_streams_live_chat_context_metadata():
+    match = make_match()
+    chat_agent = FakeChatAgent()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeReadyLiveEventService(),
+        agent=FakeMarketAgent(),
+        chat_agent=chat_agent,
+    )
+
+    stream = await service.stream_match_chat_events(
+        match_id=match.id,
+        message="Live update?",
+        provider_fixture_id="fixture-live-2",
+        thread_id="thread-live",
+    )
+    events = [event async for event in stream]
+
+    assert events[0].type == "metadata"
+    assert events[0].content["prediction_mode"] == "live"
+    assert events[0].content["requested_prediction_mode"] == "pre_match"
+    assert events[0].content["live_provider_fixture_id"] == "fixture-live-2"
+    assert events[0].content["live_clock_phase"] == "second_half"
+    assert events[0].content["live_event_count"] == 1
+    assert chat_agent.last_match["status_for_prediction"] == "live"
+    assert chat_agent.last_live_snapshot["provider_fixture_id"] == "fixture-live-2"
 
 
 @pytest.mark.asyncio

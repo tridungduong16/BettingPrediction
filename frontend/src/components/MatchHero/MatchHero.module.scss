@@ -91,8 +91,9 @@
   span {
     display: block;
     color: $color-text-muted;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 700;
+    letter-spacing: $letter-spacing-caps;
     text-transform: uppercase;
   }
 
@@ -100,9 +101,8 @@
     @include truncate;
     margin: $space-1 0 $space-3;
     color: $color-text-primary;
-    font-size: 32px;
+    @include text-title($font-size-title-xl);
     font-weight: 780;
-    line-height: 1.05;
   }
 }
 
@@ -118,7 +118,7 @@
     border-radius: 50%;
     background: rgba($color-text-muted, 0.18);
     color: $color-text-secondary;
-    font-size: 11px;
+    @include text-caption;
     font-weight: 800;
   }
 
@@ -146,8 +146,9 @@
   border: 1px solid $color-border;
   border-radius: 50%;
   color: $color-text-muted;
-  font-size: 12px;
+  @include text-caption;
   font-weight: 800;
+  letter-spacing: $letter-spacing-caps;
   text-transform: uppercase;
 }
 
@@ -155,9 +156,8 @@
   max-width: 720px;
   margin: 0;
   color: $color-text-primary;
-  font-size: 32px;
+  @include text-title($font-size-title-xl);
   font-weight: 780;
-  line-height: 1.1;
 }
 
 .signalGrid {
@@ -185,14 +185,15 @@
   span {
     @include truncate;
     color: $color-text-muted;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 800;
+    letter-spacing: $letter-spacing-caps;
     text-transform: uppercase;
   }
 
   strong {
     color: $color-text-primary;
-    font-size: 18px;
+    font-size: $font-size-body-lg;
     line-height: 1;
   }
 }
@@ -262,7 +263,7 @@
 
   .teamCopy h2,
   .title {
-    font-size: 28px;
+    font-size: $font-size-title-lg;
   }
 
   .metaGrid {

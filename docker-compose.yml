@@ -36,7 +36,8 @@ services:
         VITE_WS_URL: ""
         VITE_PUBLIC_STATICS_URL: ""
         VITE_MATCH_ID: ${VITE_MATCH_ID:-2026-001-mexico-vs-south-africa}
-        VITE_LIVE_POLLING_INTERVAL_MS: ${VITE_LIVE_POLLING_INTERVAL_MS:-10000}
+        VITE_LIVE_DEBUG_LOGS: ${VITE_LIVE_DEBUG_LOGS:-false}
+        VITE_LIVE_POLLING_INTERVAL_MS: ${VITE_LIVE_POLLING_INTERVAL_MS:-300000}
     image: futbolia-web:latest
     restart: unless-stopped
     depends_on:

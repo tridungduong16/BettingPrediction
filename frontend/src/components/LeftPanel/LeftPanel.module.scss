@@ -22,8 +22,9 @@
 .title {
   @include truncate;
   color: $color-text-muted;
-  font-size: 11px;
+  @include text-caption;
   font-weight: 950;
+  letter-spacing: $letter-spacing-caps;
   text-transform: uppercase;
 }
 
@@ -75,7 +76,7 @@
   border: 1px solid transparent;
   border-radius: $radius-sm;
   color: $color-text-secondary;
-  font-size: 14px;
+  @include text-body-sm;
   font-weight: 850;
   transition:
     border-color 160ms ease,

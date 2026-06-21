@@ -40,7 +40,8 @@ try {
     define: {
       'import.meta.env.VITE_API_URL': '""',
       'import.meta.env.VITE_APP_ENV': '"test"',
-      'import.meta.env.VITE_LIVE_POLLING_INTERVAL_MS': '"10000"',
+      'import.meta.env.VITE_LIVE_DEBUG_LOGS': '"false"',
+      'import.meta.env.VITE_LIVE_POLLING_INTERVAL_MS': '"300000"',
       'import.meta.env.VITE_MATCH_ID': '"2026-001-mexico-vs-south-africa"',
       'import.meta.env.VITE_PUBLIC_STATICS_URL': '""',
       'import.meta.env.VITE_WS_URL': '""',

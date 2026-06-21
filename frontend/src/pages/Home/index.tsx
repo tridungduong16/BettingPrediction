@@ -11,14 +11,16 @@ import { createPortal } from 'react-dom'
 
 import { FloatingAIAssistant } from '@/components/FloatingAIAssistant'
 import { env } from '@/config/env'
-import { ROUTES } from '@/constants/routes'
+import { ROUTES, matchDetailPath } from '@/constants/routes'
 import { getDashboardPlaceholder } from '@/data/placeholder'
 import { useAppDispatch, useAppSelector } from '@/hooks/store'
+import { useSeoMeta } from '@/hooks/useSeoMeta'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   selectDashboardActiveMatchId,
   selectDashboardData,
   selectDashboardError,
+  selectDashboardLiveSnapshot,
   selectDashboardLiveStatus,
   selectDashboardStatus,
   selectInsightPredictionStatus,
@@ -53,6 +55,7 @@ export default function Home() {
   const dashboardStatus = useAppSelector(selectDashboardStatus)
   const dashboardError = useAppSelector(selectDashboardError)
   const insightPredictionStatus = useAppSelector(selectInsightPredictionStatus)
+  const liveSnapshot = useAppSelector(selectDashboardLiveSnapshot)
   const liveStatus = useAppSelector(selectDashboardLiveStatus)
   const lastLiveSnapshotAt = useAppSelector(selectLastLiveSnapshotAt)
   const marketPredictionStatus = useAppSelector(selectMarketPredictionStatus)
@@ -153,6 +156,17 @@ export default function Home() {
     liveStatus === 'ready'
       ? copy.home.liveRailSubtitleReady
       : copy.home.liveRailSubtitleStatus
+
+  useSeoMeta({
+    canonicalPath: matchDetailPath(matchId),
+    description: language === 'vi'
+      ? `Nhận định AI trận ${matchTitle}: xác suất thắng, độ tin cậy, tín hiệu live và gợi ý kèo từ Worldian.`
+      : `AI prediction for ${matchTitle}: win probability, confidence, live signals, and suggested markets from Worldian.`,
+    title: language === 'vi'
+      ? `${matchTitle} - nhận định AI | Worldian`
+      : `${matchTitle} AI prediction | Worldian`,
+  })
+
   const isPendingStatus = (status: 'idle' | 'loading' | 'ready' | 'error') =>
     status === 'idle' || status === 'loading'
   const isAnalysisLoading =
@@ -189,6 +203,16 @@ export default function Home() {
     window.requestAnimationFrame(() => {
       document.getElementById(`${nextTab}-insight-tab`)?.focus()
     })
+  }
+  const refreshLiveFeed = () => {
+    if (env.liveDebugLogs) {
+      console.info('[live-feed]', 'manual refresh clicked', {
+        language,
+        matchId,
+      })
+    }
+
+    dispatch(dashboardActions.startLivePolling({ language, matchId }))
   }
 
   useEffect(() => {
@@ -401,6 +425,7 @@ export default function Home() {
                   liveScore={liveScore}
                   liveStatus={liveStatus}
                   match={data.match}
+                  onRefresh={refreshLiveFeed}
                   subtitle={liveRailSubtitle}
                 />
               </div>
@@ -412,6 +437,7 @@ export default function Home() {
               disabled={shouldShowLoadingOverlay || dashboardStatus === 'error'}
               initialMessages={data.chat}
               language={language}
+              liveSnapshot={liveSnapshot}
               matchId={matchId}
               prompts={data.prompts}
               variant="embedded"

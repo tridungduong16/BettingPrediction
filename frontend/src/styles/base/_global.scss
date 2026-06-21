@@ -1,8 +1,8 @@
 @use '../abstracts/variables' as *;
 
 :root {
-  --app-zoom: 0.67;
-  --app-zoom-inverse: 1.4925373134;
+  --app-zoom: 1;
+  --app-zoom-inverse: 1;
   --color-bg-primary: #030816;
   --color-bg-secondary: #08111f;
   --color-card: #0a1526;
@@ -16,6 +16,17 @@
   --color-danger: #ff554a;
   --color-info: #3483ff;
   --color-ai-accent: #9a5cff;
+  --text-caption: #{$font-size-caption};
+  --text-label: #{$font-size-label};
+  --text-body-sm: #{$font-size-body-sm};
+  --text-body: #{$font-size-body};
+  --text-body-lg: #{$font-size-body-lg};
+  --text-title-sm: #{$font-size-title-sm};
+  --text-title-md: #{$font-size-title-md};
+  --text-title-lg: #{$font-size-title-lg};
+  --text-title-xl: #{$font-size-title-xl};
+  --text-display-sm: #{$font-size-display-sm};
+  --text-display-md: #{$font-size-display-md};
   font-family: #{$font-family-base};
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
@@ -31,11 +42,13 @@ body {
     linear-gradient(180deg, #020611, $color-bg-primary 34%, #020611 100%);
   color: $color-text-primary;
   font-family: $font-family-base;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: $font-size-body;
+  line-height: $line-height-body;
   letter-spacing: 0;
+  font-kerning: normal;
+  font-optical-sizing: auto;
   font-variant-numeric: tabular-nums;
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -46,14 +59,18 @@ body.match-dashboard-scroll-lock {
 
 #root {
   min-height: 100vh;
-  zoom: var(--app-zoom);
+  font-size: $font-size-body;
 }
 
-@supports not (zoom: 1) {
-  #root {
-    transform: scale(var(--app-zoom));
-    transform-origin: top left;
-  }
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
 }
 
 ::selection {

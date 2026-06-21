@@ -1,3 +1,5 @@
+import { RefreshCw } from 'lucide-react'
+
 import type { TranslationCopy } from '@/i18n/translations'
 import type { DashboardLiveStatus } from '@/store/features/dashboard/slice'
 import type { FeedItem, MatchInfo } from '@/store/features/dashboard/types'
@@ -11,6 +13,7 @@ interface LiveRailProps {
   liveScore: string
   liveStatus: DashboardLiveStatus
   match: MatchInfo
+  onRefresh: () => void
   subtitle: string
 }
 
@@ -20,6 +23,7 @@ export function LiveRail({
   liveScore,
   liveStatus,
   match,
+  onRefresh,
   subtitle,
 }: LiveRailProps) {
   return (
@@ -29,7 +33,12 @@ export function LiveRail({
           <h2>{copy.liveRailLabel}</h2>
           <p>{subtitle}</p>
         </div>
-        <span data-status={liveStatus}>{copy.liveRailStatusLabels[liveStatus]}</span>
+        <div className={styles.liveRailActions}>
+          <span data-status={liveStatus}>{copy.liveRailStatusLabels[liveStatus]}</span>
+          <button aria-label={copy.liveRefresh} onClick={onRefresh} title={copy.liveRefresh} type="button">
+            <RefreshCw size={14} aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
       <div className={styles.liveScoreStrip}>
@@ -42,11 +51,12 @@ export function LiveRail({
         <div className={styles.timelineStack}>
           {items.map((item) => (
             <article key={item.id}>
-              <time>{formatTimelineTime(item.time, copy.now, copy.minute)}</time>
               <div>
-                <h3>{item.title}</h3>
+                <header>
+                  <time>{formatTimelineTime(item.time, copy.now, copy.minute)}</time>
+                  <h3>{item.title}</h3>
+                </header>
                 <p>{item.detail}</p>
-                <strong>{copy.feedType[item.type]}</strong>
               </div>
             </article>
           ))}

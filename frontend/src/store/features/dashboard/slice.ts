@@ -7,6 +7,7 @@ import type {
   LiveProviderStatus,
   MarketPredictionResponse,
   MatchInsightResponse,
+  PredictionMode,
   PredictionChatRecommendedQuestionsResponse,
   WorldCupMatch,
 } from '@/store/features/dashboard/apiTypes'
@@ -26,6 +27,8 @@ export type DashboardInsightPredictionStatus = 'error' | 'idle' | 'loading' | 'r
 export interface DashboardMatchRequest {
   language: LanguageCode
   matchId: string
+  predictionMode?: PredictionMode
+  providerFixtureId?: string | null
 }
 
 interface LoadMatchSucceededPayload {
@@ -46,6 +49,7 @@ export interface DashboardState {
   insightPredictionStatus: DashboardInsightPredictionStatus
   matchInsight?: MatchInsightResponse
   lastLiveSnapshotAt?: string
+  liveSnapshot?: LiveMatchSnapshot
   liveStatus: DashboardLiveStatus
   marketPredictionError?: string
   marketPredictionStatus: DashboardMarketPredictionStatus
@@ -74,6 +78,9 @@ const dashboardSlice = createSlice({
       state.data = getDashboardPlaceholder(action.payload.language)
       state.insightPredictionError = undefined
       state.insightPredictionStatus = 'idle'
+      state.lastLiveSnapshotAt = undefined
+      state.liveSnapshot = undefined
+      state.liveStatus = 'not_configured'
       state.matchInsight = undefined
       state.marketPredictionError = undefined
       state.marketPredictionStatus = 'idle'
@@ -151,6 +158,7 @@ const dashboardSlice = createSlice({
     stopLivePolling() {},
     liveSnapshotReceived(state, action: PayloadAction<LiveSnapshotReceivedPayload>) {
       state.liveStatus = action.payload.snapshot.provider_status
+      state.liveSnapshot = action.payload.snapshot
       state.lastLiveSnapshotAt = action.payload.snapshot.observed_at
       state.error = liveStatusMessage(
         action.payload.snapshot.provider_status,

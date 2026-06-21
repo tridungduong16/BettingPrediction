@@ -84,7 +84,7 @@ async def live_match_events_websocket(
     match_id: str,
     service: Annotated[LiveEventService, Depends(get_live_event_service)],
     provider_fixture_id: str | None = None,
-    interval_seconds: float = 10.0,
+    interval_seconds: float = 300.0,
 ) -> None:
     await websocket.accept()
     interval = max(interval_seconds, 3.0)

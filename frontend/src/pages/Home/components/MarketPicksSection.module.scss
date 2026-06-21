@@ -39,9 +39,9 @@
     border-bottom: 1px solid rgba(153, 183, 230, 0.18);
     background: rgba(12, 26, 47, 0.96);
     color: $color-text-muted;
-    font-size: 11px;
+    @include text-caption;
     font-weight: 900;
-    line-height: 1.25;
+    letter-spacing: $letter-spacing-caps;
   }
 
   td {
@@ -94,9 +94,8 @@
 
   strong {
     color: $color-text-primary;
-    font-size: 14px;
+    @include text-body-sm;
     font-weight: 950;
-    line-height: 1.25;
   }
 }
 
@@ -127,7 +126,7 @@
 
 .pickRank {
   color: var(--pick-accent, $color-success);
-  font-size: 12px;
+  @include text-caption;
   font-weight: 950;
   line-height: 1;
 }
@@ -140,9 +139,8 @@
   border-radius: 999px;
   background: rgba($color-success, 0.08);
   color: $color-success;
-  font-size: 10px;
+  @include text-caption;
   font-weight: 950;
-  line-height: 1.15;
 }
 
 .descriptionCell {
@@ -151,9 +149,8 @@
 
   > span {
     color: $color-text-primary;
-    font-size: 13px;
+    @include text-label;
     font-weight: 850;
-    line-height: 1.35;
   }
 }
 
@@ -171,9 +168,8 @@
     border-radius: 999px;
     background: rgba(153, 183, 230, 0.08);
     color: $color-text-secondary;
-    font-size: 10px;
+    @include text-caption;
     font-weight: 800;
-    line-height: 1.2;
   }
 }
 
@@ -212,34 +208,30 @@
 
   strong {
     color: $color-text-primary;
-    font-size: 14px;
+    @include text-body-sm;
     font-weight: 950;
     line-height: 1;
   }
 
   span {
     color: $color-text-secondary;
-    font-size: 10px;
+    @include text-caption;
     font-weight: 850;
-    line-height: 1.25;
   }
 }
 
 .decision {
   display: block;
   color: $color-text-primary;
-  font-size: 14px;
+  @include text-body-sm;
   font-weight: 950;
-  line-height: 1.35;
 }
 
 .reasoning {
   max-width: 72ch;
   margin: 0;
   color: $color-text-secondary;
-  font-size: 12px;
-  line-height: 1.5;
-  text-wrap: pretty;
+  @include text-caption;
 }
 
 .confidenceNote {
@@ -247,10 +239,8 @@
   max-width: 72ch;
   margin-top: 6px;
   color: rgba(245, 248, 255, 0.78);
-  font-size: 11px;
+  @include text-caption;
   font-weight: 750;
-  line-height: 1.45;
-  text-wrap: pretty;
 }
 
 .pickgreen {
@@ -329,9 +319,8 @@
 
     td::before {
       color: $color-text-muted;
-      font-size: 12px;
+      @include text-caption;
       font-weight: 900;
-      line-height: 1.35;
       content: attr(data-label);
     }
   }
@@ -351,10 +340,12 @@
 
   .reasoning {
     max-width: none;
+    grid-column: 2;
   }
 
   .confidenceNote {
     max-width: none;
+    grid-column: 2;
   }
 }
 
@@ -373,7 +364,6 @@
 
     td::before {
       margin-bottom: 0;
-      font-size: 11px;
     }
   }
 }
@@ -387,5 +377,10 @@
     td::before {
       margin-bottom: -2px;
     }
+  }
+
+  .reasoning,
+  .confidenceNote {
+    grid-column: auto;
   }
 }

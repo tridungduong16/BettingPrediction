@@ -13,15 +13,16 @@
 
   span {
     color: $color-ai-accent;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 800;
+    letter-spacing: $letter-spacing-caps;
     text-transform: uppercase;
   }
 
   h2 {
     margin: $space-1 0 0;
     color: $color-text-primary;
-    font-size: 18px;
+    @include text-title($font-size-body-lg);
     font-weight: 700;
   }
 
@@ -76,7 +77,7 @@
     border-radius: 999px;
     background: transparent;
     color: $color-text-secondary;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 700;
 
     &:hover {

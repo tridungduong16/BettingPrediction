@@ -34,16 +34,16 @@
   h2 {
     margin: $space-1 0 0;
     color: $color-text-primary;
-    font-size: 24px;
+    @include text-title($font-size-title-md);
     font-weight: 760;
-    line-height: 1.1;
   }
 }
 
 .eyebrow {
   color: $color-ai-accent;
-  font-size: 12px;
+  @include text-caption;
   font-weight: 800;
+  letter-spacing: $letter-spacing-caps;
   text-transform: uppercase;
 }
 
@@ -60,7 +60,7 @@
 
   span {
     color: $color-text-primary;
-    font-size: 24px;
+    font-size: $font-size-title-md;
     font-weight: 800;
     line-height: 1;
   }
@@ -68,7 +68,7 @@
   small {
     margin-top: -24px;
     color: $color-text-muted;
-    font-size: 11px;
+    @include text-caption;
     font-weight: 700;
   }
 }
@@ -97,7 +97,7 @@
 
   strong {
     color: $color-text-primary;
-    font-size: 18px;
+    font-size: $font-size-body-lg;
   }
 }
 
@@ -122,7 +122,7 @@
   width: fit-content;
   min-height: 24px;
   color: $color-text-muted;
-  font-size: 12px;
+  @include text-caption;
   font-weight: 700;
 }
 
@@ -153,7 +153,7 @@
     border: 1px solid $color-border;
     border-radius: $radius-sm;
     color: $color-text-secondary;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 700;
   }
 }

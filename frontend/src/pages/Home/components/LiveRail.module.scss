@@ -24,40 +24,67 @@
 
   h2 {
     color: $color-text-primary;
-    font-size: 15px;
+    @include text-body-sm;
     font-weight: 950;
-    line-height: 1.25;
   }
 
   p {
     margin-top: 2px;
     color: $color-text-secondary;
-    font-size: 11px;
-    line-height: 1.45;
+    @include text-caption;
   }
+}
 
-  > span {
-    flex: 0 0 auto;
+.liveRailActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: $space-2;
+
+  span {
     min-height: 23px;
     padding: 3px $space-2;
     border: 1px solid rgba($color-success, 0.2);
     border-radius: 999px;
     background: rgba($color-success, 0.08);
     color: $color-success;
-    font-size: 10px;
+    @include text-caption;
     font-weight: 900;
   }
 
-  > span[data-status='provider_error'] {
+  span[data-status='provider_error'] {
     color: #ffd98d;
   }
 
-  > span[data-status='unmapped'] {
+  span[data-status='unmapped'] {
     color: #c8dcff;
   }
 
-  > span[data-status='not_configured'] {
+  span[data-status='not_configured'] {
     color: $color-text-secondary;
+  }
+
+  button {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(153, 183, 230, 0.2);
+    border-radius: 8px;
+    background: rgba(8, 19, 35, 0.62);
+    color: $color-text-primary;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
+  }
+
+  button:hover,
+  button:focus-visible {
+    border-color: rgba($color-success, 0.45);
+    color: $color-success;
+    transform: translateY(-1px);
   }
 }
 
@@ -74,14 +101,14 @@
 
   span {
     color: $color-text-secondary;
-    font-size: 11px;
+    @include text-caption;
     font-weight: 900;
     text-align: center;
   }
 
   strong {
     color: $color-text-primary;
-    font-size: 16px;
+    font-size: $font-size-body;
     font-weight: 950;
   }
 }
@@ -94,12 +121,8 @@
 
 .timelineStack article {
   position: relative;
-  display: grid;
-  grid-template-columns: 62px minmax(0, 1fr);
-  gap: $space-2;
-  align-items: start;
   min-width: 0;
-  padding: 0 0 18px;
+  padding: 0 0 18px 24px;
 
   &:last-child {
     padding-bottom: 0;
@@ -109,7 +132,7 @@
     position: absolute;
     top: 3px;
     bottom: 0;
-    left: 67px;
+    left: 7px;
     width: 1px;
     background: rgba(139, 154, 176, 0.18);
     content: '';
@@ -122,7 +145,7 @@
   &::after {
     position: absolute;
     top: 3px;
-    left: 63px;
+    left: 3px;
     width: 9px;
     height: 9px;
     border: 2px solid $color-success;
@@ -131,11 +154,29 @@
     content: '';
   }
 
+  > div {
+    min-width: 0;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 5px;
+    min-width: 0;
+  }
+
   time {
     color: $color-success;
-    font-size: 11px;
+    @include text-caption;
     font-weight: 950;
-    line-height: 1.3;
+    white-space: nowrap;
+
+    &::after {
+      color: rgba(139, 154, 176, 0.72);
+      content: '·';
+      margin-left: 5px;
+    }
   }
 
   h3,
@@ -145,29 +186,14 @@
 
   h3 {
     color: $color-text-primary;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 900;
-    line-height: 1.3;
   }
 
   p {
-    margin-top: 3px;
+    margin-top: 4px;
     color: $color-text-secondary;
-    font-size: 11px;
-    line-height: 1.45;
-    text-wrap: pretty;
-  }
-
-  strong {
-    display: inline-flex;
-    width: max-content;
-    margin-top: 6px;
-    padding: 2px $space-2;
-    border-radius: 999px;
-    background: rgba($color-ai-accent, 0.1);
-    color: #d8c8ff;
-    font-size: 10px;
-    font-weight: 850;
+    @include text-caption;
   }
 }
 
@@ -178,8 +204,7 @@
   border-radius: $radius-md;
   background: rgba(8, 19, 35, 0.42);
   color: $color-text-secondary;
-  font-size: 12px;
-  line-height: 1.5;
+  @include text-caption;
 }
 
 @media (max-width: 720px) {
@@ -188,14 +213,14 @@
   }
 
   .timelineStack article {
-    grid-template-columns: 58px minmax(0, 1fr);
+    padding-left: 24px;
 
     &::before {
-      left: 63px;
+      left: 7px;
     }
 
     &::after {
-      left: 59px;
+      left: 3px;
     }
   }
 }

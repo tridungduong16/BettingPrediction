@@ -14,8 +14,9 @@ import {
 } from 'lucide-react'
 
 import { getWorldCupMatches } from '@/api/worldcup'
-import { matchDetailPath } from '@/constants/routes'
+import { ROUTES, matchDetailPath } from '@/constants/routes'
 import { displayTeamName, getTeamIdentity } from '@/helpers/teamIdentity'
+import { useSeoMeta } from '@/hooks/useSeoMeta'
 import { localeForLanguage, type LanguageCode } from '@/i18n/languages'
 import { useI18n } from '@/i18n/I18nProvider'
 import type { WorldCupDataset, WorldCupMatch } from '@/store/features/dashboard/apiTypes'
@@ -112,6 +113,12 @@ function getAnalysisCutoffTime(referenceDate = new Date()) {
   cutoff.setHours(0, 0, 0, 0)
   cutoff.setDate(cutoff.getDate() + 2)
   return cutoff.getTime()
+}
+
+function getVisibleMatchStartTime(referenceDate = new Date()) {
+  const startOfDay = new Date(referenceDate)
+  startOfDay.setHours(0, 0, 0, 0)
+  return startOfDay.getTime()
 }
 
 function canOpenMatchAnalysis(match: WorldCupMatch) {
@@ -221,7 +228,7 @@ export default function Matches() {
   useEffect(() => {
     const controller = new AbortController()
 
-    getWorldCupMatches({ status: 'scheduled' }, { signal: controller.signal })
+    getWorldCupMatches({}, { signal: controller.signal })
       .then((dataset) => {
         setState({ dataset, loadedAtMs: Date.now(), status: 'ready' })
       })
@@ -241,24 +248,36 @@ export default function Matches() {
     }
   }, [copy.matches.errorFallback, reloadKey])
 
-  const upcomingMatches = useMemo(() => {
-    const now = state.loadedAtMs ?? 0
+  const visibleMatches = useMemo(() => {
+    const referenceDate = state.loadedAtMs ? new Date(state.loadedAtMs) : new Date()
+    const earliestVisibleMatchTime = getVisibleMatchStartTime(referenceDate)
     const query = normalizeSearch(search, language)
 
     return (state.dataset?.matches ?? [])
       .filter((match) => {
-        const kickoff = getKickoffDate(match)
-        return !kickoff || kickoff.getTime() >= now
+        const matchDate = getAnalysisDate(match)
+        return !matchDate || matchDate.getTime() >= earliestVisibleMatchTime
       })
       .filter((match) => !query || matchSearchText(match, language).includes(query))
       .sort((first, second) => getSortValue(first) - getSortValue(second))
   }, [language, search, state.dataset, state.loadedAtMs])
 
   const groupedMatches = useMemo(
-    () => groupMatchesByDate(upcomingMatches, language, copy.matches.noDate),
-    [copy.matches.noDate, language, upcomingMatches],
+    () => groupMatchesByDate(visibleMatches, language, copy.matches.noDate),
+    [copy.matches.noDate, language, visibleMatches],
   )
   const source = state.dataset?.source
+
+  useSeoMeta({
+    canonicalPath: ROUTES.HOME,
+    description: language === 'vi'
+      ? 'Theo dõi lịch trận World Cup hiện tại và sắp diễn ra, tìm trận đấu và mở phân tích dự đoán AI từ Worldian.'
+      : 'Track current and upcoming World Cup matches, search the schedule, and open Worldian AI prediction analysis.',
+    title: language === 'vi'
+      ? 'Lịch trận World Cup và dự đoán AI | Worldian'
+      : 'World Cup Match Schedule and AI Predictions | Worldian',
+  })
+
   const refreshMatches = () => {
     setState((current) => ({
       dataset: current.dataset,
@@ -289,7 +308,7 @@ export default function Matches() {
           </span>
           <h1 id="matches-heading">{copy.matches.title}</h1>
           <p>
-            {source ? copy.matches.sourceSummary(upcomingMatches.length) : copy.matches.loading}
+            {source ? copy.matches.sourceSummary(visibleMatches.length) : copy.matches.loading}
           </p>
         </div>
       </section>

@@ -3,7 +3,11 @@ import { Loader2, Send, X } from 'lucide-react'
 
 import { getRecommendedChatQuestions, streamMatchChat } from '@/api/predictions'
 import type { LanguageCode } from '@/i18n/languages'
-import type { PredictionChatStreamEvent } from '@/store/features/dashboard/apiTypes'
+import type {
+  LiveMatchSnapshot,
+  PredictionChatStreamEvent,
+  PredictionMode,
+} from '@/store/features/dashboard/apiTypes'
 import type { ChatMessage } from '@/store/features/dashboard/types'
 
 import styles from './FloatingAIAssistant.module.scss'
@@ -26,10 +30,20 @@ interface FloatingAIAssistantProps {
   disabled?: boolean
   initialMessages: ChatMessage[]
   language: LanguageCode
+  liveSnapshot?: LiveMatchSnapshot | null
   matchId: string
   prompts: string[]
   variant?: 'embedded' | 'floating'
 }
+
+const liveChatPhases = new Set([
+  'extra_time',
+  'first_half',
+  'halftime',
+  'penalties',
+  'second_half',
+  'suspended',
+])
 
 export function assistantCopy(language: LanguageCode) {
   if (language === 'en') {
@@ -102,6 +116,24 @@ export function assistantThreadId(matchId: string, options: AssistantThreadIdOpt
   }
 
   return `${matchId.trim()}:${clientSessionId}`
+}
+
+function isLiveChatSnapshot(
+  snapshot?: LiveMatchSnapshot | null,
+): snapshot is LiveMatchSnapshot {
+  return snapshot?.provider_status === 'ready' && liveChatPhases.has(snapshot.clock.phase)
+}
+
+function liveChatPredictionMode(snapshot?: LiveMatchSnapshot | null): PredictionMode | undefined {
+  return isLiveChatSnapshot(snapshot) ? 'live' : undefined
+}
+
+function liveChatProviderFixtureId(snapshot?: LiveMatchSnapshot | null) {
+  if (!isLiveChatSnapshot(snapshot)) {
+    return undefined
+  }
+
+  return snapshot.provider_fixture_id ?? undefined
 }
 
 export function assistantToolActivityMessage(
@@ -228,6 +260,7 @@ export function FloatingAIAssistant({
   disabled = false,
   initialMessages,
   language,
+  liveSnapshot,
   matchId,
   prompts,
   variant = 'floating',
@@ -286,6 +319,8 @@ export function FloatingAIAssistant({
         includeLive: true,
         includeNews: true,
         language,
+        predictionMode: liveChatPredictionMode(liveSnapshot),
+        providerFixtureId: liveChatProviderFixtureId(liveSnapshot),
       })
 
       if (recommendationRequestRef.current === requestId) {
@@ -395,6 +430,8 @@ export function FloatingAIAssistant({
           includeLive: true,
           includeNews: true,
           language,
+          predictionMode: liveChatPredictionMode(liveSnapshot),
+          providerFixtureId: liveChatProviderFixtureId(liveSnapshot),
           signal: controller.signal,
         },
       )

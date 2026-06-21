@@ -54,7 +54,7 @@
   top: 34px;
   bottom: 18px;
   color: rgba(255, 255, 255, 0.08);
-  font-size: 82px;
+  font-size: 5.125rem;
   font-weight: 950;
   line-height: 0.82;
   text-transform: uppercase;
@@ -110,14 +110,15 @@
 
   strong {
     color: #ffffff;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 950;
+    letter-spacing: $letter-spacing-caps;
     text-transform: uppercase;
   }
 
   span {
     color: $color-text-secondary;
-    font-size: 13px;
+    @include text-label;
   }
 
   em {
@@ -165,18 +166,16 @@
   h2 {
     margin: 0;
     color: #ffffff;
-    font-size: 40px;
+    @include text-display($font-size-display-sm);
     font-weight: 950;
-    line-height: 0.98;
     text-transform: uppercase;
     text-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-    text-wrap: balance;
     overflow-wrap: anywhere;
   }
 
   span {
     color: rgba(223, 231, 245, 0.78);
-    font-size: 13px;
+    @include text-label;
     font-weight: 750;
   }
 }
@@ -200,14 +199,14 @@
 
   span,
   em {
-    font-size: 12px;
+    @include text-caption;
     font-style: normal;
     font-weight: 850;
   }
 
   strong {
     color: #ffffff;
-    font-size: 30px;
+    font-size: $font-size-title-lg;
     font-weight: 950;
     line-height: 1;
   }
@@ -240,7 +239,7 @@
   .teamBlock {
     h1,
     h2 {
-      font-size: 36px;
+      font-size: $font-size-title-xl;
     }
   }
 
@@ -307,7 +306,7 @@
   .teamBlock {
     h1,
     h2 {
-      font-size: 31px;
+      font-size: $font-size-title-lg;
     }
   }
 }

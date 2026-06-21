@@ -42,9 +42,8 @@
 
 .marketName {
   color: $color-text-primary;
-  font-size: 15px;
+  @include text-body-sm;
   font-weight: 700;
-  line-height: 1.3;
 }
 
 .risk {
@@ -53,8 +52,9 @@
   border-radius: 999px;
   background: rgba($color-border, 0.75);
   color: $color-text-secondary;
-  font-size: 11px;
+  @include text-caption;
   font-weight: 800;
+  letter-spacing: $letter-spacing-caps;
   text-transform: uppercase;
 }
 
@@ -78,7 +78,7 @@
 
   strong {
     color: $color-text-primary;
-    font-size: 28px;
+    font-size: $font-size-title-lg;
     font-weight: 800;
     line-height: 1;
   }
@@ -88,7 +88,7 @@
     align-items: center;
     gap: $space-1;
     color: $color-success;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 750;
   }
 }
@@ -111,15 +111,16 @@
 
   span {
     color: $color-text-muted;
-    font-size: 12px;
+    @include text-caption;
     font-weight: 800;
+    letter-spacing: $letter-spacing-caps;
     text-transform: uppercase;
   }
 
   h3 {
     margin: $space-1 0 $space-2;
     color: $color-text-primary;
-    font-size: 16px;
+    font-size: $font-size-body;
   }
 
   p {

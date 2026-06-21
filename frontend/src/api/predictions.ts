@@ -7,6 +7,7 @@ import type {
   PredictionChatRequest,
   PredictionChatResponse,
   PredictionChatStreamEvent,
+  PredictionMode,
 } from '@/store/features/dashboard/apiTypes'
 
 interface MarketPredictionQuery {
@@ -15,6 +16,7 @@ interface MarketPredictionQuery {
   includeNews?: boolean
   language?: LanguageCode
   newsMaxResults?: number
+  predictionMode?: PredictionMode
   providerFixtureId?: string
   source?: 'auto' | 'openfootball' | 'upbound'
   year?: number
@@ -33,6 +35,7 @@ function predictionQuery(query: MarketPredictionQuery = {}) {
     include_news: query.includeNews,
     language: query.language,
     news_max_results: query.newsMaxResults,
+    prediction_mode: query.predictionMode,
     provider_fixture_id: query.providerFixtureId,
     source: query.source,
     year: query.year,
