@@ -3,7 +3,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid $color-border;
-  border-radius: $radius-xl;
+  border-radius: $radius-md;
   background:
     linear-gradient(180deg, rgba(28, 49, 78, 0.64), rgba(8, 17, 31, 0.94)),
     $color-card;
@@ -13,213 +13,123 @@
 }
 
 .matchStage {
-  position: relative;
-  min-height: 300px;
-  overflow: hidden;
-  isolation: isolate;
+  display: grid;
+  gap: $space-3;
+  min-height: 132px;
+  padding: $space-4 $space-5;
   background:
-    radial-gradient(circle at 18% 44%, rgba(31, 232, 89, 0.26), transparent 34%),
-    radial-gradient(circle at 82% 45%, rgba(37, 101, 255, 0.28), transparent 36%),
-    linear-gradient(90deg, rgba(20, 85, 28, 0.84), rgba(5, 15, 29, 0.84) 48%, rgba(17, 39, 105, 0.9));
-
-  &::before,
-  &::after {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    content: '';
-  }
-
-  &::before {
-    z-index: 0;
-    opacity: 0.46;
-    background:
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
-  }
-
-  &::after {
-    z-index: 1;
-    background:
-      radial-gradient(ellipse at 50% 82%, rgba(255, 255, 255, 0.2), transparent 32%),
-      linear-gradient(180deg, rgba(3, 7, 15, 0.06), rgba(3, 7, 15, 0.52));
-  }
-}
-
-.sideName {
-  position: absolute;
-  z-index: 1;
-  top: 34px;
-  bottom: 18px;
-  color: rgba(255, 255, 255, 0.08);
-  font-size: 5.125rem;
-  font-weight: 950;
-  line-height: 0.82;
-  text-transform: uppercase;
-  writing-mode: vertical-rl;
-  pointer-events: none;
-}
-
-.sideNameHome {
-  left: 16px;
-  transform: rotate(180deg);
-}
-
-.sideNameAway {
-  right: 18px;
-}
-
-.playerImage {
-  position: absolute;
-  z-index: 2;
-  inset-block-end: -64px;
-  width: 39%;
-  pointer-events: none;
-
-  img {
-    width: auto;
-    height: 335px;
-    max-width: none;
-    object-fit: contain;
-    filter: drop-shadow(0 28px 26px rgba(0, 0, 0, 0.34));
-  }
-}
-
-.playerHome {
-  left: -34px;
-}
-
-.playerAway {
-  right: -58px;
-
-  img {
-    margin-left: auto;
-  }
+    linear-gradient(90deg, rgba($color-success, 0.08), transparent 24%),
+    linear-gradient(270deg, rgba($color-info, 0.1), transparent 24%),
+    linear-gradient(180deg, rgba(15, 32, 55, 0.88), rgba(6, 15, 30, 0.94)),
+    $color-card;
 }
 
 .stageHeader {
-  position: relative;
-  z-index: 4;
-  display: grid;
-  justify-items: center;
-  gap: $space-1;
-  padding: 18px $space-4 0;
-  text-align: center;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  color: $color-text-secondary;
+  @include text-label;
+  font-weight: 800;
 
   strong {
-    color: #ffffff;
-    @include text-caption;
-    font-weight: 950;
-    letter-spacing: $letter-spacing-caps;
-    text-transform: uppercase;
+    flex: 0 0 auto;
+    color: $color-text-primary;
+    font-weight: 900;
   }
 
   span {
-    color: $color-text-secondary;
-    @include text-label;
-  }
-
-  em {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 35px;
-    margin-top: 6px;
-    padding: 0 $space-4;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 999px;
-    background: rgba(3, 9, 20, 0.48);
-    color: $color-text-primary;
-    font-style: normal;
-    font-weight: 750;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
 .teamDeck {
-  position: relative;
-  z-index: 4;
   display: grid;
-  grid-template-columns: minmax(170px, 1fr) minmax(116px, 160px) minmax(170px, 1fr);
-  gap: clamp(10px, 2.6vw, 30px);
+  grid-template-columns: minmax(0, 1fr) minmax(92px, auto) minmax(0, 1fr);
+  gap: $space-4;
   align-items: center;
-  min-height: 214px;
-  padding: 0 clamp(18px, 3.4vw, 40px) 18px;
+  margin: 0;
+  color: $color-text-primary;
 }
 
 .teamBlock {
-  display: grid;
-  justify-items: center;
+  display: flex;
+  min-width: 0;
+  align-items: center;
   gap: $space-2;
-  text-align: center;
 
   img {
-    width: 58px;
-    height: 58px;
+    width: 42px;
+    height: 32px;
+    flex: 0 0 auto;
     object-fit: cover;
-    border: 1px solid rgba(255, 255, 255, 0.72);
-    border-radius: $radius-lg;
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    border-radius: $radius-sm;
+    background: $color-bg-secondary;
   }
+}
 
-  h1,
-  h2 {
-    margin: 0;
-    color: #ffffff;
-    @include text-display($font-size-display-sm);
+.teamCopy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    color: $color-text-primary;
+    @include text-title($font-size-title-md);
     font-weight: 950;
-    text-transform: uppercase;
-    text-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   span {
-    color: rgba(223, 231, 245, 0.78);
-    @include text-label;
-    font-weight: 750;
+    color: $color-text-muted;
+    @include text-caption;
+    font-weight: 900;
+    letter-spacing: $letter-spacing-caps;
   }
 }
 
-.teamHome {
-  transform: translateX(8px);
-}
-
 .teamAway {
-  transform: translateX(-8px);
+  justify-content: flex-end;
+  text-align: right;
+
+  .teamCopy {
+    order: -1;
+  }
 }
 
 .matchCenter {
   display: grid;
+  min-width: 0;
   justify-items: center;
-  gap: $space-2;
-  min-height: 100px;
-  align-content: center;
+  gap: 3px;
   color: $color-text-secondary;
   text-align: center;
 
   span,
   em {
-    @include text-caption;
+    max-width: 130px;
+    overflow: hidden;
     font-style: normal;
+    @include text-caption;
     font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   strong {
     color: #ffffff;
-    font-size: $font-size-title-lg;
+    font-size: $font-size-title-sm;
     font-weight: 950;
     line-height: 1;
-  }
-
-  em {
-    display: inline-flex;
-    min-height: 28px;
-    align-items: center;
-    padding: 0 $space-3;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 999px;
-    background: rgba(3, 9, 20, 0.42);
-    color: $color-text-primary;
   }
 }
 
@@ -231,82 +141,53 @@
 
 @media (max-width: 980px) {
   .teamDeck {
-    grid-template-columns: 1fr;
-    gap: $space-4;
-    padding-top: $space-5;
-  }
-
-  .teamBlock {
-    h1,
-    h2 {
-      font-size: $font-size-title-xl;
-    }
-  }
-
-  .teamHome,
-  .teamAway {
-    transform: none;
+    grid-template-columns: minmax(0, 1fr) minmax(82px, auto) minmax(0, 1fr);
+    gap: $space-3;
   }
 
   .matchCenter {
-    order: 2;
-    min-height: 86px;
-  }
-
-  .teamAway {
-    order: 3;
-  }
-
-  .playerImage {
-    opacity: 0.5;
+    span,
+    em {
+      max-width: 96px;
+    }
   }
 }
 
 @media (max-width: 720px) {
   .matchStage {
-    min-height: 650px;
+    min-height: 0;
+    padding: $space-4;
   }
 
   .stageHeader {
-    padding-inline: $space-4;
-  }
-
-  .playerImage {
-    inset-block-end: -42px;
-    width: 52%;
-    opacity: 0.36;
-
-    img {
-      height: 300px;
-    }
-  }
-
-  .playerHome {
-    left: -104px;
-  }
-
-  .playerAway {
-    right: -124px;
-  }
-
-  .sideName {
-    display: none;
-  }
-}
-
-@media (max-width: 520px) {
-  .matchStage {
-    min-height: 680px;
+    display: grid;
+    justify-content: stretch;
+    gap: $space-1;
   }
 
   .teamDeck {
-    padding-inline: $space-4;
+    grid-template-columns: 1fr;
+    gap: $space-3;
   }
 
-  .teamBlock {
-    h1,
-    h2 {
-      font-size: $font-size-title-lg;
+  .teamAway {
+    justify-content: flex-start;
+    text-align: left;
+
+    .teamCopy {
+      order: initial;
+    }
+  }
+
+  .matchCenter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: $space-2;
+
+    span,
+    em {
+      max-width: none;
     }
   }
 }

@@ -8,7 +8,7 @@
 
 .tableShell {
   height: 100%;
-  max-height: max(280px, min(520px, calc((100vh * var(--app-zoom-inverse, 1)) - 585px)));
+  max-height: max(360px, min(620px, calc((100vh * var(--app-zoom-inverse, 1)) - 420px)));
   min-height: 0;
   overflow: auto;
   border: 1px solid rgba(153, 183, 230, 0.18);
@@ -261,7 +261,7 @@
 
 @media (max-width: 780px) {
   .tableShell {
-    max-height: min(580px, calc((100vh * var(--app-zoom-inverse, 1)) - 260px));
+    max-height: min(640px, calc((100vh * var(--app-zoom-inverse, 1)) - 220px));
     overflow: auto;
     border: 0;
     background: transparent;
