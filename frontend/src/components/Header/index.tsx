@@ -1,6 +1,8 @@
 import { Bell, LogOut, Radio } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
 
 import { useAuth } from '@/auth/AuthProvider'
+import { ROUTES } from '@/constants/routes'
 import { supportedLanguages } from '@/i18n/languages'
 import { useI18n } from '@/i18n/I18nProvider'
 
@@ -43,6 +45,17 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Brand ariaLabel={copy.common.appHomeAria} className={styles.mobileBrand} />
+        <nav className={styles.primaryNav} aria-label={copy.common.menu}>
+          <NavLink className={({ isActive }) => (isActive ? styles.activeNavLink : undefined)} to={ROUTES.HOME}>
+            {copy.common.matches}
+          </NavLink>
+          <NavLink
+            className={({ isActive }) => (isActive ? styles.activeNavLink : undefined)}
+            to={ROUTES.SIMULATION}
+          >
+            {copy.common.simulation}
+          </NavLink>
+        </nav>
 
         <div className={styles.centerBrand}>
           <Brand ariaLabel={copy.common.appHomeAria} className={styles.navBrand} />

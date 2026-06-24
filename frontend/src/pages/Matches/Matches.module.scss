@@ -75,6 +75,60 @@
   }
 }
 
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-2;
+  margin-top: $space-1;
+}
+
+.heroActionPrimary,
+.heroActionSecondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  padding: 0 $space-4;
+  border-radius: $radius-sm;
+  @include text-label;
+  font-weight: 950;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.heroActionPrimary {
+  background: #ffffff;
+  color: $color-bg-primary;
+
+  &:hover {
+    background: rgba(245, 248, 255, 0.9);
+  }
+}
+
+.heroActionSecondary {
+  border: 1px solid rgba(245, 248, 255, 0.18);
+  background: rgba(52, 131, 255, 0.2);
+  color: #ffffff;
+
+  &:hover {
+    background: rgba(52, 131, 255, 0.28);
+  }
+}
+
 .kicker {
   display: inline-flex;
   width: fit-content;
@@ -408,7 +462,9 @@
   }
 
   .refreshButton,
-  .matchAction {
+  .matchAction,
+  .heroActionPrimary,
+  .heroActionSecondary {
     width: 100%;
   }
 
@@ -421,6 +477,10 @@
   .searchBox input,
   .refreshButton {
     min-height: 44px;
+  }
+
+  .heroActions {
+    width: min(100%, 320px);
   }
 
   .matchTime {

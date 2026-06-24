@@ -62,7 +62,7 @@ def test_app_config_loads_backend_dotenv_before_reading_env(monkeypatch):
     assert config.MODEL_NAME == "byteplus/deepseek-v4-pro-260425"
 
 
-def test_app_config_defaults_chat_model_to_high_reasoning(monkeypatch):
+def test_app_config_defaults_chat_model_to_mini_without_reasoning(monkeypatch):
     app_config_module = importlib.import_module("app.core.app_config")
     app_config_module.get_app_config.cache_clear()
     monkeypatch.delenv("OPENAI_MODEL", raising=False)
@@ -76,7 +76,7 @@ def test_app_config_defaults_chat_model_to_high_reasoning(monkeypatch):
         app_config_module.get_app_config.cache_clear()
 
     assert config.MODEL_NAME == "openainexira/gpt-5.4-mini"
-    assert config.CHAT_MODEL_NAME == "openainexira/gpt-5.4-mini-high-reasoning"
+    assert config.CHAT_MODEL_NAME == "openainexira/gpt-5.4-mini"
 
 
 def test_bifrost_provider_uses_bifrost_api_key_not_openai_fallback(monkeypatch):
@@ -101,7 +101,7 @@ def test_normalize_bifrost_model_name_adds_default_provider():
 
 def test_prediction_chat_uses_chat_model_name_default(monkeypatch):
     class DummyConfig:
-        CHAT_MODEL_NAME = "openainexira/gpt-5.4-mini-high-reasoning"
+        CHAT_MODEL_NAME = "openainexira/gpt-5.4-mini"
 
     resolved_model_names: list[str] = []
 

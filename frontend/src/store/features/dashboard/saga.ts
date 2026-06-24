@@ -1,5 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { all, call, delay, put, race, take, takeLatest } from 'redux-saga/effects'
+import { all, call, delay, put, race, select, take, takeLatest } from 'redux-saga/effects'
 
 import { getLiveMatchSnapshot } from '@/api/liveEvents'
 import {
@@ -9,7 +9,9 @@ import {
 } from '@/api/predictions'
 import { getWorldCupMatch } from '@/api/worldcup'
 import { env } from '@/config/env'
+import type { RootState } from '@/store'
 import type {
+  LiveMatchPhase,
   LiveMatchSnapshot,
   MarketPredictionResponse,
   MatchInsightResponse,
@@ -20,6 +22,15 @@ import { dashboardActions, type DashboardMatchRequest } from '@/store/features/d
 
 const defaultLivePollingIntervalMs = 5 * 60 * 1000
 const liveLogPrefix = '[live-feed]'
+const livePredictionPhases = new Set<LiveMatchPhase>([
+  'extra_time',
+  'first_half',
+  'halftime',
+  'penalties',
+  'second_half',
+  'suspended',
+])
+const lastLivePredictionFingerprintByMatch = new Map<string, string>()
 
 function logLiveDebug(message: string, details?: Record<string, unknown>) {
   if (!env.liveDebugLogs) {
@@ -42,9 +53,124 @@ function errorMessage(error: unknown) {
   return 'Yêu cầu dashboard gặp lỗi không xác định.'
 }
 
+function rawStatisticsFingerprint(snapshot: LiveMatchSnapshot) {
+  try {
+    return JSON.stringify(snapshot.raw?.statistics ?? null)
+  } catch {
+    return 'unavailable'
+  }
+}
+
+function livePredictionFingerprint(snapshot?: LiveMatchSnapshot | null) {
+  if (!snapshot) {
+    return undefined
+  }
+
+  const latestEvent = snapshot.events.reduce<LiveMatchSnapshot['events'][number] | undefined>(
+    (current, event) => {
+      if (!current || event.sequence >= current.sequence) {
+        return event
+      }
+
+      return current
+    },
+    undefined,
+  )
+
+  return [
+    snapshot.provider_fixture_id ?? '',
+    snapshot.provider_status,
+    snapshot.clock.phase,
+    snapshot.clock.elapsed ?? '',
+    snapshot.clock.extra ?? '',
+    snapshot.score.home ?? '',
+    snapshot.score.away ?? '',
+    snapshot.events.length,
+    latestEvent?.id ?? '',
+    latestEvent?.sequence ?? '',
+    latestEvent?.type ?? '',
+    latestEvent?.minute ?? '',
+    rawStatisticsFingerprint(snapshot),
+  ].join('|')
+}
+
+function canRefreshLivePredictions(snapshot: LiveMatchSnapshot) {
+  return snapshot.provider_status === 'ready' && livePredictionPhases.has(snapshot.clock.phase)
+}
+
+function selectPredictionRefreshState(state: RootState) {
+  return {
+    insightPredictionStatus: state.dashboard.insightPredictionStatus,
+    marketPredictionStatus: state.dashboard.marketPredictionStatus,
+    matchInsight: state.dashboard.matchInsight,
+    marketPredictions: state.dashboard.marketPredictions,
+  }
+}
+
+function* refreshLivePredictionsIfChanged(
+  request: DashboardMatchRequest,
+  snapshot: LiveMatchSnapshot,
+) {
+  if (!canRefreshLivePredictions(snapshot)) {
+    return
+  }
+
+  const fingerprint = livePredictionFingerprint(snapshot)
+  if (!fingerprint) {
+    return
+  }
+
+  const predictionState: ReturnType<typeof selectPredictionRefreshState> = yield select(
+    selectPredictionRefreshState,
+  )
+
+  if (
+    predictionState.insightPredictionStatus === 'loading' ||
+    predictionState.marketPredictionStatus === 'loading'
+  ) {
+    logLiveDebug('prediction refresh deferred while LLM request is running', {
+      matchId: request.matchId,
+    })
+    return
+  }
+
+  const lastFingerprint = lastLivePredictionFingerprintByMatch.get(request.matchId)
+  const latestResponseFingerprints = [
+    livePredictionFingerprint(predictionState.matchInsight?.live_snapshot),
+    livePredictionFingerprint(predictionState.marketPredictions?.live_snapshot),
+  ]
+
+  if (lastFingerprint === fingerprint || latestResponseFingerprints.includes(fingerprint)) {
+    lastLivePredictionFingerprintByMatch.set(request.matchId, fingerprint)
+    return
+  }
+
+  lastLivePredictionFingerprintByMatch.set(request.matchId, fingerprint)
+
+  const refreshRequest: DashboardMatchRequest = {
+    background: true,
+    language: request.language,
+    matchId: request.matchId,
+    predictionMode: 'live',
+    providerFixtureId: snapshot.provider_fixture_id ?? request.providerFixtureId ?? undefined,
+  }
+
+  logLiveDebug('prediction refresh requested from live snapshot', {
+    events: snapshot.events.length,
+    matchId: request.matchId,
+    phase: snapshot.clock.phase,
+    providerFixtureId: snapshot.provider_fixture_id,
+    score: snapshot.score,
+  })
+
+  yield put(dashboardActions.loadMatchInsightRequested(refreshRequest))
+  yield put(dashboardActions.loadMarketPredictionsRequested(refreshRequest))
+}
+
 function* loadMatch(action: PayloadAction<DashboardMatchRequest>) {
   try {
     const { language, matchId } = action.payload
+    lastLivePredictionFingerprintByMatch.delete(matchId)
     const match: WorldCupMatch = yield call(getWorldCupMatch, matchId)
     yield put(dashboardActions.loadMatchSucceeded({ language, match }))
     yield put(dashboardActions.loadMatchInsightRequested({ language, matchId }))
@@ -57,28 +183,46 @@ function* loadMatch(action: PayloadAction<DashboardMatchRequest>) {
 
 function* loadMarketPredictions(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const { language, matchId, predictionMode, providerFixtureId } = action.payload
+    const { forceRefresh, language, matchId, predictionMode, providerFixtureId } = action.payload
     const predictions: MarketPredictionResponse = yield call(getMarketPredictions, matchId, {
+      forceRefresh,
       language,
       predictionMode,
       providerFixtureId: providerFixtureId ?? undefined,
     })
     yield put(dashboardActions.loadMarketPredictionsSucceeded(predictions))
   } catch (error) {
+    if (action.payload.background) {
+      logLiveDebug('background market prediction refresh failed', {
+        error: errorMessage(error),
+        matchId: action.payload.matchId,
+      })
+      lastLivePredictionFingerprintByMatch.delete(action.payload.matchId)
+    }
+
     yield put(dashboardActions.loadMarketPredictionsFailed(errorMessage(error)))
   }
 }
 
 function* loadMatchInsight(action: PayloadAction<DashboardMatchRequest>) {
   try {
-    const { language, matchId, predictionMode, providerFixtureId } = action.payload
+    const { forceRefresh, language, matchId, predictionMode, providerFixtureId } = action.payload
     const insight: MatchInsightResponse = yield call(getMatchInsight, matchId, {
+      forceRefresh,
       language,
       predictionMode,
       providerFixtureId: providerFixtureId ?? undefined,
     })
     yield put(dashboardActions.loadMatchInsightSucceeded(insight))
   } catch (error) {
+    if (action.payload.background) {
+      logLiveDebug('background insight refresh failed', {
+        error: errorMessage(error),
+        matchId: action.payload.matchId,
+      })
+      lastLivePredictionFingerprintByMatch.delete(action.payload.matchId)
+    }
+
     yield put(dashboardActions.loadMatchInsightFailed(errorMessage(error)))
   }
 }
@@ -101,7 +245,9 @@ function* loadRecommendedChatQuestions(action: PayloadAction<DashboardMatchReque
   }
 }
 
-function* fetchLiveSnapshot({ language, matchId }: DashboardMatchRequest) {
+function* fetchLiveSnapshot(request: DashboardMatchRequest) {
+  const { language, matchId } = request
+
   try {
     logLiveDebug('fetch snapshot started', {
       forceRefresh: true,
@@ -121,6 +267,7 @@ function* fetchLiveSnapshot({ language, matchId }: DashboardMatchRequest) {
       score: snapshot.score,
     })
     yield put(dashboardActions.liveSnapshotReceived({ language, snapshot }))
+    yield call(refreshLivePredictionsIfChanged, request, snapshot)
   } catch (error) {
     const message = errorMessage(error)
     logLiveDebug('fetch snapshot failed', {

@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.app_config import WorldCupSourceName
 from app.dependencies import get_worldcup_service
-from app.models.worldcup import MatchStatus, WorldCupDataset, WorldCupMatch, WorldCupSourceInfo
+from app.models.worldcup import (
+    MatchStatus,
+    WorldCupDataset,
+    WorldCupMatch,
+    WorldCupSimulationResponse,
+    WorldCupSourceInfo,
+)
 from app.services.worldcup_service import WorldCupDataUnavailableError, WorldCupService
 
 router = APIRouter()
@@ -74,6 +80,29 @@ async def get_match(
     return match
 
 
+@router.get("/simulation", response_model=WorldCupSimulationResponse)
+async def simulate_worldcup(
+    service: Annotated[WorldCupService, Depends(get_worldcup_service)],
+    year: Annotated[int | None, Query(ge=1900, le=2100)] = None,
+    source: WorldCupSourceName = "auto",
+    target_round: str = "Round of 32",
+    scenario_limit: Annotated[int, Query(ge=1, le=24)] = 8,
+    pairing_limit: Annotated[int, Query(ge=1, le=120)] = 48,
+    force_refresh: bool = False,
+) -> WorldCupSimulationResponse:
+    try:
+        return await service.simulate_tournament(
+            year=year,
+            source=source,
+            target_round=target_round,
+            scenario_limit=scenario_limit,
+            pairing_limit=pairing_limit,
+            force_refresh=force_refresh,
+        )
+    except WorldCupDataUnavailableError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
 @router.post("/refresh", response_model=WorldCupSourceInfo)
 async def refresh_worldcup_data(
     service: Annotated[WorldCupService, Depends(get_worldcup_service)],
@@ -85,4 +114,3 @@ async def refresh_worldcup_data(
     except WorldCupDataUnavailableError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     return dataset.source
-

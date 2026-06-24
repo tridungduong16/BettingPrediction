@@ -234,7 +234,7 @@ BIFROST_API_KEY=
 OPENAI_API_KEY=
 OPENAI_MODEL=openainexira/gpt-5.4-mini
 MODEL_NAME=openainexira/gpt-5.4-mini
-CHAT_MODEL_NAME=openainexira/gpt-5.4-mini-high-reasoning
+CHAT_MODEL_NAME=openainexira/gpt-5.4-mini
 
 PERPLEXITY_API_KEY=
 TAVILY_API_KEY=

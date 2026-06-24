@@ -81,7 +81,7 @@ Set these before calling model-backed agent methods:
 export BIFROST_ENDPOINT_URL=https://bifrost.azaps.net/v1
 export BIFROST_API_KEY=...
 export MODEL_NAME=openainexira/gpt-5.4-mini
-export CHAT_MODEL_NAME=openainexira/gpt-5.4-mini-high-reasoning
+export CHAT_MODEL_NAME=openainexira/gpt-5.4-mini
 ```
 
 The agent package can be imported without keys; keys are only required when running model calls.

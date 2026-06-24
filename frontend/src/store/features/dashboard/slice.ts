@@ -25,6 +25,8 @@ export type DashboardMarketPredictionStatus = 'error' | 'idle' | 'loading' | 're
 export type DashboardInsightPredictionStatus = 'error' | 'idle' | 'loading' | 'ready'
 
 export interface DashboardMatchRequest {
+  background?: boolean
+  forceRefresh?: boolean
   language: LanguageCode
   matchId: string
   predictionMode?: PredictionMode
@@ -106,7 +108,9 @@ const dashboardSlice = createSlice({
       void action.payload.matchId
       state.marketPredictionStatus = 'loading'
       state.marketPredictionError = undefined
-      state.marketPredictions = undefined
+      if (!action.payload.background) {
+        state.marketPredictions = undefined
+      }
     },
     loadMarketPredictionsSucceeded(state, action: PayloadAction<MarketPredictionResponse>) {
       state.marketPredictionStatus = 'ready'
@@ -116,13 +120,14 @@ const dashboardSlice = createSlice({
     loadMarketPredictionsFailed(state, action: PayloadAction<string>) {
       state.marketPredictionStatus = 'error'
       state.marketPredictionError = action.payload
-      state.marketPredictions = undefined
     },
     loadMatchInsightRequested(state, action: PayloadAction<DashboardMatchRequest>) {
       void action.payload.matchId
       state.insightPredictionStatus = 'loading'
       state.insightPredictionError = undefined
-      state.matchInsight = undefined
+      if (!action.payload.background) {
+        state.matchInsight = undefined
+      }
     },
     loadMatchInsightSucceeded(state, action: PayloadAction<MatchInsightResponse>) {
       state.insightPredictionStatus = 'ready'
@@ -133,7 +138,6 @@ const dashboardSlice = createSlice({
     loadMatchInsightFailed(state, action: PayloadAction<string>) {
       state.insightPredictionStatus = 'error'
       state.insightPredictionError = action.payload
-      state.matchInsight = undefined
     },
     loadRecommendedChatQuestionsRequested(state, action: PayloadAction<DashboardMatchRequest>) {
       void state

@@ -6,6 +6,15 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 MatchStatus = Literal["scheduled", "finished"]
+SimulationSlotSource = Literal["actual", "match_reference", "seed", "unresolved"]
+SimulationTargetRound = Literal[
+    "Final",
+    "Match for third place",
+    "Quarter-final",
+    "Round of 16",
+    "Round of 32",
+    "Semi-final",
+]
 
 
 class Goal(BaseModel):
@@ -63,3 +72,82 @@ class WorldCupDataset(BaseModel):
     source: WorldCupSourceInfo
     matches: list[WorldCupMatch]
 
+
+class WorldCupTeamStanding(BaseModel):
+    group: str
+    position: int
+    team: str
+    played: int = 0
+    won: int = 0
+    drawn: int = 0
+    lost: int = 0
+    goals_for: int = 0
+    goals_against: int = 0
+    goal_difference: int = 0
+    points: int = 0
+    tied_on_primary_metrics: bool = False
+
+
+class WorldCupScenarioOutcome(BaseModel):
+    match_id: str
+    team1: str
+    team2: str
+    outcome: Literal["draw", "team1", "team2"]
+    label: str
+
+
+class WorldCupGroupQualificationScenario(BaseModel):
+    id: str
+    title: str
+    first: str
+    second: str
+    third: str
+    advancing_teams: list[str]
+    outcomes: list[WorldCupScenarioOutcome]
+    outcome_count: int
+    outcome_share: float
+    tie_breaker_required: bool = False
+    notes: list[str] = Field(default_factory=list)
+
+
+class WorldCupGroupSimulation(BaseModel):
+    group: str
+    standings: list[WorldCupTeamStanding]
+    remaining_matches: list[WorldCupMatch]
+    possible_winners: list[str]
+    possible_runners_up: list[str]
+    possible_third_place: list[str]
+    scenarios: list[WorldCupGroupQualificationScenario]
+    total_outcome_paths: int
+    scenario_count: int
+    truncated: bool = False
+
+
+class WorldCupSimulationSlot(BaseModel):
+    label: str
+    resolved_team: str | None = None
+    candidates: list[str] = Field(default_factory=list)
+    source: SimulationSlotSource = "unresolved"
+
+
+class WorldCupSimulatedFixture(BaseModel):
+    match_id: str
+    match_number: int
+    round: str
+    date: str
+    time: str | None = None
+    team1: WorldCupSimulationSlot
+    team2: WorldCupSimulationSlot
+    possible_pairings: list[tuple[str, str]] = Field(default_factory=list)
+    possible_pairing_count: int = 0
+    pairings_truncated: bool = False
+
+
+class WorldCupSimulationResponse(BaseModel):
+    source: WorldCupSourceInfo
+    generated_at: datetime
+    target_round: SimulationTargetRound
+    groups: list[WorldCupGroupSimulation]
+    third_place_candidates: list[str]
+    bracket: list[WorldCupSimulatedFixture]
+    data_quality_notes: list[str] = Field(default_factory=list)

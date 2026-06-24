@@ -5,6 +5,7 @@ import {
   ArrowRight,
   CalendarDays,
   Clock3,
+  GitBranch,
   Loader2,
   MapPin,
   RefreshCw,
@@ -310,6 +311,16 @@ export default function Matches() {
           <p>
             {source ? copy.matches.sourceSummary(visibleMatches.length) : copy.matches.loading}
           </p>
+          <div className={styles.heroActions} aria-label={copy.common.menu}>
+            <Link className={styles.heroActionPrimary} to={ROUTES.HOME}>
+              <CalendarDays size={17} aria-hidden="true" />
+              {copy.common.matches}
+            </Link>
+            <Link className={styles.heroActionSecondary} to={ROUTES.SIMULATION}>
+              <GitBranch size={17} aria-hidden="true" />
+              {copy.common.simulation}
+            </Link>
+          </div>
         </div>
       </section>
 

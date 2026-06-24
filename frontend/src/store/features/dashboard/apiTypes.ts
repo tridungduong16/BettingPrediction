@@ -52,6 +52,97 @@ export interface WorldCupDataset {
   matches: WorldCupMatch[]
 }
 
+export type SimulationTargetRound =
+  | 'Final'
+  | 'Match for third place'
+  | 'Quarter-final'
+  | 'Round of 16'
+  | 'Round of 32'
+  | 'Semi-final'
+
+export type SimulationSlotSource = 'actual' | 'match_reference' | 'seed' | 'unresolved'
+export type ScenarioOutcome = 'draw' | 'team1' | 'team2'
+
+export interface WorldCupTeamStanding {
+  group: string
+  position: number
+  team: string
+  played: number
+  won: number
+  drawn: number
+  lost: number
+  goals_for: number
+  goals_against: number
+  goal_difference: number
+  points: number
+  tied_on_primary_metrics: boolean
+}
+
+export interface WorldCupScenarioOutcome {
+  match_id: string
+  team1: string
+  team2: string
+  outcome: ScenarioOutcome
+  label: string
+}
+
+export interface WorldCupGroupQualificationScenario {
+  id: string
+  title: string
+  first: string
+  second: string
+  third: string
+  advancing_teams: string[]
+  outcomes: WorldCupScenarioOutcome[]
+  outcome_count: number
+  outcome_share: number
+  tie_breaker_required: boolean
+  notes: string[]
+}
+
+export interface WorldCupGroupSimulation {
+  group: string
+  standings: WorldCupTeamStanding[]
+  remaining_matches: WorldCupMatch[]
+  possible_winners: string[]
+  possible_runners_up: string[]
+  possible_third_place: string[]
+  scenarios: WorldCupGroupQualificationScenario[]
+  total_outcome_paths: number
+  scenario_count: number
+  truncated: boolean
+}
+
+export interface WorldCupSimulationSlot {
+  label: string
+  resolved_team?: string | null
+  candidates: string[]
+  source: SimulationSlotSource
+}
+
+export interface WorldCupSimulatedFixture {
+  match_id: string
+  match_number: number
+  round: SimulationTargetRound
+  date: string
+  time?: string | null
+  team1: WorldCupSimulationSlot
+  team2: WorldCupSimulationSlot
+  possible_pairings: [string, string][]
+  possible_pairing_count: number
+  pairings_truncated: boolean
+}
+
+export interface WorldCupSimulationResponse {
+  source: WorldCupSourceInfo
+  generated_at: string
+  target_round: SimulationTargetRound
+  groups: WorldCupGroupSimulation[]
+  third_place_candidates: string[]
+  bracket: WorldCupSimulatedFixture[]
+  data_quality_notes: string[]
+}
+
 export type LiveProviderStatus = 'not_configured' | 'provider_error' | 'ready' | 'unmapped'
 export type LiveMatchPhase =
   | 'extra_time'
@@ -211,8 +302,10 @@ export interface MarketPredictionResponse {
   generated_at: string
   language: ResponseLanguage
   model_name?: string | null
+  prediction_mode: PredictionMode
   match: WorldCupMatch
   live_snapshot?: LiveMatchSnapshot | null
+  prediction_context?: Record<string, unknown> | null
   markets: MarketPredictionCandidate[]
   summary: string
   predictions: MarketPrediction[]

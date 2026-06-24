@@ -11,6 +11,7 @@ export const translations = {
       notifications: 'Notifications',
       openMenu: 'Open menu',
       openProfile: 'Open profile',
+      simulation: 'Simulation',
     },
     header: {
       languageLabel: 'Language',
@@ -164,6 +165,7 @@ export const translations = {
       notifications: 'Thông báo',
       openMenu: 'Mở menu',
       openProfile: 'Mở hồ sơ',
+      simulation: 'Mô phỏng',
     },
     header: {
       languageLabel: 'Ngôn ngữ',

@@ -25,6 +25,7 @@ import {
   selectDashboardStatus,
   selectInsightPredictionStatus,
   selectLastLiveSnapshotAt,
+  selectMatchInsight,
   selectMarketPredictionStatus,
   selectMarketPredictions,
 } from '@/store/features/dashboard/selectors'
@@ -58,6 +59,7 @@ export default function Home() {
   const liveSnapshot = useAppSelector(selectDashboardLiveSnapshot)
   const liveStatus = useAppSelector(selectDashboardLiveStatus)
   const lastLiveSnapshotAt = useAppSelector(selectLastLiveSnapshotAt)
+  const matchInsight = useAppSelector(selectMatchInsight)
   const marketPredictionStatus = useAppSelector(selectMarketPredictionStatus)
   const marketPredictions = useAppSelector(selectMarketPredictions)
   const matchId = routeMatchId ?? env.defaultMatchId
@@ -175,7 +177,10 @@ export default function Home() {
     dashboardStatus === 'loading' ||
     (
       dashboardStatus === 'ready' &&
-      (isPendingStatus(insightPredictionStatus) || isPendingStatus(marketPredictionStatus))
+      (
+        (isPendingStatus(insightPredictionStatus) && !matchInsight) ||
+        (isPendingStatus(marketPredictionStatus) && !marketPredictions)
+      )
     )
   const shouldShowLoadingOverlay = showLoadingOverlay || isAnalysisLoading
   const handleInsightTabsKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

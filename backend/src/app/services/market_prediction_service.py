@@ -84,25 +84,6 @@ class MarketPredictionService:
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> MarketPredictionResponse:
-        cache_key = self._prediction_cache_key(
-            kind="markets",
-            match_id=match_id,
-            year=year,
-            source=source,
-            provider_fixture_id=provider_fixture_id,
-            include_live=include_live,
-            include_news=include_news,
-            language=language,
-            news_max_results=news_max_results,
-            prediction_mode=prediction_mode,
-            prediction_context=prediction_context,
-            model_name=getattr(self._market_agent, "model_name", None),
-        )
-        if not force_refresh and self._can_cache_prediction(prediction_mode):
-            cached = await self._read_cached_response(cache_key, MarketPredictionResponse)
-            if cached is not None:
-                return cached
-
         match = await self._worldcup_service.get_match(
             match_id=match_id,
             year=year,
@@ -118,6 +99,30 @@ class MarketPredictionService:
             force_refresh=force_refresh,
             include_live=include_live,
         )
+        effective_prediction_mode = self._effective_prediction_mode(
+            requested_prediction_mode=prediction_mode,
+            live_snapshot=live_snapshot,
+            context="markets",
+        )
+        cache_key = self._prediction_cache_key(
+            kind="markets",
+            match_id=match_id,
+            year=year,
+            source=source,
+            provider_fixture_id=provider_fixture_id,
+            include_live=include_live,
+            include_news=include_news,
+            language=language,
+            news_max_results=news_max_results,
+            prediction_mode=effective_prediction_mode,
+            prediction_context=prediction_context,
+            model_name=getattr(self._market_agent, "model_name", None),
+        )
+        if not force_refresh and self._can_cache_prediction(effective_prediction_mode):
+            cached = await self._read_cached_response(cache_key, MarketPredictionResponse)
+            if cached is not None:
+                return cached
+
         news_context = await self._get_news_context(
             match=match,
             include_news=include_news,
@@ -128,7 +133,7 @@ class MarketPredictionService:
         llm_context = self._match_context_service.build_market_prediction_context(
             match=match,
             live_snapshot=live_snapshot,
-            prediction_mode=prediction_mode,
+            prediction_mode=effective_prediction_mode,
             language=language,
             news_context=news_context,
             user_context=prediction_context,
@@ -153,7 +158,7 @@ class MarketPredictionService:
             generated_at=datetime.now(UTC),
             language=language,
             model_name=getattr(self._market_agent, "model_name", None),
-            prediction_mode=prediction_mode,
+            prediction_mode=effective_prediction_mode,
             match=match,
             live_snapshot=live_snapshot,
             prediction_context=llm_context,
@@ -162,7 +167,7 @@ class MarketPredictionService:
             predictions=output.predictions,
             data_quality_notes=output.data_quality_notes,
         )
-        if self._can_cache_prediction(prediction_mode):
+        if self._can_cache_prediction(effective_prediction_mode):
             await self._write_cached_response(cache_key, response)
         return response
 
@@ -181,25 +186,6 @@ class MarketPredictionService:
         prediction_mode: PredictionMode = "pre_match",
         prediction_context: dict[str, Any] | None = None,
     ) -> MatchInsightResponse:
-        cache_key = self._prediction_cache_key(
-            kind="insight",
-            match_id=match_id,
-            year=year,
-            source=source,
-            provider_fixture_id=provider_fixture_id,
-            include_live=include_live,
-            include_news=include_news,
-            language=language,
-            news_max_results=news_max_results,
-            prediction_mode=prediction_mode,
-            prediction_context=prediction_context,
-            model_name=getattr(self._insight_agent, "model_name", None),
-        )
-        if not force_refresh and self._can_cache_prediction(prediction_mode):
-            cached = await self._read_cached_response(cache_key, MatchInsightResponse)
-            if cached is not None:
-                return cached
-
         match = await self._worldcup_service.get_match(
             match_id=match_id,
             year=year,
@@ -215,6 +201,30 @@ class MarketPredictionService:
             force_refresh=force_refresh,
             include_live=include_live,
         )
+        effective_prediction_mode = self._effective_prediction_mode(
+            requested_prediction_mode=prediction_mode,
+            live_snapshot=live_snapshot,
+            context="insight",
+        )
+        cache_key = self._prediction_cache_key(
+            kind="insight",
+            match_id=match_id,
+            year=year,
+            source=source,
+            provider_fixture_id=provider_fixture_id,
+            include_live=include_live,
+            include_news=include_news,
+            language=language,
+            news_max_results=news_max_results,
+            prediction_mode=effective_prediction_mode,
+            prediction_context=prediction_context,
+            model_name=getattr(self._insight_agent, "model_name", None),
+        )
+        if not force_refresh and self._can_cache_prediction(effective_prediction_mode):
+            cached = await self._read_cached_response(cache_key, MatchInsightResponse)
+            if cached is not None:
+                return cached
+
         news_context = await self._get_news_context(
             match=match,
             include_news=include_news,
@@ -224,7 +234,7 @@ class MarketPredictionService:
         llm_context = self._match_context_service.build_market_prediction_context(
             match=match,
             live_snapshot=live_snapshot,
-            prediction_mode=prediction_mode,
+            prediction_mode=effective_prediction_mode,
             language=language,
             news_context=news_context,
             user_context=prediction_context,
@@ -248,13 +258,13 @@ class MarketPredictionService:
             generated_at=datetime.now(UTC),
             language=language,
             model_name=getattr(self._insight_agent, "model_name", None),
-            prediction_mode=prediction_mode,
+            prediction_mode=effective_prediction_mode,
             match=match,
             live_snapshot=live_snapshot,
             prediction_context=llm_context,
             insight=output,
         )
-        if self._can_cache_prediction(prediction_mode):
+        if self._can_cache_prediction(effective_prediction_mode):
             await self._write_cached_response(cache_key, response)
         return response
 
@@ -350,9 +360,10 @@ class MarketPredictionService:
                     force_refresh=force_refresh,
                     include_live=include_live,
                 )
-                effective_prediction_mode = self._chat_prediction_mode(
+                effective_prediction_mode = self._effective_prediction_mode(
                     requested_prediction_mode=prediction_mode,
                     live_snapshot=live_snapshot,
+                    context="chat",
                 )
 
                 yield StreamEvent(
@@ -691,9 +702,10 @@ class MarketPredictionService:
             force_refresh=force_refresh,
             max_results=news_max_results,
         )
-        effective_prediction_mode = self._chat_prediction_mode(
+        effective_prediction_mode = self._effective_prediction_mode(
             requested_prediction_mode=prediction_mode,
             live_snapshot=live_snapshot,
+            context="chat",
         )
         llm_context = self._match_context_service.build_market_prediction_context(
             match=match,
@@ -709,10 +721,11 @@ class MarketPredictionService:
         return match, live_snapshot, llm_context, agent_prediction_context
 
     @staticmethod
-    def _chat_prediction_mode(
+    def _effective_prediction_mode(
         *,
         requested_prediction_mode: PredictionMode,
         live_snapshot: LiveMatchSnapshot | None,
+        context: str,
     ) -> PredictionMode:
         if requested_prediction_mode != "pre_match":
             return requested_prediction_mode
@@ -721,8 +734,9 @@ class MarketPredictionService:
         if live_snapshot.clock.phase not in LIVE_PREDICTION_PHASES:
             return requested_prediction_mode
         logger.info(
-            "prediction chat context promoted to live match_id=%s provider_fixture_id=%s "
+            "prediction %s context promoted to live match_id=%s provider_fixture_id=%s "
             "phase=%s events=%s",
+            context,
             live_snapshot.match_id,
             live_snapshot.provider_fixture_id,
             live_snapshot.clock.phase,

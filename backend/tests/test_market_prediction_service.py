@@ -476,8 +476,8 @@ async def test_market_prediction_service_caches_market_predictions():
     assert first.generated_at == second.generated_at
     assert second.predictions[0].selection == "Brazil -1.0 thắng kèo"
     assert agent.calls == 1
-    assert worldcup_service.calls == 1
-    assert live_service.calls == 1
+    assert worldcup_service.calls == 2
+    assert live_service.calls == 2
 
 
 @pytest.mark.asyncio
@@ -521,8 +521,8 @@ async def test_market_prediction_service_caches_match_insight():
     assert first.generated_at == second.generated_at
     assert second.insight.winner == "Brazil"
     assert insight_agent.calls == 1
-    assert worldcup_service.calls == 1
-    assert live_service.calls == 1
+    assert worldcup_service.calls == 2
+    assert live_service.calls == 2
     assert news_service.calls == 1
 
 
@@ -542,6 +542,54 @@ async def test_market_prediction_service_does_not_cache_live_predictions():
     await service.predict_match_markets(match_id=match.id, prediction_mode="live")
 
     assert agent.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_promotes_markets_to_live_when_snapshot_is_in_play():
+    match = make_match()
+    agent = FakeMarketAgent()
+    live_service = FakeReadyLiveEventService()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=live_service,
+        prediction_cache=InMemoryPredictionCache(),
+        prediction_cache_ttl_seconds=60,
+        agent=agent,
+    )
+
+    response = await service.predict_match_markets(
+        match_id=match.id,
+        provider_fixture_id="fixture-live-market",
+    )
+
+    assert response.prediction_mode == "live"
+    assert response.prediction_context["prediction_mode"] == "live"
+    assert response.prediction_context["live"]["provider_fixture_id"] == "fixture-live-market"
+    assert agent.last_match["status_for_prediction"] == "live"
+    assert agent.last_live_snapshot["events"][0]["type"] == "goal"
+
+
+@pytest.mark.asyncio
+async def test_market_prediction_service_promotes_insight_to_live_when_snapshot_is_in_play():
+    match = make_match()
+    insight_agent = FakeInsightAgent()
+    service = MarketPredictionService(
+        worldcup_service=FakeWorldCupService(match),
+        live_event_service=FakeReadyLiveEventService(),
+        insight_agent=insight_agent,
+        agent=FakeMarketAgent(),
+    )
+
+    response = await service.predict_match_insight(
+        match_id=match.id,
+        provider_fixture_id="fixture-live-insight",
+    )
+
+    assert response.prediction_mode == "live"
+    assert response.prediction_context["prediction_mode"] == "live"
+    assert response.prediction_context["live"]["provider_fixture_id"] == "fixture-live-insight"
+    assert insight_agent.last_match["status_for_prediction"] == "live"
+    assert insight_agent.last_live_snapshot["score"] == {"home": 1, "away": 0}
 
 
 @pytest.mark.asyncio

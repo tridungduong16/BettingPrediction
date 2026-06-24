@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, field_validator
 WorldCupSourceName = Literal["auto", "upbound", "openfootball"]
 CookieSameSite = Literal["lax", "strict", "none"]
 DEFAULT_MODEL_NAME = "openainexira/gpt-5.4-mini"
-DEFAULT_CHAT_MODEL_NAME = "openainexira/gpt-5.4-mini-high-reasoning"
+DEFAULT_CHAT_MODEL_NAME = DEFAULT_MODEL_NAME
 
 
 def _backend_dir() -> Path:
